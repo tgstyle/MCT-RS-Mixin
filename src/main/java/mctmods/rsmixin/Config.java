@@ -16,28 +16,49 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue ENABLE_LAZY_ENERGY;
     public static final ForgeConfigSpec.BooleanValue ENABLE_HASHSET_OPTIMIZE;
     public static final ForgeConfigSpec.BooleanValue ENABLE_SKIP_UNLOADED;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_DYNAMIC_IMPORTER_SLEEP;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
+        builder.push(RSMixin.MODID);
 
         ENABLE_DEBUG_LOGGING = builder
-                .comment("Enable debug logging for unloaded position skips and throttle ticks")
+                .comment("Enables extra debug logging (throttle ticks, active node counts, importer activation/sleep, unloaded skips, etc.). Useful for diagnosing issues but spammy in logs.")
                 .define("enableDebugLogging", false);
 
         ENABLE_THROTTLE = builder
-                .comment("Enable throttling of network updates")
+                .comment("""
+                        Master switch for network update throttling.
+                        When enabled, full RS network updates run only every throttleInterval ticks instead of every tick.
+                        This reduces server load in large networks but slows down some operations if not bypassed.""")
                 .define("enableThrottle", true);
 
         THROTTLE_INTERVAL = builder
-                .comment("Throttle interval in ticks (1 = no throttle, 20 = every second)")
+                .comment("""
+                        How often (in ticks) full network updates occur when throttling is enabled.
+                        1 = no throttling (every tick), 20 = every second (default, ~1 operation/sec for non-bypassed nodes).
+                        Only matters if enableThrottle is true.""")
                 .defineInRange("throttleInterval", 20, 1, 1000);
 
         ENABLE_BYPASS_FAST_NODES = builder
-                .comment("When throttling is enabled, still update import/export buses and interfaces every tick (if disabled it will only do an operation per the throttleInterval value, i.e. 1 in 20 by default)")
+                .comment("""
+                        Allows specific nodes (importers, exporters, interfaces, etc.) to bypass throttling and update more frequently.
+                        
+                        - ENABLED (default): Listed nodes can update every tick (full speed when active; speed upgrades respected).
+                          Higher performance cost when nodes are busy, but fast transfer rates.
+                        
+                        - DISABLED: All nodes strictly follow throttleInterval (~1 operation/sec at interval=20).
+                          Speed upgrades are ignored (forced to 1) for consistent rate.
+                        
+                        Interacts with fastNodeClasses (defines which nodes can bypass) and enableDynamicImporterSleep (controls importer sleep behaviour when bypassing).""")
                 .define("enableBypassFastNodes", true);
 
         FAST_NODE_CLASSES = builder
-                .comment("List of full class names for network nodes that should bypass throttling and update every tick. Defaults include core RS nodes and common addons like Cable Tiers, Extra Storage, Requestify, Reborn Storage, and Refined Crafter Proxy. Adding classes from uninstalled mods causes no issues, as it's just string matching.")
+                .comment("""
+                        List of node class names that are allowed to bypass throttling when enableBypassFastNodes is true.
+                        Defaults cover core RS nodes (importers, exporters, interfaces, crafters, etc.) and popular addons.
+                        Adding extra classes is safe—even if the mod isn't installed (string matching only).
+                        Only relevant when enableBypassFastNodes is enabled.""")
                 .defineList("fastNodeClasses", java.util.Arrays.asList(
                         "com.refinedmods.refinedstorage.apiimpl.network.node.ImporterNetworkNode",
                         "com.refinedmods.refinedstorage.apiimpl.network.node.ExporterNetworkNode",
@@ -66,32 +87,54 @@ public class Config {
                 ), obj -> obj instanceof String);
 
         ENABLE_LOAD_RESCAN = builder
-                .comment("When the controller becomes loaded (world load, relog, chunk load, etc.), delay then force a full network graph rescan. Fixes EnderIO RS conduits and other capability-based cables not detecting properly on load—even in single-chunk networks—without manual break/replace.")
+                .comment("""
+                        On controller load/reload (world load, relog, chunk load), delay then force a full network rescan.
+                        Fixes connection issues with capability-based cables (e.g., EnderIO conduits) that aren't detected immediately on load.
+                        Safe and recommended for most setups.""")
                 .define("enableLoadRescan", true);
 
         LOAD_RESCAN_DELAY = builder
-                .comment("Ticks to wait after detecting load before rescanning (gives time for block entities/capabilities to initialize). Default 20 (~1 second at 20 TPS). Set 0 for immediate.")
+                .comment("""
+                        Ticks to wait after detecting controller load before rescanning.
+                        Gives time for block entities and capabilities to initialize. Default 20 (~1 second).
+                        Only matters if enableLoadRescan is true.""")
                 .defineInRange("loadRescanDelay", 20, 0, 400);
 
         ENABLE_CONDUIT_PLACEMENT_FIX = builder
-                .comment("Delay and force network graph rescan when placing EnderIO conduits adjacent to RS blocks. Fixes runtime placement detection failures for EnderIO RS conduits where immediate rescan was too early (capability not yet registered). Safe even if EnderIO not installed.")
+                .comment("""
+                        When placing EnderIO conduits next to RS blocks, delay then force a network rescan.
+                        Fixes runtime detection failures where immediate rescan is too early.
+                        Safe even without EnderIO installed.""")
                 .define("enableConduitPlacementFix", true);
 
         CONDUIT_PLACEMENT_RESCAN_DELAY = builder
-                .comment("Ticks to wait after conduit placement before rescanning (allows EnderIO capability registration). Default 10 (~0.5 seconds). Increase if detection still fails in some cases.")
+                .comment("""
+                        Ticks to wait after conduit placement before rescanning.
+                        Default 10 (~0.5 seconds). Increase if connections still fail occasionally.
+                        Only matters if enableConduitPlacementFix is true.""")
                 .defineInRange("conduitPlacementRescanDelay", 10, 0, 200);
 
         ENABLE_LAZY_ENERGY = builder
-                .comment("Enable lazy recalculation of energy usage (only on graph changes)")
+                .comment("Recalculate network energy usage only when the graph changes instead of every tick. Minor performance improvement.")
                 .define("enableLazyEnergy", true);
 
         ENABLE_HASHSET_OPTIMIZE = builder
-                .comment("Enable switching concurrent sets to regular HashSets in single-threaded contexts")
+                .comment("Replace ConcurrentHashMap/ConcurrentHashSet with regular HashMap/HashSet in single-threaded contexts. Small performance gain.")
                 .define("enableHashSetOptimize", true);
 
         ENABLE_SKIP_UNLOADED = builder
-                .comment("Skip network graph processing entirely for unloaded positions (performance improvement plus fixes deadlock on chunk unload)")
+                .comment("Skip processing unloaded positions during network graph updates. Improves performance and prevents rare deadlocks on chunk unload.")
                 .define("enableSkipUnloaded", true);
+
+        ENABLE_DYNAMIC_IMPORTER_SLEEP = builder
+                .comment("""
+                        Makes importers sleep when idle (only relevant when enableBypassFastNodes is true and importer is in fastNodeClasses).
+                        
+                        - ENABLED (default): Importers update every tick only when work is available.
+                          When idle for a few cycles, they fall back to throttled updates → lower overhead.
+                        
+                        - DISABLED: Importers always update every tick when bypassing is allowed (full speed even when idle).""")
+                .define("enableDynamicImporterSleep", true);
 
         SPEC = builder.build();
     }

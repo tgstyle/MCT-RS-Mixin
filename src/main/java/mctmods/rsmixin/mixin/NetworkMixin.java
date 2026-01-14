@@ -16,6 +16,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import static mctmods.rsmixin.RSMixin.MODID;
+
 @Mixin(value = Network.class, remap = false)
 public abstract class NetworkMixin {
     @Final @Shadow private BlockPos pos;
@@ -23,7 +25,7 @@ public abstract class NetworkMixin {
     @Unique private boolean rsmixin$dirtyEnergyUsage = true;
     @Unique private boolean rsmixin$wasLoaded = false;
     @Unique private int rsmixin$reloadDelay = 0;
-    @Unique private static final Logger rsmixin$LOGGER = LogManager.getLogger("RSMixin");
+    @Unique private static final Logger rsmixin$LOGGER = LogManager.getLogger(MODID);
 
     @Shadow public abstract INetworkNodeGraph getNodeGraph();
 
@@ -34,7 +36,7 @@ public abstract class NetworkMixin {
             int chunkZ = pos.getZ() >> 4;
             if (!level.hasChunk(chunkX, chunkZ)) {
                 if (mctmods.rsmixin.Config.ENABLE_DEBUG_LOGGING.get()) {
-                    rsmixin$LOGGER.info("RSMixin: Skipping network update for pos {} during chunk unload (chunk not present)", pos);
+                    rsmixin$LOGGER.debug("RSMixin: Skipping network update for pos {} during chunk unload (chunk not present)", pos);
                 }
                 ci.cancel();
                 return;
@@ -51,7 +53,7 @@ public abstract class NetworkMixin {
                 if (rsmixin$reloadDelay == 0) {
                     getNodeGraph().invalidate(Action.PERFORM, level, pos);
                     if (mctmods.rsmixin.Config.ENABLE_DEBUG_LOGGING.get()) {
-                        rsmixin$LOGGER.info("RSMixin: Forced network graph rescan on load for controller at {}", pos);
+                        rsmixin$LOGGER.debug("RSMixin: Forced network graph rescan on load for controller at {}", pos);
                     }
                 }
             }

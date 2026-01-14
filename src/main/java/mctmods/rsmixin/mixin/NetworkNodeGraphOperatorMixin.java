@@ -12,10 +12,12 @@ import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Unique;
 import javax.annotation.Nullable;
 
+import static mctmods.rsmixin.RSMixin.MODID;
+
 @Mixin(targets = "com.refinedmods.refinedstorage.apiimpl.network.NetworkNodeGraph$Operator", remap = false)
 public class NetworkNodeGraphOperatorMixin {
     @Unique
-    private static final Logger rsmixin$LOGGER = LogManager.getLogger("RSMixin");
+    private static final Logger rsmixin$LOGGER = LogManager.getLogger(MODID);
 
     @Inject(method = "apply", at = @At("HEAD"), cancellable = true)
     private void skipDuringUnload(Level level, BlockPos pos, @Nullable Direction side, CallbackInfo ci) {
@@ -24,7 +26,7 @@ public class NetworkNodeGraphOperatorMixin {
             int chunkZ = pos.getZ() >> 4;
             if (!level.hasChunk(chunkX, chunkZ)) {
                 if (mctmods.rsmixin.Config.ENABLE_DEBUG_LOGGING.get()) {
-                    rsmixin$LOGGER.info("RSMixin: Skipping apply() for pos {} during chunk unload (chunk not present)", pos);
+                    rsmixin$LOGGER.debug("RSMixin: Skipping apply() for pos {} during chunk unload (chunk not present)", pos);
                 }
                 ci.cancel();
             }

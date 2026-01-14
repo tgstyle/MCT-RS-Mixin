@@ -9,10 +9,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Unique;
 
+import static mctmods.rsmixin.RSMixin.MODID;
+
 @Mixin(targets = "com.refinedmods.refinedstorage.apiimpl.network.NetworkListener")
 public class NetworkListenerMixin {
     @Unique
-    private static final Logger rsmixin$LOGGER = LogManager.getLogger("RSMixin");
+    private static final Logger rsmixin$LOGGER = LogManager.getLogger(MODID);
 
     @Inject(method = "onLevelTick(Lnet/minecraftforge/event/TickEvent$LevelTickEvent;)V", at = @At("HEAD"), cancellable = true, remap = false)
     private void throttle(TickEvent.LevelTickEvent event, CallbackInfo ci) {

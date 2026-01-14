@@ -1,5 +1,8 @@
 package mctmods.rsmixin;
 
+import mctmods.rsmixin.helper.ConduitPlacementFix;
+import mctmods.rsmixin.helper.FastNodeTicker;
+
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -13,7 +16,8 @@ import org.apache.logging.log4j.Logger;
 @SuppressWarnings("removal")
 @Mod("rsmixin")
 public class RSMixin {
-    public static final Logger LOGGER = LogManager.getLogger("RSMixin");
+    public static final String MODID = "rsmixin";
+    public static final Logger LOGGER = LogManager.getLogger(MODID);
 
     public RSMixin() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -31,7 +35,7 @@ public class RSMixin {
     }
 
     private void onCommonSetup(FMLCommonSetupEvent event) {
-        LOGGER.info("Loaded config: enableDebugLogging={}, enableThrottle={}, throttleInterval={}, enableBypassFastNodes={}, enableLoadRescan={}, loadRescanDelay={}, enableConduitPlacementFix={}, conduitPlacementRescanDelay={}, enableLazyEnergy={}, enableHashSetOptimize={}, enableSkipUnloaded={}",
+        LOGGER.info("Loaded config: enableDebugLogging={}, enableThrottle={}, throttleInterval={}, enableBypassFastNodes={}, enableLoadRescan={}, loadRescanDelay={}, enableConduitPlacementFix={}, conduitPlacementRescanDelay={}, enableLazyEnergy={}, enableHashSetOptimize={}, enableSkipUnloaded={}, enableDynamicImporterSleep={}",
                 Config.ENABLE_DEBUG_LOGGING.get(),
                 Config.ENABLE_THROTTLE.get(),
                 Config.THROTTLE_INTERVAL.get(),
@@ -42,6 +46,7 @@ public class RSMixin {
                 Config.CONDUIT_PLACEMENT_RESCAN_DELAY.get(),
                 Config.ENABLE_LAZY_ENERGY.get(),
                 Config.ENABLE_HASHSET_OPTIMIZE.get(),
-                Config.ENABLE_SKIP_UNLOADED.get());
+                Config.ENABLE_SKIP_UNLOADED.get(),
+                Config.ENABLE_DYNAMIC_IMPORTER_SLEEP.get());
     }
 }

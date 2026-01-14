@@ -4,7 +4,7 @@ import com.enderio.api.conduit.ConduitData;
 import com.enderio.api.conduit.ConduitType;
 import com.enderio.conduits.common.conduit.ConduitBundle;
 import com.enderio.conduits.common.conduit.RightClickAction;
-import mctmods.rsmixin.ConduitPlacementFix;
+import mctmods.rsmixin.helper.ConduitPlacementFix;
 import mctmods.rsmixin.Config;
 import mctmods.rsmixin.RSMixin;
 import net.minecraft.core.BlockPos;
@@ -33,7 +33,7 @@ public abstract class ConduitBundleMixin {
         if (!(level instanceof ServerLevel serverLevel)) return;
 
         if (Config.ENABLE_DEBUG_LOGGING.get()) {
-            RSMixin.LOGGER.info("RSMixin: Detected conduit addition at {}", pos);
+            RSMixin.LOGGER.debug("RSMixin: Detected conduit addition at {}", pos);
         }
 
         ConduitPlacementFix.handleConduitUpdate(serverLevel, pos);

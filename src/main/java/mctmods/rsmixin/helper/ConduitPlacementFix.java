@@ -1,8 +1,12 @@
-package mctmods.rsmixin;
+package mctmods.rsmixin.helper;
 
 import com.refinedmods.refinedstorage.api.network.INetwork;
 import com.refinedmods.refinedstorage.api.util.Action;
 import com.refinedmods.refinedstorage.util.NetworkUtils;
+
+import mctmods.rsmixin.Config;
+import mctmods.rsmixin.RSMixin;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -44,7 +48,7 @@ public class ConduitPlacementFix {
             levelTimers.put(level, Config.CONDUIT_PLACEMENT_RESCAN_DELAY.get());
 
             if (Config.ENABLE_DEBUG_LOGGING.get()) {
-                RSMixin.LOGGER.info("RSMixin: Marked {} network(s) dirty for delayed rescan ({} ticks) due to EnderIO conduit update at {}", networksForLevel.size(), Config.CONDUIT_PLACEMENT_RESCAN_DELAY.get(), pos);
+                RSMixin.LOGGER.debug("RSMixin: Marked {} network(s) dirty for delayed rescan ({} ticks) due to EnderIO conduit update at {}", networksForLevel.size(), Config.CONDUIT_PLACEMENT_RESCAN_DELAY.get(), pos);
             }
         }
     }
@@ -83,7 +87,7 @@ public class ConduitPlacementFix {
                     }
 
                     if (Config.ENABLE_DEBUG_LOGGING.get()) {
-                        RSMixin.LOGGER.info("RSMixin: Performed delayed graph rescan for {} network(s) in level {}", networks.size(), level.dimension().location());
+                        RSMixin.LOGGER.debug("RSMixin: Performed delayed graph rescan for {} network(s) in level {}", networks.size(), level.dimension().location());
                     }
                 }
                 return true;
