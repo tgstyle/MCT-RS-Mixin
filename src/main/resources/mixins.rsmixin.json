@@ -6,13 +6,16 @@
   "refmap": "rsmixin.refmap.json",
   "mixins": [
     "ConduitBundleMixin",
+    "ExporterNetworkNodeMixin",
     "ImporterNetworkNodeMixin",
+    "InterfaceNetworkNodeMixin",
     "NetworkListenerMixin",
     "NetworkMixin",
     "NetworkNodeGraphMixin",
     "NetworkNodeGraphOperatorMixin",
     "NetworkNodeGraphOperatorOptimizeMixin",
-    "NetworkNodeManagerMixin"
+    "NetworkNodeManagerMixin",
+    "NetworkNodeMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -16,7 +16,8 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue ENABLE_LAZY_ENERGY;
     public static final ForgeConfigSpec.BooleanValue ENABLE_HASHSET_OPTIMIZE;
     public static final ForgeConfigSpec.BooleanValue ENABLE_SKIP_UNLOADED;
-    public static final ForgeConfigSpec.BooleanValue ENABLE_DYNAMIC_IMPORTER_SLEEP;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_DYNAMIC_NODE_SLEEP;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_CONNECTED_NODE_TICK_OPTIMIZE;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -50,7 +51,7 @@ public class Config {
                         - DISABLED: All nodes strictly follow throttleInterval (~1 operation/sec at interval=20).
                           Speed upgrades are ignored (forced to 1) for consistent rate.
                         
-                        Interacts with fastNodeClasses (defines which nodes can bypass) and enableDynamicImporterSleep (controls importer sleep behaviour when bypassing).""")
+                        Interacts with fastNodeClasses (defines which nodes can bypass) and enableDynamicNodeSleep (controls node sleep behaviour when bypassing).""")
                 .define("enableBypassFastNodes", true);
 
         FAST_NODE_CLASSES = builder
@@ -126,15 +127,19 @@ public class Config {
                 .comment("Skip processing unloaded positions during network graph updates. Improves performance and prevents rare deadlocks on chunk unload.")
                 .define("enableSkipUnloaded", true);
 
-        ENABLE_DYNAMIC_IMPORTER_SLEEP = builder
+        ENABLE_DYNAMIC_NODE_SLEEP = builder
                 .comment("""
-                        Makes importers sleep when idle (only relevant when enableBypassFastNodes is true and importer is in fastNodeClasses).
+                        Makes fast nodes sleep when idle (only relevant when enableBypassFastNodes is true and node is in fastNodeClasses).
                         
-                        - ENABLED (default): Importers update every tick only when work is available.
+                        - ENABLED (default): Nodes update every tick only when work is available.
                           When idle for a few cycles, they fall back to throttled updates → lower overhead.
                         
-                        - DISABLED: Importers always update every tick when bypassing is allowed (full speed even when idle).""")
-                .define("enableDynamicImporterSleep", true);
+                        - DISABLED: Nodes always update every tick when bypassing is allowed (full speed even when idle).""")
+                .define("enableDynamicNodeSleep", true);
+
+        ENABLE_CONNECTED_NODE_TICK_OPTIMIZE = builder
+                .comment("Optimizes ticking by only updating nodes that are connected to a network. Disconnected nodes are skipped, reducing unnecessary overhead.")
+                .define("enableConnectedNodeTickOptimize", true);
 
         SPEC = builder.build();
     }

@@ -50,6 +50,12 @@ public class FastNodeTicker {
         NetworkNodeManager manager = (NetworkNodeManager) API.instance().getNetworkNodeManager((ServerLevel) event.level);
         Set<INetworkNode> active = ((ActiveFastNodesAccessor) manager).rsmixin$getActiveFastNodes();
 
+        if (active == null) {
+            LOGGER.error("Active fast nodes set is null in dimension {}! Verify NetworkNodeManagerMixin is applied and field initialized.", dimension.location());
+            event.level.getProfiler().pop();
+            return;
+        }
+
         int currentCount = active.size();
         Integer prevCount = previousActiveCounts.get(dimension);
 

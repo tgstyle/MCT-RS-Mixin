@@ -2,7 +2,7 @@ package mctmods.rsmixin.mixin;
 
 import com.refinedmods.refinedstorage.api.network.node.INetworkNodeManager;
 import com.refinedmods.refinedstorage.apiimpl.API;
-import com.refinedmods.refinedstorage.apiimpl.network.node.ImporterNetworkNode;
+import com.refinedmods.refinedstorage.apiimpl.network.node.InterfaceNetworkNode;
 import com.refinedmods.refinedstorage.apiimpl.network.node.NetworkNode;
 import com.refinedmods.refinedstorage.inventory.item.UpgradeItemHandler;
 
@@ -24,8 +24,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static mctmods.rsmixin.RSMixin.MODID;
 
-@Mixin(ImporterNetworkNode.class)
-public abstract class ImporterNetworkNodeMixin extends NetworkNode {
+@Mixin(InterfaceNetworkNode.class)
+public abstract class InterfaceNetworkNodeMixin extends NetworkNode {
     @Unique private static final Logger rsmixin$LOGGER = LogManager.getLogger(MODID);
 
     @Unique private boolean rsmixin$didWork = false;
@@ -34,14 +34,14 @@ public abstract class ImporterNetworkNodeMixin extends NetworkNode {
     @Unique private static final int IDLE_THRESHOLD = 5;
     @Unique private int rsmixin$lastLoggedSpeed = -1;
 
-    protected ImporterNetworkNodeMixin(Level level, BlockPos pos) {
+    protected InterfaceNetworkNodeMixin(Level level, BlockPos pos) {
         super(level, pos);
     }
 
     @Inject(method = "<init>", at = @At("TAIL"), remap = false)
     private void onInit(Level level, BlockPos pos, CallbackInfo ci) {
         if (Config.ENABLE_DEBUG_LOGGING.get()) {
-            rsmixin$LOGGER.debug("Created Importer at {}", pos);
+            rsmixin$LOGGER.debug("Created Interface at {}", pos);
         }
     }
 
@@ -64,12 +64,12 @@ public abstract class ImporterNetworkNodeMixin extends NetworkNode {
         String logMessage;
         if (!Config.ENABLE_BYPASS_FAST_NODES.get()) {
             effectiveSpeed = 1;
-            logMessage = "Forcing speed to 1 for importer at " + pos + " due to bypass disabled (original: " + originalSpeed + ")";
+            logMessage = "Forcing speed to 1 for interface at " + pos + " due to bypass disabled (original: " + originalSpeed + ")";
         } else if (Config.ENABLE_DYNAMIC_NODE_SLEEP.get() && !rsmixin$wasActive) {
             effectiveSpeed = 1;
-            logMessage = "Forcing speed to 1 for idle importer at " + pos + " (original: " + originalSpeed + ")";
+            logMessage = "Forcing speed to 1 for idle interface at " + pos + " (original: " + originalSpeed + ")";
         } else {
-            logMessage = "Using original speed " + originalSpeed + " for importer at " + pos;
+            logMessage = "Using original speed " + originalSpeed + " for interface at " + pos;
         }
         if (Config.ENABLE_DEBUG_LOGGING.get() && (rsmixin$lastLoggedSpeed == -1 || effectiveSpeed != rsmixin$lastLoggedSpeed)) {
             rsmixin$LOGGER.debug(logMessage);
@@ -80,10 +80,9 @@ public abstract class ImporterNetworkNodeMixin extends NetworkNode {
 
     @Inject(method = "update",
             at = @At(value = "INVOKE",
-                    target = "Lcom/refinedmods/refinedstorage/api/network/INetwork;insertItem(Lnet/minecraft/world/item/ItemStack;ILcom/refinedmods/refinedstorage/api/util/Action;)Lnet/minecraft/world/item/ItemStack;",
-                    ordinal = 0),
+                    target = "Lcom/refinedmods/refinedstorage/api/network/INetwork;insertItemTracked(Lnet/minecraft/world/item/ItemStack;I)Lnet/minecraft/world/item/ItemStack;"),
             remap = false)
-    private void onBeforeItemSimulateInsert(CallbackInfo ci) {
+    private void onInsertAttempt(CallbackInfo ci) {
         if (Config.ENABLE_DYNAMIC_NODE_SLEEP.get()) {
             rsmixin$didWork = true;
         }
@@ -91,10 +90,19 @@ public abstract class ImporterNetworkNodeMixin extends NetworkNode {
 
     @Inject(method = "update",
             at = @At(value = "INVOKE",
-                    target = "Lcom/refinedmods/refinedstorage/api/network/INetwork;insertFluid(Lnet/minecraftforge/fluids/FluidStack;ILcom/refinedmods/refinedstorage/api/util/Action;)Lnet/minecraftforge/fluids/FluidStack;",
-                    ordinal = 0),
+                    target = "Lcom/refinedmods/refinedstorage/api/network/INetwork;extractItem(Lnet/minecraft/world/item/ItemStack;IILcom/refinedmods/refinedstorage/api/util/Action;Ljava/util/function/Predicate;)Lnet/minecraft/world/item/ItemStack;"),
             remap = false)
-    private void onBeforeFluidSimulateInsert(CallbackInfo ci) {
+    private void onExtractAttempt(CallbackInfo ci) {
+        if (Config.ENABLE_DYNAMIC_NODE_SLEEP.get()) {
+            rsmixin$didWork = true;
+        }
+    }
+
+    @Inject(method = "update",
+            at = @At(value = "INVOKE",
+                    target = "Lcom/refinedmods/refinedstorage/api/autocrafting/ICraftingManager;request(Ljava/lang/Object;Lnet/minecraft/world/item/ItemStack;I)Lcom/refinedmods/refinedstorage/api/autocrafting/task/ICraftingTask;"),
+            remap = false)
+    private void onCraftingRequest(CallbackInfo ci) {
         if (Config.ENABLE_DYNAMIC_NODE_SLEEP.get()) {
             rsmixin$didWork = true;
         }
@@ -107,7 +115,7 @@ public abstract class ImporterNetworkNodeMixin extends NetworkNode {
             return;
         }
 
-        int effectiveSpeed = rsmixin$wasActive ? ((UpgradeItemHandler) ((ImporterNetworkNode) (Object) this).getUpgrades()).getSpeed() : 1;
+        int effectiveSpeed = rsmixin$wasActive ? ((UpgradeItemHandler) ((InterfaceNetworkNode) (Object) this).getUpgrades()).getSpeed() : 1;
         if (this.ticks % effectiveSpeed != 0) {
             return;
         }
@@ -121,17 +129,17 @@ public abstract class ImporterNetworkNodeMixin extends NetworkNode {
             rsmixin$idleCycles = 0;
             accessor.rsmixin$addActiveFastNode(this);
             if (Config.ENABLE_DEBUG_LOGGING.get()) {
-                rsmixin$LOGGER.debug("Importer at {} activated (stuff available to import)", pos);
+                rsmixin$LOGGER.debug("Interface at {} activated (attempted processing)", pos);
             }
         } else if (!newActive && rsmixin$wasActive) {
             rsmixin$idleCycles++;
             if (Config.ENABLE_DEBUG_LOGGING.get() && rsmixin$idleCycles == 1) {
-                rsmixin$LOGGER.debug("Importer at {} started idling", pos);
+                rsmixin$LOGGER.debug("Interface at {} started idling", pos);
             }
             if (rsmixin$idleCycles > IDLE_THRESHOLD) {
                 accessor.rsmixin$removeActiveFastNode(this);
                 if (Config.ENABLE_DEBUG_LOGGING.get()) {
-                    rsmixin$LOGGER.debug("Importer at {} deactivated (nothing to import for {} cycles)", pos, IDLE_THRESHOLD);
+                    rsmixin$LOGGER.debug("Interface at {} deactivated (no processing attempts for {} cycles)", pos, IDLE_THRESHOLD);
                 }
             }
         } else if (newActive) {

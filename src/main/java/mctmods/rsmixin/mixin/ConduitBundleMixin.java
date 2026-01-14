@@ -4,13 +4,16 @@ import com.enderio.api.conduit.ConduitData;
 import com.enderio.api.conduit.ConduitType;
 import com.enderio.conduits.common.conduit.ConduitBundle;
 import com.enderio.conduits.common.conduit.RightClickAction;
+
 import mctmods.rsmixin.helper.ConduitPlacementFix;
 import mctmods.rsmixin.Config;
 import mctmods.rsmixin.RSMixin;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
