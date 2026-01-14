@@ -1,0 +1,25 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="LGPL-3.0"
+
+[[mods]]
+modId="rsmixin"
+version="${version}"
+displayName="RS Mixin"
+authors="tgstyle"
+logoFile = "MCTlogo.png"
+description="Fixes and Optimizations for Refined Storage."
+
+[[dependencies.rsmixin]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.rsmixin]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"
