@@ -1,3 +1,7 @@
+import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+import net.minecraftforge.gradle.common.tasks.SignJar
+
 plugins {
     id 'idea'
     id 'maven-publish'
@@ -8,6 +12,12 @@ plugins {
     id 'eclipse'
 }
 
+configurations.configureEach {
+    resolutionStrategy {
+        force 'com.google.guava:guava:32.1.3-jre'
+    }
+}
+
 def versionProps = new Properties()
 file('version.properties').withInputStream { versionProps.load(it) }
 
@@ -15,9 +25,18 @@ def gradleProps = new Properties()
 file('gradle.properties').withInputStream { gradleProps.load(it) }
 
 version = versionProps.getProperty('version')
+ext.version_buildnumber = versionProps.getProperty('build_number')?.toInteger() ?: 0
+ext.stage = versionProps.getProperty('stage') ?: ''
+
+println "-> build.gradle applying version: $version (build ${version_buildnumber}) ${stage}"
+
 group = 'mctmods.rsmixin'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+tasks.withType(Jar).configureEach {
+    zip64 true
+}
 
 ext {
     mod_id = gradleProps['mod_id']
@@ -25,32 +44,56 @@ ext {
     version_forge = versionProps['version_forge']
     version_jei = versionProps['version_jei']
     version_parchment = versionProps['version_parchment']
+    mod_name = gradleProps['mod_name']
+    mod_authors = gradleProps['mod_authors']
+    mod_description = gradleProps['mod_description']
 }
 
-def version_replaces = { [
-        'version'      : project.version,
-        'mod_id'       : mod_id,
-] as Map<String, Object> }
+def version_replaces = {
+    [
+        'version'        : project.version,
+        'mod_id'         : mod_id,
+        'mod_name'       : mod_name,
+        'mod_authors'    : mod_authors,
+        'mod_description': mod_description
+    ] as Map<String, Object>
+}
+
+def jsonPatterns = ["**/*.json", "**/*.mcmeta"]
 
 processResources {
-    inputs.property "version", project.version
-    inputs.property "mod_id", mod_id
+    duplicatesStrategy = DuplicatesStrategy.FAIL
+    inputs.properties(version_replaces())
     filesMatching("META-INF/mods.toml") {
         expand version_replaces()
     }
+    exclude ".cache"
+    doLast {
+        fileTree(dir: outputs.files.asPath, includes: jsonPatterns).each { File file ->
+            file.text = JsonOutput.toJson(new JsonSlurper().parse(file, 'UTF-8'))
+        }
+    }
+}
+
+tasks.register('copyModsTomlForIntelliJ', Copy) {
+    from processResources.destinationDir
+    into "$projectDir/out/production/resources"
+    include "META-INF/mods.toml"
+    dependsOn processResources
 }
 
 minecraft {
     mappings channel: 'parchment', version: version_parchment + '-' + version_minecraft
+
     runs {
         client {
-            workingDirectory = project.file('run')
+            workingDirectory project.file('run')
             property 'forge.logging.markers', ''
             property 'forge.enabledGameTestNamespaces', mod_id
             ideaModule project.name + ".main"
             mods {
                 rsmixin {
-                    source(sourceSets.main as SourceSet)
+                    source sourceSets.main
                 }
             }
             args '--username', 'tgstyle'
@@ -58,13 +101,13 @@ minecraft {
             args '--height', '1080'
         }
         server {
-            workingDirectory = project.file('run')
+            workingDirectory project.file('run')
             property 'forge.logging.markers', ''
             property 'forge.enabledGameTestNamespaces', mod_id
             arg '-nogui'
             mods {
                 rsmixin {
-                    source(sourceSets.main as SourceSet)
+                    source sourceSets.main
                 }
             }
         }
@@ -89,6 +132,7 @@ dependencies {
     minecraft "net.minecraftforge:forge:${version_minecraft}-${version_forge}"
 
     implementation fg.deobf("mezz.jei:jei-1.20.1-forge:${version_jei}")
+
     implementation fg.deobf("curse.maven:refined-storage-243076:4844585")
     implementation fg.deobf("curse.maven:ender-io-64578:7183516")
     implementation fg.deobf("curse.maven:jade-324717:6855440")
@@ -96,8 +140,79 @@ dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
-tasks.named('jar') {
-    archiveBaseName = "MCT-RS-Mixin-${versionProps.getProperty('version_mc')}"
+def customGradle = rootProject.file('custom.gradle')
+if (customGradle.exists()) {
+    apply from: customGradle
+}
+
+tasks.register('bumpVersion') {
+    doLast {
+        def props = new Properties()
+        file('version.properties').withInputStream { props.load(it) }
+        def currentBuild = props['build_number'].toInteger()
+        def nextBuild = currentBuild + 1
+        props['build_number'] = nextBuild.toString()
+        file('version.properties').withOutputStream { props.store(it, null) }
+
+        ext.version_buildnumber = nextBuild
+        def stage = props['stage'] ?: ''
+        def stagePart = stage ? "-${stage}" : ""
+        def newVersion = "${props['version']}-b${nextBuild}${stagePart}"
+
+        project.version = newVersion
+        tasks.withType(Jar).configureEach {
+            it.archiveVersion.set(newVersion)
+        }
+    }
+}
+
+tasks.register('signJar', SignJar) {
+    onlyIf { project.hasProperty('keyStore') }
+    if (project.hasProperty('keyStore')) {
+        keyStore = project.keyStore
+        alias = project.storeAlias
+        storePass = project.storePass
+        keyPass = project.storePass
+        inputFile = jar.archiveFile.get().asFile
+        outputFile = jar.archiveFile.get().asFile
+    } else {
+        logger.warn("No key store found, not signing the output jar\n")
+    }
+}
+
+build.dependsOn bumpVersion, signJar
+
+tasks.register('sourcesJar', Jar) {
+    dependsOn classes
+    archiveClassifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourcesJar
+}
+
+void minimizePNGFile(File file) {
+    long size = file.length()
+    ExecOperations execOps = project.services.get(ExecOperations)
+    execOps.exec {
+        executable 'optipng'
+        args '-q', '-o7', '-zm1-9', '-strip', 'all', file.absolutePath
+    }
+    long newSize = file.length()
+    if (newSize < size) {
+        System.out.format("Reduced File size of %s from %d bytes to %d bytes (reduced by %.2f%%)\n",
+                file, size, newSize, ((double) (size - newSize)) / ((double) size) * 100.0)
+    }
+}
+
+tasks.register('optimizePng') {
+    def pngPatterns = ["**/*.png"]
+    doLast {
+        for (dir in sourceSets.main.resources.srcDirs) {
+            fileTree(dir: dir, includes: pngPatterns).each { minimizePNGFile(it) }
+        }
+    }
 }
 
 tasks.register('genIntellijRunsDummy') {}
@@ -120,11 +235,10 @@ tasks.register('speedUpPreRun') {
 }
 
 tasks.withType(Task).configureEach {
-    if (it.name == 'genIntellijRuns') {
+    if (it.name == "genIntellijRuns") {
         it.finalizedBy speedUpPreRun
         genIntellijRunsDummy.dependsOn it
-    }
-    if (it.name == 'runServer') {
+    } else if (it.name == "runServer") {
         it.standardInput = System.in
     }
 }
@@ -137,4 +251,13 @@ idea {
             }
         }
     }
+}
+
+processResources.dependsOn bumpVersion
+jar.dependsOn bumpVersion
+sourcesJar.dependsOn bumpVersion
+
+jar {
+    archiveBaseName.set("MCT-RS-Mixin-${version_minecraft}")
+    archiveClassifier.set('')
 }

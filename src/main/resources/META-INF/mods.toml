@@ -5,7 +5,7 @@ license="LGPL-3.0"
 [[mods]]
 modId="rsmixin"
 version="${version}"
-displayName="RS Mixin"
+displayName="Refined Storage Mixin"
 authors="tgstyle"
 logoFile = "MCTlogo.png"
 description="Fixes and Optimizations for Refined Storage."
