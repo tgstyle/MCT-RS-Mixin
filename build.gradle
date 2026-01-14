@@ -132,10 +132,14 @@ dependencies {
     minecraft "net.minecraftforge:forge:${version_minecraft}-${version_forge}"
 
     implementation fg.deobf("mezz.jei:jei-1.20.1-forge:${version_jei}")
-
     implementation fg.deobf("curse.maven:refined-storage-243076:4844585")
     implementation fg.deobf("curse.maven:ender-io-64578:7183516")
     implementation fg.deobf("curse.maven:jade-324717:6855440")
+	
+	implementation fg.deobf("curse.maven:functional-storage-556861:6702553")
+	implementation fg.deobf("curse.maven:titanium-287342:5468426")
+	
+	implementation fg.deobf("curse.maven:spark-361579:4738952")
 
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
@@ -184,6 +188,7 @@ build.dependsOn bumpVersion, signJar
 
 tasks.register('sourcesJar', Jar) {
     dependsOn classes
+	archiveBaseName.set("MCT-RS-Mixin-${version_minecraft}")
     archiveClassifier = 'sources'
     from sourceSets.main.allSource
 }
