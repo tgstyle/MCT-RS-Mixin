@@ -26,6 +26,7 @@ public abstract class NetworkMixin {
     @Final @Shadow private Level level;
     @Unique private boolean rsmixin$dirtyEnergyUsage = true;
     @Unique private boolean rsmixin$wasLoaded = false;
+    @Unique private boolean rsmixin$listenerAdded = false;
     @Unique private int rsmixin$reloadDelay = 0;
     @Unique private static final Logger rsmixin$LOGGER = LogManager.getLogger(MODID);
 
@@ -83,13 +84,15 @@ public abstract class NetworkMixin {
             rsmixin$dirtyEnergyUsage = true;
         }
         rsmixin$wasLoaded = false;
+        rsmixin$listenerAdded = false;
         rsmixin$reloadDelay = 0;
     }
 
     @Inject(method = "getNodeGraph", at = @At("RETURN"))
     private void addLazyListener(CallbackInfoReturnable<INetworkNodeGraph> cir) {
-        if (mctmods.rsmixin.Config.ENABLE_LAZY_ENERGY.get()) {
+        if (mctmods.rsmixin.Config.ENABLE_LAZY_ENERGY.get() && !rsmixin$listenerAdded) {
             cir.getReturnValue().addListener(() -> rsmixin$dirtyEnergyUsage = true);
+            rsmixin$listenerAdded = true;
         }
     }
 }
