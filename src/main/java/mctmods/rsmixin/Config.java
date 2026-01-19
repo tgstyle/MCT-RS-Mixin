@@ -68,6 +68,7 @@ public class Config {
                         "com.refinedmods.refinedstorage.apiimpl.network.node.CrafterNetworkNode",
                         "com.refinedmods.refinedstorage.apiimpl.network.node.ConstructorNetworkNode",
                         "com.refinedmods.refinedstorage.apiimpl.network.node.DestructorNetworkNode",
+                        "com.refinedmods.refinedstorage.apiimpl.network.node.diskmanipulator.DiskManipulatorNetworkNode",
                         // Cable Tiers
                         "com.ultramega.cabletiers.node.TieredConstructorNetworkNode",
                         "com.ultramega.cabletiers.node.TieredDestructorNetworkNode",
@@ -79,6 +80,7 @@ public class Config {
                         "edivad.extrastorage.nodes.AdvancedExporterNetworkNode",
                         "edivad.extrastorage.nodes.AdvancedImporterNetworkNode",
                         "edivad.extrastorage.nodes.AdvancedCrafterNetworkNode",
+                        "edivad.extrastorage.nodes.diskmanipulatorz.TieredDiskManipulatorNetworkNode",
                         // Requestify
                         "com.buuz135.refinedstoragerequestify.proxy.block.network.NetworkNodeRequester",
                         // Reborn Storage
