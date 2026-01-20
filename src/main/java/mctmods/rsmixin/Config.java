@@ -76,11 +76,11 @@ public class Config {
                         "com.ultramega.cabletiers.node.TieredImporterNetworkNode",
                         "com.ultramega.cabletiers.node.TieredInterfaceNetworkNode",
                         "com.ultramega.cabletiers.node.TieredRequesterNetworkNode",
+                        "com.ultramega.cabletiers.node.diskmanipulatorz.TieredDiskManipulatorNetworkNode",
                         // Extra Storage
                         "edivad.extrastorage.nodes.AdvancedExporterNetworkNode",
                         "edivad.extrastorage.nodes.AdvancedImporterNetworkNode",
                         "edivad.extrastorage.nodes.AdvancedCrafterNetworkNode",
-                        "edivad.extrastorage.nodes.diskmanipulatorz.TieredDiskManipulatorNetworkNode",
                         // Requestify
                         "com.buuz135.refinedstoragerequestify.proxy.block.network.NetworkNodeRequester",
                         // Reborn Storage
