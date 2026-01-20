@@ -18,6 +18,7 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue ENABLE_SKIP_UNLOADED;
     public static final ForgeConfigSpec.BooleanValue ENABLE_DYNAMIC_NODE_SLEEP;
     public static final ForgeConfigSpec.BooleanValue ENABLE_CONNECTED_NODE_TICK_OPTIMIZE;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_ENDERIO_RS_FIX;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -142,6 +143,13 @@ public class Config {
         ENABLE_CONNECTED_NODE_TICK_OPTIMIZE = builder
                 .comment("Optimizes ticking by only updating nodes that are connected to a network. Disconnected nodes are skipped, reducing unnecessary overhead.")
                 .define("enableConnectedNodeTickOptimize", true);
+
+        ENABLE_ENDERIO_RS_FIX = builder
+                .comment("""
+                        Registers a passthrough factory for EnderIO's RS conduits to suppress warnings and enable compatibility.
+                        Disable if EnderIO adds their own registration in a future update.
+                        Only applies if EnderIO is loaded.""")
+                .define("enableEnderioRsFix", true);
 
         SPEC = builder.build();
     }
