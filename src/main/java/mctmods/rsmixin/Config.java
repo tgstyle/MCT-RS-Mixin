@@ -17,8 +17,10 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue ENABLE_HASHSET_OPTIMIZE;
     public static final ForgeConfigSpec.BooleanValue ENABLE_SKIP_UNLOADED;
     public static final ForgeConfigSpec.BooleanValue ENABLE_DYNAMIC_NODE_SLEEP;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_DYNAMIC_CRAFTING_BYPASS;
     public static final ForgeConfigSpec.BooleanValue ENABLE_CONNECTED_NODE_TICK_OPTIMIZE;
     public static final ForgeConfigSpec.BooleanValue ENABLE_ENDERIO_RS_FIX;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_ENDERIO_CONDUIT_TYPED_BACKUP;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -140,6 +142,19 @@ public class Config {
                         - DISABLED: Nodes always update every tick when bypassing is allowed (full speed even when idle).""")
                 .define("enableDynamicNodeSleep", true);
 
+        ENABLE_DYNAMIC_CRAFTING_BYPASS = builder
+                .comment("""
+                        Enables dynamic throttling bypass for the crafting manager.
+                        
+                        - ENABLED (default): When there are active crafting tasks, the crafting manager updates every tick → fast crafting while active.
+                          Falls back to throttled updates when idle → lower overhead.
+                        
+                        - DISABLED: Crafting manager strictly follows throttleInterval.
+                        
+                        Only relevant when enableThrottle is true, throttleInterval > 1, and enableBypassFastNodes is true.
+                        Fully respects crafter speed upgrades.""")
+                .define("enableDynamicCraftingBypass", true);
+
         ENABLE_CONNECTED_NODE_TICK_OPTIMIZE = builder
                 .comment("Optimizes ticking by only updating nodes that are connected to a network. Disconnected nodes are skipped, reducing unnecessary overhead.")
                 .define("enableConnectedNodeTickOptimize", true);
@@ -150,6 +165,14 @@ public class Config {
                         Disable if EnderIO adds their own registration in a future update.
                         Only applies if EnderIO is loaded.""")
                 .define("enableEnderioRsFix", true);
+
+        ENABLE_ENDERIO_CONDUIT_TYPED_BACKUP = builder
+                .comment("""
+                        Enables saving and applying a type-keyed NBT backup for EnderIO conduit data (filters, upgrades, autocrafting rows, etc.).
+                        Prevents loss/corruption on world reload when the global graph restore or positional fallback fails.
+                        Safe to disable if not needed, conflicting, or EnderIO fixes this upstream.
+                        Default: true (recommended for RS + EnderIO setups).""")
+                .define("enableEnderioConduitTypedBackup", true);
 
         SPEC = builder.build();
     }

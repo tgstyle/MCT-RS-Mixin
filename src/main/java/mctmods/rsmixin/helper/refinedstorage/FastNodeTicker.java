@@ -1,4 +1,4 @@
-package mctmods.rsmixin.helper;
+package mctmods.rsmixin.helper.refinedstorage;
 
 import com.refinedmods.refinedstorage.api.network.node.INetworkNode;
 import com.refinedmods.refinedstorage.apiimpl.API;

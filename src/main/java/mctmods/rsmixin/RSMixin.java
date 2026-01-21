@@ -1,7 +1,8 @@
 package mctmods.rsmixin;
 
-import mctmods.rsmixin.helper.ConduitPlacementFix;
-import mctmods.rsmixin.helper.FastNodeTicker;
+import mctmods.rsmixin.helper.enderio.ConduitPlacementFix;
+import mctmods.rsmixin.helper.refinedstorage.CraftingTicker;
+import mctmods.rsmixin.helper.refinedstorage.FastNodeTicker;
 
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -28,6 +29,7 @@ public class RSMixin {
 
         MinecraftForge.EVENT_BUS.register(new FastNodeTicker());
         MinecraftForge.EVENT_BUS.register(new ConduitPlacementFix());
+        MinecraftForge.EVENT_BUS.register(CraftingTicker.class);
 
         Thread.setDefaultUncaughtExceptionHandler((thread, t) -> {
             System.err.println("Uncaught exception in thread " + thread.getName() + ":");
@@ -36,7 +38,7 @@ public class RSMixin {
     }
 
     private void onCommonSetup(FMLCommonSetupEvent event) {
-        LOGGER.info("Loaded config: enableDebugLogging={}, enableThrottle={}, throttleInterval={}, enableBypassFastNodes={}, enableLoadRescan={}, loadRescanDelay={}, enableConduitPlacementFix={}, conduitPlacementRescanDelay={}, enableLazyEnergy={}, enableHashSetOptimize={}, enableSkipUnloaded={}, enableDynamicNodeSleep={}, enableConnectedNodeTickOptimize={}",
+        LOGGER.info("Loaded config: enableDebugLogging={}, enableThrottle={}, throttleInterval={}, enableBypassFastNodes={}, enableLoadRescan={}, loadRescanDelay={}, enableConduitPlacementFix={}, conduitPlacementRescanDelay={}, enableLazyEnergy={}, enableHashSetOptimize={}, enableSkipUnloaded={}, enableDynamicNodeSleep={}, enableDynamicCraftingBypass={}, enableConnectedNodeTickOptimize={}, enableEnderioRsFix={}, enableEnderioConduitTypedBackup={}",
                 Config.ENABLE_DEBUG_LOGGING.get(),
                 Config.ENABLE_THROTTLE.get(),
                 Config.THROTTLE_INTERVAL.get(),
@@ -49,6 +51,9 @@ public class RSMixin {
                 Config.ENABLE_HASHSET_OPTIMIZE.get(),
                 Config.ENABLE_SKIP_UNLOADED.get(),
                 Config.ENABLE_DYNAMIC_NODE_SLEEP.get(),
-                Config.ENABLE_CONNECTED_NODE_TICK_OPTIMIZE.get());
+                Config.ENABLE_DYNAMIC_CRAFTING_BYPASS.get(),
+                Config.ENABLE_CONNECTED_NODE_TICK_OPTIMIZE.get(),
+                Config.ENABLE_ENDERIO_RS_FIX.get(),
+                Config.ENABLE_ENDERIO_CONDUIT_TYPED_BACKUP.get());
     }
 }

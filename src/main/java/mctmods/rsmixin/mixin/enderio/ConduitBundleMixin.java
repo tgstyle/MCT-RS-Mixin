@@ -1,11 +1,11 @@
-package mctmods.rsmixin.mixin;
+package mctmods.rsmixin.mixin.enderio;
 
 import com.enderio.api.conduit.ConduitData;
 import com.enderio.api.conduit.ConduitType;
 import com.enderio.conduits.common.conduit.ConduitBundle;
 import com.enderio.conduits.common.conduit.RightClickAction;
 
-import mctmods.rsmixin.helper.ConduitPlacementFix;
+import mctmods.rsmixin.helper.enderio.ConduitPlacementFix;
 import mctmods.rsmixin.Config;
 import mctmods.rsmixin.RSMixin;
 

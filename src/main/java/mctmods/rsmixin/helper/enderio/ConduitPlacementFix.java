@@ -1,4 +1,4 @@
-package mctmods.rsmixin.helper;
+package mctmods.rsmixin.helper.enderio;
 
 import com.refinedmods.refinedstorage.api.network.INetwork;
 import com.refinedmods.refinedstorage.api.util.Action;

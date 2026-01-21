@@ -1,4 +1,4 @@
-package mctmods.rsmixin.mixin;
+package mctmods.rsmixin.mixin.refinedstorage;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

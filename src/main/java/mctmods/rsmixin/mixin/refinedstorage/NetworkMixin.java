@@ -1,4 +1,4 @@
-package mctmods.rsmixin.mixin;
+package mctmods.rsmixin.mixin.refinedstorage;
 
 import com.refinedmods.refinedstorage.api.network.INetworkNodeGraph;
 import com.refinedmods.refinedstorage.api.util.Action;

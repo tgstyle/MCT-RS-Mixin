@@ -1,4 +1,4 @@
-package mctmods.rsmixin.mixin;
+package mctmods.rsmixin.mixin.refinedstorage;
 
 import com.google.common.collect.Sets;
 import com.refinedmods.refinedstorage.api.network.INetworkNodeGraphEntry;
