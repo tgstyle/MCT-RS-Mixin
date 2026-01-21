@@ -8,7 +8,9 @@ import mctmods.rsmixin.RSMixin;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -43,7 +45,8 @@ public class CraftingTicker {
 
         ACTIVE_NETWORKS.removeIf(net -> net == null || net.getLevel() == null);
 
-        for (INetwork net : ACTIVE_NETWORKS) {
+        List<INetwork> toTick = new ArrayList<>(ACTIVE_NETWORKS);
+        for (INetwork net : toTick) {
             if (net.canRun()) {
                 net.getCraftingManager().update();
             }

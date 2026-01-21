@@ -145,6 +145,7 @@ dependencies {
 	implementation fg.deobf("curse.maven:edivadlib-638508:4717006")
     implementation fg.deobf("curse.maven:ender-io-64578:7183516")
 	implementation fg.deobf("curse.maven:extra-disks-351491:6366217")
+	implementation fg.deobf("curse.maven:extrastorage-410168:5168999")
 	implementation fg.deobf("curse.maven:kotlin-for-forge-351264:7291067")
 	implementation fg.deobf("curse.maven:refined-rebornstorage-256662:4861934")
 	implementation fg.deobf("curse.maven:refined-crafter-proxy-864695:5250206")

@@ -7,6 +7,8 @@ import com.refinedmods.refinedstorage.apiimpl.autocrafting.CraftingManager;
 import mctmods.rsmixin.Config;
 import mctmods.rsmixin.helper.refinedstorage.CraftingTicker;
 
+import net.minecraft.nbt.ListTag;
+
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -24,6 +26,10 @@ public abstract class CraftingManagerMixin {
 
     @Shadow @Final private Map<UUID, ICraftingTask> tasks;
 
+    @Shadow private ListTag tasksToRead;
+
+    @Shadow public void update() {}
+
     @Inject(method = "update", at = @At("TAIL"))
     private void dynamicCraftingBypass(CallbackInfo ci) {
         if (!Config.ENABLE_DYNAMIC_CRAFTING_BYPASS.get() ||
@@ -37,6 +43,42 @@ public abstract class CraftingManagerMixin {
             CraftingTicker.unregister(network);
         } else {
             CraftingTicker.register(network);
+        }
+    }
+
+    @Inject(method = "start", at = @At("TAIL"))
+    private void immediateCraftingStart(ICraftingTask task, CallbackInfo ci) {
+        if (!Config.ENABLE_DYNAMIC_CRAFTING_BYPASS.get() ||
+                !Config.ENABLE_THROTTLE.get() ||
+                Config.THROTTLE_INTERVAL.get() <= 1 ||
+                !Config.ENABLE_BYPASS_FAST_NODES.get()) {
+            return;
+        }
+
+        update();
+        update();
+        update();
+
+        if (!tasks.isEmpty()) {
+            CraftingTicker.register(network);
+        }
+    }
+
+    @Inject(method = "readFromNbt", at = @At("TAIL"))
+    private void immediateCraftingLoad(CallbackInfo ci) {
+        if (!Config.ENABLE_DYNAMIC_CRAFTING_BYPASS.get() ||
+                !Config.ENABLE_THROTTLE.get() ||
+                Config.THROTTLE_INTERVAL.get() <= 1 ||
+                !Config.ENABLE_BYPASS_FAST_NODES.get()) {
+            return;
+        }
+
+        if (tasksToRead != null && !tasksToRead.isEmpty()) {
+            update();
+
+            if (!tasks.isEmpty()) {
+                CraftingTicker.register(network);
+            }
         }
     }
 }

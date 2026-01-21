@@ -5,9 +5,22 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "rsmixin.refmap.json",
   "mixins": [
+    "cabletiers.TieredConstructorNetworkNodeMixin",
+    "cabletiers.TieredDestructorNetworkNodeMixin",
+    "cabletiers.TieredDiskManipulatorNetworkNodeMixin",
+    "cabletiers.TieredExporterNetworkNodeMixin",
+    "cabletiers.TieredImporterNetworkNodeMixin",
+    "cabletiers.TieredInterfaceNetworkNodeMixin",
+    "cabletiers.TieredRequesterNetworkNodeMixin",
     "enderio.ConduitBlockEntityTypedBackupMixin",
     "enderio.ConduitBundleMixin",
+    "extrastorage.AdvancedCrafterNetworkNodeMixin",
+    "extrastorage.AdvancedExporterNetworkNodeMixin",
+    "extrastorage.AdvancedImporterNetworkNodeMixin",
+    "rebornstorage.CraftingNodeMixin",
+    "refinedcrafterproxy.CrafterProxyNetworkNodeMixin",
     "refinedstorage.ConstructorNetworkNodeMixin",
+    "refinedstorage.CrafterNetworkNodeMixin",
     "refinedstorage.CraftingManagerMixin",
     "refinedstorage.DestructorNetworkNodeMixin",
     "refinedstorage.DiskManipulatorNetworkNodeMixin",
@@ -20,7 +33,8 @@
     "refinedstorage.NetworkNodeGraphOperatorMixin",
     "refinedstorage.NetworkNodeGraphOperatorOptimizeMixin",
     "refinedstorage.NetworkNodeManagerMixin",
-    "refinedstorage.NetworkNodeMixin"
+    "refinedstorage.NetworkNodeMixin",
+    "refinedstoragerequestify.NetworkNodeRequesterMixin"
   ],
   "injectors": {
     "defaultRequire": 1
