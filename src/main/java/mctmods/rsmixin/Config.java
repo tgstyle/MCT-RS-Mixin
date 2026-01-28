@@ -21,6 +21,7 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue ENABLE_CONNECTED_NODE_TICK_OPTIMIZE;
     public static final ForgeConfigSpec.BooleanValue ENABLE_ENDERIO_RS_FIX;
     public static final ForgeConfigSpec.BooleanValue ENABLE_ENDERIO_CONDUIT_TYPED_BACKUP;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_REBORNSTORAGE_CRAFTER_FIX;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -173,6 +174,17 @@ public class Config {
                         Safe to disable if not needed, conflicting, or EnderIO fixes this upstream.
                         Default: true (recommended for RS + EnderIO setups).""")
                 .define("enableEnderioConduitTypedBackup", true);
+
+        ENABLE_REBORNSTORAGE_CRAFTER_FIX = builder
+                .comment("""
+                        Fixes RebornStorage multiblock crafter (v5.0.7):
+                        - Immediate assembly/GUI access.
+                        - Requires CPU or storage (no all-air).
+                        - Allows air during construction.
+                        - Clean validation messages.
+                        - No pattern pages with CPU-only (clear message).
+                        Safe to disable if newer versions fix these.""")
+                .define("enableRebornstorageCrafterFix", true);
 
         SPEC = builder.build();
     }

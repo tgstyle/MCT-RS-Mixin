@@ -38,7 +38,7 @@ public class RSMixin {
     }
 
     private void onCommonSetup(FMLCommonSetupEvent event) {
-        LOGGER.info("Loaded config: enableDebugLogging={}, enableThrottle={}, throttleInterval={}, enableBypassFastNodes={}, enableLoadRescan={}, loadRescanDelay={}, enableConduitPlacementFix={}, conduitPlacementRescanDelay={}, enableLazyEnergy={}, enableHashSetOptimize={}, enableSkipUnloaded={}, enableDynamicNodeSleep={}, enableDynamicCraftingBypass={}, enableConnectedNodeTickOptimize={}, enableEnderioRsFix={}, enableEnderioConduitTypedBackup={}",
+        LOGGER.info("Loaded config: enableDebugLogging={}, enableThrottle={}, throttleInterval={}, enableBypassFastNodes={}, enableLoadRescan={}, loadRescanDelay={}, enableConduitPlacementFix={}, conduitPlacementRescanDelay={}, enableLazyEnergy={}, enableHashSetOptimize={}, enableSkipUnloaded={}, enableDynamicNodeSleep={}, enableDynamicCraftingBypass={}, enableConnectedNodeTickOptimize={}, enableEnderioRsFix={}, enableEnderioConduitTypedBackup={}, enableRebornstorageCrafterFix={}",
                 Config.ENABLE_DEBUG_LOGGING.get(),
                 Config.ENABLE_THROTTLE.get(),
                 Config.THROTTLE_INTERVAL.get(),
@@ -54,6 +54,7 @@ public class RSMixin {
                 Config.ENABLE_DYNAMIC_CRAFTING_BYPASS.get(),
                 Config.ENABLE_CONNECTED_NODE_TICK_OPTIMIZE.get(),
                 Config.ENABLE_ENDERIO_RS_FIX.get(),
-                Config.ENABLE_ENDERIO_CONDUIT_TYPED_BACKUP.get());
+                Config.ENABLE_ENDERIO_CONDUIT_TYPED_BACKUP.get(),
+                Config.ENABLE_REBORNSTORAGE_CRAFTER_FIX.get());
     }
 }
