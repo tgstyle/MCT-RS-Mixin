@@ -1,6 +1,9 @@
 # Links
 - [Official Discord](https://discord.gg/ujY2mV9)<br/>
 
+- [Refined Storage Mixin on CurseForge](https://www.curseforge.com/minecraft/mc-mods/refined-storage-mixin)
+- [Refined Storage Mixin on Modrinth](https://modrinth.com/mod/refined-storage-mixin)
+
 # MCT RS Mixin
 Refined Storage Mixin Fixes for 1.20.1.<br/>
 
