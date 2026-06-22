@@ -11,4 +11,4 @@ Refined Storage Mixin Fixes for 1.20.1.<br/>
 When you are reporting bugs, please attach the crash report, mod and forge version.<br/>
 
 # About Modpack and License
-Refined Storage Mixin is licensed under the GNU GENERAL PUBLIC LICENSE Version 3. You may use it in modpacks, reviews or any other form as long as you abide by the terms.<br/>
+Refined Storage Mixin is licensed under the GNU GENERAL PUBLIC LICENSE Version 3. You may use it in modpacks, reviews or any other form as long as you abide by the terms. Assets are protected under the terms in the LICENSE_ASSETS.txt<br/>
