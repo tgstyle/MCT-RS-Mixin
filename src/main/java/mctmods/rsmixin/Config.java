@@ -22,13 +22,20 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue ENABLE_ENDERIO_RS_FIX;
     public static final ForgeConfigSpec.BooleanValue ENABLE_ENDERIO_CONDUIT_TYPED_BACKUP;
     public static final ForgeConfigSpec.BooleanValue ENABLE_REBORNSTORAGE_CRAFTER_FIX;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_STORAGE_CACHE_DEBOUNCE;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_CRAFTING_REBUILD_DEBOUNCE;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_GRAPH_RESCAN_COALESCE;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_ENDERIO_NODE_UNIFY;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_TRACKED_INSERT_INDEX;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_DAMAGEABLE_INPUT_REUSE;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_CRAFTING_CRASH_GUARD;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
         builder.push(RSMixin.MODID);
 
         ENABLE_DEBUG_LOGGING = builder
-                .comment("Enables extra debug logging (throttle ticks, active node counts, importer activation/sleep, unloaded skips, etc.). Useful for diagnosing issues but spammy in logs.")
+                .comment("Turns on extra log messages for troubleshooting. Can get spammy, leave off unless you're diagnosing a problem.")
                 .define("enableDebugLogging", false);
 
         ENABLE_THROTTLE = builder
@@ -185,6 +192,66 @@ public class Config {
                         - No pattern pages with CPU-only (clear message).
                         Safe to disable if newer versions fix these.""")
                 .define("enableRebornstorageCrafterFix", true);
+
+        ENABLE_STORAGE_CACHE_DEBOUNCE = builder
+                .comment("""
+                        Stops your item/fluid list from rebuilding itself over and over when things reconnect.
+                        Normally, every storage block on your network can trigger a full list rebuild at the same time,
+                        which causes lag spikes when your world loads or when you place/break a lot of storage at once.
+                        This makes it rebuild the list just once instead.""")
+                .define("enableStorageCacheDebounce", true);
+
+        ENABLE_CRAFTING_REBUILD_DEBOUNCE = builder
+                .comment("""
+                        Stops autocrafting patterns from being re-scanned over and over when crafters reconnect.
+                        Normally, every crafter reconnecting (like on world load) can trigger its own full pattern re-scan,
+                        which gets very slow with lots of crafters. This waits until everything has reconnected, then scans once.
+                        Works for regular RS crafters, Extra Storage crafters, and RebornStorage crafters.""")
+                .define("enableCraftingRebuildDebounce", true);
+
+        ENABLE_GRAPH_RESCAN_COALESCE = builder
+                .comment("""
+                        Stops network rescans from piling up when you place or break lots of network blocks at once.
+                        The first block still connects instantly, just like normal.
+                        Any extra rescans triggered in that same instant are merged into one, run a moment later.
+                        Great for builders, schematics, or quarries that place many cables/blocks in one go.
+                        Worst case, a block takes one extra tick to connect (not noticeable in normal play).""")
+                .define("enableGraphRescanCoalesce", true);
+
+        ENABLE_ENDERIO_NODE_UNIFY = builder
+                .comment("""
+                        Fixes a bug where EnderIO's RS conduits can end up tracked as two different objects at once
+                        after a world reload, causing weird behavior like settings not sticking or conduits acting laggy/broken.
+                        Makes sure there's only ever one real conduit object being tracked.""")
+                .define("enableEnderIONodeUnify", true);
+
+        ENABLE_TRACKED_INSERT_INDEX = builder
+                .comment("""
+                        Speeds up autocrafting for big crafting trees.
+                        Normally, every item that comes back into a crafting job gets checked against every single step
+                        of that job to see where it belongs, which gets slow with big/multi-step crafts.
+                        This looks it up directly instead, so it only checks the steps that actually need that item.""")
+                .define("enableTrackedInsertIndex", true);
+
+        ENABLE_DAMAGEABLE_INPUT_REUSE = builder
+                .comment("""
+                Lets autocrafting properly re-use damageable tools (hammers, saws, etc.) in recipes.
+                Normally RS treats a damaged tool as a completely different item, so it grabs or crafts
+                a brand new tool every single time and the damaged ones pile up unused in storage.
+                With this on, damaged tools count as valid ingredients (most-damaged used first),
+                tools wear down properly across crafts, and they break when their durability actually runs out.
+                Enchanted tools are never mixed up with plain ones.""")
+                .define("enableDamageableInputReuse", true);
+
+        ENABLE_CRAFTING_CRASH_GUARD = builder
+                .comment("""
+                Stops a broken autocrafting task from crashing the whole server.
+                Vanilla RS can hit an internal inventory mismatch during processing crafts and hard-crashes
+                the server, and because the broken task is saved with the world, it crashes again on every reboot.
+                With this on, the broken task is safely cancelled instead: its items are refunded to storage,
+                an error is written to the log, and the server keeps running.
+                Fixes Refined Storage issues #3751 and #3727, and the reboot crash loops behind #3755 and #3753.""")
+                .define("enableCraftingCrashGuard", true);
 
         SPEC = builder.build();
     }

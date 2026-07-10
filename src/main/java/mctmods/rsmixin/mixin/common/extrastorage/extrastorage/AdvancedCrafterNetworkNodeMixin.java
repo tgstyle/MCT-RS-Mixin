@@ -6,7 +6,7 @@ import com.refinedmods.refinedstorage.apiimpl.network.node.NetworkNode;
 import edivad.extrastorage.nodes.AdvancedCrafterNetworkNode;
 
 import mctmods.rsmixin.Config;
-import mctmods.rsmixin.core.accessor.ActiveFastNodesAccessor;
+import mctmods.rsmixin.core.accessor.IActiveFastNodesAccessor;
 
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
@@ -39,7 +39,7 @@ public abstract class AdvancedCrafterNetworkNodeMixin extends NetworkNode {
         }
 
         INetworkNodeManager manager = API.instance().getNetworkNodeManager((ServerLevel) level);
-        ActiveFastNodesAccessor accessor = (ActiveFastNodesAccessor) manager;
+        IActiveFastNodesAccessor accessor = (IActiveFastNodesAccessor) manager;
 
         if (Config.ENABLE_BYPASS_FAST_NODES.get()) {
             if (!rsmixin$forcedActive) {

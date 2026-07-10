@@ -5,7 +5,7 @@ import com.refinedmods.refinedstorage.apiimpl.API;
 import com.refinedmods.refinedstorage.apiimpl.network.NetworkNodeManager;
 
 import mctmods.rsmixin.Config;
-import mctmods.rsmixin.core.accessor.ActiveFastNodesAccessor;
+import mctmods.rsmixin.core.accessor.IActiveFastNodesAccessor;
 
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -48,7 +48,7 @@ public class FastNodeTicker {
         event.level.getProfiler().push("rs fast node ticking");
 
         NetworkNodeManager manager = (NetworkNodeManager) API.instance().getNetworkNodeManager((ServerLevel) event.level);
-        Set<INetworkNode> active = ((ActiveFastNodesAccessor) manager).rsmixin$getActiveFastNodes();
+        Set<INetworkNode> active = ((IActiveFastNodesAccessor) manager).rsmixin$getActiveFastNodes();
 
         if (active == null) {
             LOGGER.error("Active fast nodes set is null in dimension {}! Verify NetworkNodeManagerMixin is applied and field initialized.", dimension.location());

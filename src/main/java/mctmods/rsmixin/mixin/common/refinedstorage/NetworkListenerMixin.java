@@ -5,7 +5,7 @@ import com.refinedmods.refinedstorage.api.network.node.INetworkNodeManager;
 import com.refinedmods.refinedstorage.apiimpl.network.NetworkListener;
 
 import mctmods.rsmixin.Config;
-import mctmods.rsmixin.core.accessor.ConnectedNodesAccessor;
+import mctmods.rsmixin.core.accessor.IConnectedNodesAccessor;
 
 import net.minecraftforge.event.TickEvent;
 
@@ -46,7 +46,7 @@ public abstract class NetworkListenerMixin {
     @Redirect(method = "onLevelTick", at = @At(value = "INVOKE", target = "Lcom/refinedmods/refinedstorage/api/network/node/INetworkNodeManager;all()Ljava/util/Collection;", remap = false), remap = false)
     private Collection<INetworkNode> redirectAll(INetworkNodeManager manager) {
         if (Config.ENABLE_CONNECTED_NODE_TICK_OPTIMIZE.get()) {
-            return ((ConnectedNodesAccessor) manager).rsmixin$getConnectedNodes();
+            return ((IConnectedNodesAccessor) manager).rsmixin$getConnectedNodes();
         } else {
             return manager.all();
         }

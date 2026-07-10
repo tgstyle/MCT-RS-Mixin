@@ -1,13 +1,11 @@
 package mctmods.rsmixin.helper.refinedstorage;
 
-import com.refinedmods.refinedstorage.api.network.INetwork;
-
 import mctmods.rsmixin.Config;
 import mctmods.rsmixin.RSMixin;
 
+import com.refinedmods.refinedstorage.api.network.INetwork;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,21 +17,16 @@ public class CraftingTicker {
 
     public static void register(INetwork network) {
         ACTIVE_NETWORKS.add(network);
-        if (Config.ENABLE_DEBUG_LOGGING.get()) {
-            RSMixin.LOGGER.debug("RSMixin: Enabling dynamic crafting bypass");
-        }
+        if (Config.ENABLE_DEBUG_LOGGING.get()) { RSMixin.LOGGER.debug("RSMixin: Enabling dynamic crafting bypass"); }
     }
 
     public static void unregister(INetwork network) {
         ACTIVE_NETWORKS.remove(network);
-        if (Config.ENABLE_DEBUG_LOGGING.get()) {
-            RSMixin.LOGGER.debug("RSMixin: Disabling dynamic crafting bypass");
-        }
+        if (Config.ENABLE_DEBUG_LOGGING.get()) { RSMixin.LOGGER.debug("RSMixin: Disabling dynamic crafting bypass"); }
     }
 
-    @SubscribeEvent
-    public static void tick(TickEvent.ServerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END) return;
+    @SubscribeEvent public static void tick(TickEvent.ServerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) { return; }
 
         if (!Config.ENABLE_DYNAMIC_CRAFTING_BYPASS.get() ||
                 !Config.ENABLE_THROTTLE.get() ||
@@ -45,11 +38,11 @@ public class CraftingTicker {
 
         ACTIVE_NETWORKS.removeIf(net -> net == null || net.getLevel() == null);
 
+        int interval = Config.THROTTLE_INTERVAL.get();
         List<INetwork> toTick = new ArrayList<>(ACTIVE_NETWORKS);
         for (INetwork net : toTick) {
-            if (net.canRun()) {
-                net.getCraftingManager().update();
-            }
+            if (net.getLevel().getGameTime() % interval == 0) { continue; }
+            if (net.canRun()) { net.getCraftingManager().update(); }
         }
     }
 }

@@ -4,6 +4,7 @@ import mctmods.rsmixin.helper.enderio.ConduitPlacementFix;
 import mctmods.rsmixin.helper.refinedstorage.CraftingTicker;
 import mctmods.rsmixin.helper.refinedstorage.FastNodeTicker;
 
+import mctmods.rsmixin.helper.refinedstorage.GraphRescanScheduler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -30,6 +31,7 @@ public class RSMixin {
         MinecraftForge.EVENT_BUS.register(new FastNodeTicker());
         MinecraftForge.EVENT_BUS.register(new ConduitPlacementFix());
         MinecraftForge.EVENT_BUS.register(CraftingTicker.class);
+        MinecraftForge.EVENT_BUS.register(GraphRescanScheduler.class);
 
         Thread.setDefaultUncaughtExceptionHandler((thread, t) -> {
             System.err.println("Uncaught exception in thread " + thread.getName() + ":");

@@ -7,7 +7,7 @@ import com.refinedmods.refinedstorage.apiimpl.network.node.NetworkNode;
 import com.refinedmods.refinedstorage.inventory.item.UpgradeItemHandler;
 
 import mctmods.rsmixin.Config;
-import mctmods.rsmixin.core.accessor.ActiveFastNodesAccessor;
+import mctmods.rsmixin.core.accessor.IActiveFastNodesAccessor;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -51,7 +51,7 @@ public abstract class ImporterNetworkNodeMixin extends NetworkNode {
             rsmixin$didWork = false;
         } else if (!rsmixin$wasActive && level instanceof ServerLevel && Config.ENABLE_BYPASS_FAST_NODES.get()) {
             INetworkNodeManager manager = API.instance().getNetworkNodeManager((ServerLevel) level);
-            ActiveFastNodesAccessor accessor = (ActiveFastNodesAccessor) manager;
+            IActiveFastNodesAccessor accessor = (IActiveFastNodesAccessor) manager;
             accessor.rsmixin$addActiveFastNode(this);
             rsmixin$wasActive = true;
         }
@@ -117,7 +117,7 @@ public abstract class ImporterNetworkNodeMixin extends NetworkNode {
         }
 
         INetworkNodeManager manager = API.instance().getNetworkNodeManager((ServerLevel) level);
-        ActiveFastNodesAccessor accessor = (ActiveFastNodesAccessor) manager;
+        IActiveFastNodesAccessor accessor = (IActiveFastNodesAccessor) manager;
 
         boolean newActive = rsmixin$didWork;
 

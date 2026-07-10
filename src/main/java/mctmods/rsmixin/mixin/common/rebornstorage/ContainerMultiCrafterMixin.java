@@ -8,51 +8,41 @@ import net.gigabit101.rebornstorage.core.multiblock.IMultiblockPart;
 import net.gigabit101.rebornstorage.core.multiblock.MultiblockRegistry;
 import net.gigabit101.rebornstorage.init.ModBlocks;
 import net.gigabit101.rebornstorage.multiblocks.MultiBlockCrafter;
-
-import net.minecraft.world.level.Level;
 import net.minecraft.core.BlockPos;
-
+import net.minecraft.world.level.Level;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Redirect;
+@Mixin(ContainerMultiCrafter.class) public abstract class ContainerMultiCrafterMixin {
+    @Redirect(method = "<init>(ILnet/minecraft/world/entity/player/Inventory;Lnet/gigabit101/rebornstorage/blockentities/BlockEntityMultiCrafter;)V", at = @At(value = "INVOKE", target = "Lnet/gigabit101/rebornstorage/RebornStorage;getMultiBlock(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)Lnet/gigabit101/rebornstorage/multiblocks/MultiBlockCrafter;"), remap = false) private MultiBlockCrafter rsmixin$forceClientClearAndPurgeStaleParts(Level world, BlockPos pos) {
+        MultiBlockCrafter controller = RebornStorage.getMultiBlock(world, pos);
 
-@Mixin(ContainerMultiCrafter.class)
-public abstract class ContainerMultiCrafterMixin {
-
-    @Redirect(method = "<init>(ILnet/minecraft/world/entity/player/Inventory;Lnet/gigabit101/rebornstorage/blockentities/BlockEntityMultiCrafter;)V",
-            at = @At(value = "INVOKE",
-                    target = "Lnet/gigabit101/rebornstorage/RebornStorage;getMultiBlock(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;)Lnet/gigabit101/rebornstorage/multiblocks/MultiBlockCrafter;"))
-    private MultiBlockCrafter rsmixin$forceClientClearAndPurgeStaleParts(Level level, BlockPos pos) {
-        MultiBlockCrafter controller = RebornStorage.getMultiBlock(level, pos);
-
-        if (Config.ENABLE_REBORNSTORAGE_CRAFTER_FIX.get() && level.isClientSide() && controller != null) {
+        if (Config.ENABLE_REBORNSTORAGE_CRAFTER_FIX.get() && world.isClientSide() && controller != null) {
             controller.invs.clear();
 
             Set<IMultiblockPart> toRemove = new HashSet<>();
             for (IMultiblockPart part : controller.connectedParts) {
                 BlockPos partPos = part.getBlockPos();
-                if (!level.isLoaded(partPos) ||
-                        level.getBlockEntity(partPos) != part ||
+                if (!world.isLoaded(partPos) ||
+                        world.getBlockEntity(partPos) != part ||
                         part.isInvalid()) {
                     toRemove.add(part);
                     continue;
                 }
 
                 if (part.getBlockState().getBlock() == ModBlocks.BLOCK_MULTI_STORAGE.get() &&
-                        level.getBlockState(partPos).getBlock() != ModBlocks.BLOCK_MULTI_STORAGE.get()) {
+                        world.getBlockState(partPos).getBlock() != ModBlocks.BLOCK_MULTI_STORAGE.get()) {
                     toRemove.add(part);
                 }
             }
 
-            for (IMultiblockPart badPart : toRemove) {
-                controller.detachBlock(badPart, false);
-            }
+            for (IMultiblockPart badPart : toRemove) { controller.detachBlock(badPart, false); }
 
-            MultiblockRegistry.tickStart(level);
+            MultiblockRegistry.tickStart(world);
             controller.checkForDisconnections();
             controller.updateInfo("rsmixin client force clear + purge + rebuild");
         }
@@ -60,15 +50,8 @@ public abstract class ContainerMultiCrafterMixin {
         return controller;
     }
 
-    @Redirect(method = "<init>(ILnet/minecraft/world/entity/player/Inventory;Lnet/gigabit101/rebornstorage/blockentities/BlockEntityMultiCrafter;)V",
-            at = @At(value = "INVOKE",
-                    target = "Ljava/util/Map;isEmpty()Z",
-                    ordinal = 0),
-            require = 1)
-    private boolean rsmixin$allowPlayerSlotsWhenEmpty(Map<?, ?> map) {
-        if (Config.ENABLE_REBORNSTORAGE_CRAFTER_FIX.get()) {
-            return false;
-        }
+    @Redirect(method = "<init>(ILnet/minecraft/world/entity/player/Inventory;Lnet/gigabit101/rebornstorage/blockentities/BlockEntityMultiCrafter;)V", at = @At(value = "INVOKE", target = "Ljava/util/Map;isEmpty()Z", ordinal = 0), require = 1, remap = false) private boolean rsmixin$allowPlayerSlotsWhenEmpty(Map<?, ?> map) {
+        if (Config.ENABLE_REBORNSTORAGE_CRAFTER_FIX.get()) { return false; }
         return map.isEmpty();
     }
 }

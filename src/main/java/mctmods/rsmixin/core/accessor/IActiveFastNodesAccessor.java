@@ -4,7 +4,7 @@ import com.refinedmods.refinedstorage.api.network.node.INetworkNode;
 
 import java.util.Set;
 
-public interface ActiveFastNodesAccessor {
+public interface IActiveFastNodesAccessor {
     Set<INetworkNode> rsmixin$getActiveFastNodes();
 
     void rsmixin$addActiveFastNode(INetworkNode node);

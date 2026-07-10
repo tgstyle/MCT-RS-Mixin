@@ -4,7 +4,7 @@ import com.refinedmods.refinedstorage.api.network.node.INetworkNode;
 
 import java.util.Set;
 
-public interface ConnectedNodesAccessor {
+public interface IConnectedNodesAccessor {
     Set<INetworkNode> rsmixin$getConnectedNodes();
 
     void rsmixin$addConnectedNode(INetworkNode node);
