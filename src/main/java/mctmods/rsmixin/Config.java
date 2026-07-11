@@ -239,7 +239,10 @@ public class Config {
                 Normally RS treats a damaged tool as a completely different item, so it grabs or crafts
                 a brand new tool every single time and the damaged ones pile up unused in storage.
                 With this on, damaged tools count as valid ingredients (most-damaged used first),
-                tools wear down properly across crafts, and they break when their durability actually runs out.
+                a single tool is re-used across an entire batch craft until its durability runs out
+                (only crafting a replacement when one actually breaks), and broken tools are properly
+                consumed. The actual durability cost of each recipe is measured from the recipe itself,
+                and recipes with random durability loss are estimated conservatively.
                 Enchanted tools are never mixed up with plain ones.""")
                 .define("enableDamageableInputReuse", true);
 
