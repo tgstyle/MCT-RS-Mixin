@@ -29,6 +29,8 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue ENABLE_TRACKED_INSERT_INDEX;
     public static final ForgeConfigSpec.BooleanValue ENABLE_DAMAGEABLE_INPUT_REUSE;
     public static final ForgeConfigSpec.BooleanValue ENABLE_CRAFTING_CRASH_GUARD;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_GRID_RESYNC;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_SAFE_DATA_SAVING;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -255,6 +257,27 @@ public class Config {
                 an error is written to the log, and the server keeps running.
                 Fixes Refined Storage issues #3751 and #3727, and the reboot crash loops behind #3755 and #3753.""")
                 .define("enableCraftingCrashGuard", true);
+
+        ENABLE_GRID_RESYNC = builder
+                .comment("""
+                Fixes grids randomly showing missing/wrong/empty item lists until reopened (RS bug #3693).
+                Whenever the network rebuilds its item list (any block placed/broken on the network, chunks
+                loading, etc.) while a grid is open, vanilla RS forgets to tell the player's screen about it,
+                leaving it permanently out of sync until the grid is reopened.
+                With this on, open grids are refreshed automatically whenever that happens.""")
+                .define("enableGridResync", true);
+
+        ENABLE_SAFE_DATA_SAVING = builder
+                .comment("""
+                Fixes disks/storage randomly wiping to 0/0 after a server restart (RS bugs #3740, #3714).
+                Vanilla RS saves its disk data by deleting the real file and then renaming a temp file over it -
+                if that rename fails (common on Windows with antivirus or backup software), your disk data file
+                is destroyed and everything shows as empty on next boot.
+                With this on, saves are atomic (the old file is never deleted first), failures are retried on the
+                next autosave instead of silently dropped, and a clear error is logged.
+                Tip: if you were already hit by this bug, look for a refinedstorage_disks.dat.temp file in your
+                world's data folder - renaming it to refinedstorage_disks.dat usually recovers everything.""")
+                .define("enableSafeDataSaving", true);
 
         SPEC = builder.build();
     }
