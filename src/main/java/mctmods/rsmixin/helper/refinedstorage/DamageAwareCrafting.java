@@ -5,12 +5,18 @@ import com.refinedmods.refinedstorage.api.util.IStackList;
 import com.refinedmods.refinedstorage.api.util.StackListEntry;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 public final class DamageAwareCrafting {
+    private static final Map<ICraftingPattern, Map<Item, Integer>> DAMAGE_PER_CRAFT_CACHE = new WeakHashMap<>();
+
     private DamageAwareCrafting() {}
 
     public static boolean isReusableMatch(ItemStack key, ItemStack candidate) {
@@ -29,7 +35,7 @@ public final class DamageAwareCrafting {
 
     public static ItemStack findInStackList(IStackList<ItemStack> list, ItemStack key) {
         ItemStack best = null;
-        for (StackListEntry<ItemStack> entry : list.getStacks()) {
+        for (StackListEntry<ItemStack> entry : list.getStacks(key)) {
             ItemStack candidate = entry.getStack();
             if (!isReusableMatch(key, candidate)) { continue; }
             if (best == null || candidate.getDamageValue() > best.getDamageValue()) { best = candidate; }
@@ -46,9 +52,9 @@ public final class DamageAwareCrafting {
         return variants;
     }
 
-    public static List<ItemStack> collectVariantsFromEntries(Iterable<StackListEntry<ItemStack>> entries, ItemStack key) {
+    public static List<ItemStack> collectVariantsFromList(IStackList<ItemStack> list, ItemStack key) {
         List<ItemStack> variants = new ArrayList<>();
-        for (StackListEntry<ItemStack> entry : entries) {
+        for (StackListEntry<ItemStack> entry : new ArrayList<>(list.getStacks(key))) {
             if (isReusableMatch(key, entry.getStack())) { variants.add(entry.getStack()); }
         }
         variants.sort(Comparator.comparingInt(ItemStack::getDamageValue).reversed());
@@ -61,14 +67,14 @@ public final class DamageAwareCrafting {
         long demand = (long) perCraft * (long) qty;
         if (demand > Integer.MAX_VALUE) { return 0; }
 
-        int damagePerCraft = measureDamagePerCraft(input, perCraft, pattern, recipe);
+        int damagePerCraft = damagePerCraftCached(input, perCraft, pattern, recipe);
         if (damagePerCraft < 0) { return 0; }
 
         List<ItemStack> owned = new ArrayList<>();
-        for (StackListEntry<ItemStack> entry : results.getStacks()) {
+        for (StackListEntry<ItemStack> entry : results.getStacks(input)) {
             if (isReusableMatch(input, entry.getStack())) { owned.add(entry.getStack()); }
         }
-        for (StackListEntry<ItemStack> entry : storage.getStacks()) {
+        for (StackListEntry<ItemStack> entry : storage.getStacks(input)) {
             if (isReusableMatch(input, entry.getStack())) { owned.add(entry.getStack()); }
         }
         owned.sort(Comparator.comparingInt(ItemStack::getDamageValue).reversed());
@@ -95,11 +101,30 @@ public final class DamageAwareCrafting {
         return (int) credit;
     }
 
+    public static void debitDamageAwareVariants(IStackList<ItemStack> list, ItemStack template, int amount) {
+        int remaining = amount;
+        for (ItemStack variant : collectVariantsFromList(list, template)) {
+            if (remaining <= 0) { break; }
+            int take = Math.min(remaining, variant.getCount());
+            list.remove(variant, take);
+            remaining -= take;
+        }
+    }
+
     private static long usableCrafts(int maxDamage, int currentDamage, int damagePerCraft, long cap) {
         if (damagePerCraft <= 0) { return cap; }
         long durabilityLeft = maxDamage - currentDamage;
         if (durabilityLeft <= 0) { return 1; }
         return Math.max(1, (durabilityLeft + damagePerCraft - 1) / damagePerCraft);
+    }
+
+    private static int damagePerCraftCached(ItemStack input, int perCraft, ICraftingPattern pattern, NonNullList<ItemStack> recipe) {
+        Map<Item, Integer> perPattern = DAMAGE_PER_CRAFT_CACHE.computeIfAbsent(pattern, p -> new HashMap<>());
+        Integer cached = perPattern.get(input.getItem());
+        if (cached != null) { return cached; }
+        int measured = measureDamagePerCraft(input, perCraft, pattern, recipe);
+        perPattern.put(input.getItem(), measured);
+        return measured;
     }
 
     private static int measureDamagePerCraft(ItemStack input, int perCraft, ICraftingPattern pattern, NonNullList<ItemStack> recipe) {
@@ -118,16 +143,5 @@ public final class DamageAwareCrafting {
             if (observed > worstObserved) { worstObserved = observed; }
         }
         return Math.max(0, worstObserved);
-    }
-
-    public static void debitDamageAwareVariants(IStackList<ItemStack> list, ItemStack template, int amount) {
-        int remaining = amount;
-        List<ItemStack> variants = collectVariantsFromEntries(new ArrayList<>(list.getStacks()), template);
-        for (ItemStack variant : variants) {
-            if (remaining <= 0) { break; }
-            int take = Math.min(remaining, variant.getCount());
-            list.remove(variant, take);
-            remaining -= take;
-        }
     }
 }

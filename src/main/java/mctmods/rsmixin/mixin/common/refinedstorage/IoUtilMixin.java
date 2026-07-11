@@ -75,7 +75,7 @@ import java.util.List;
             int totalExtracted = 0;
 
             if (wanted.isDamageableItem()) {
-                List<ItemStack> candidates = DamageAwareCrafting.collectVariantsFromEntries(new ArrayList<>(network.getItemStorageCache().getList().getStacks()), wanted);
+                List<ItemStack> candidates = DamageAwareCrafting.collectVariantsFromList(network.getItemStorageCache().getList(), wanted);
                 for (ItemStack candidate : candidates) {
                     if (remaining <= 0) { break; }
                     ItemStack result = network.extractItem(candidate, Math.min(remaining, candidate.getCount()), Action.PERFORM);
