@@ -1,284 +1,89 @@
 package mctmods.rsmixin;
 
-import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.config.Config.Comment;
+import net.minecraftforge.common.config.Config.RangeInt;
+import net.minecraftforge.common.config.ConfigManager;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-public class Config {
-    public static final ForgeConfigSpec SPEC;
-    public static final ForgeConfigSpec.BooleanValue ENABLE_DEBUG_LOGGING;
-    public static final ForgeConfigSpec.BooleanValue ENABLE_THROTTLE;
-    public static final ForgeConfigSpec.IntValue THROTTLE_INTERVAL;
-    public static final ForgeConfigSpec.BooleanValue ENABLE_BYPASS_FAST_NODES;
-    public static final ForgeConfigSpec.ConfigValue<java.util.List<? extends String>> FAST_NODE_CLASSES;
-    public static final ForgeConfigSpec.BooleanValue ENABLE_LOAD_RESCAN;
-    public static final ForgeConfigSpec.IntValue LOAD_RESCAN_DELAY;
-    public static final ForgeConfigSpec.BooleanValue ENABLE_CONDUIT_PLACEMENT_FIX;
-    public static final ForgeConfigSpec.IntValue CONDUIT_PLACEMENT_RESCAN_DELAY;
-    public static final ForgeConfigSpec.BooleanValue ENABLE_LAZY_ENERGY;
-    public static final ForgeConfigSpec.BooleanValue ENABLE_HASHSET_OPTIMIZE;
-    public static final ForgeConfigSpec.BooleanValue ENABLE_SKIP_UNLOADED;
-    public static final ForgeConfigSpec.BooleanValue ENABLE_DYNAMIC_NODE_SLEEP;
-    public static final ForgeConfigSpec.BooleanValue ENABLE_DYNAMIC_CRAFTING_BYPASS;
-    public static final ForgeConfigSpec.BooleanValue ENABLE_CONNECTED_NODE_TICK_OPTIMIZE;
-    public static final ForgeConfigSpec.BooleanValue ENABLE_ENDERIO_RS_FIX;
-    public static final ForgeConfigSpec.BooleanValue ENABLE_ENDERIO_CONDUIT_TYPED_BACKUP;
-    public static final ForgeConfigSpec.BooleanValue ENABLE_REBORNSTORAGE_CRAFTER_FIX;
-    public static final ForgeConfigSpec.BooleanValue ENABLE_STORAGE_CACHE_DEBOUNCE;
-    public static final ForgeConfigSpec.BooleanValue ENABLE_CRAFTING_REBUILD_DEBOUNCE;
-    public static final ForgeConfigSpec.BooleanValue ENABLE_GRAPH_RESCAN_COALESCE;
-    public static final ForgeConfigSpec.BooleanValue ENABLE_ENDERIO_NODE_UNIFY;
-    public static final ForgeConfigSpec.BooleanValue ENABLE_TRACKED_INSERT_INDEX;
-    public static final ForgeConfigSpec.BooleanValue ENABLE_DAMAGEABLE_INPUT_REUSE;
-    public static final ForgeConfigSpec.BooleanValue ENABLE_CRAFTING_CRASH_GUARD;
-    public static final ForgeConfigSpec.BooleanValue ENABLE_GRID_RESYNC;
-    public static final ForgeConfigSpec.BooleanValue ENABLE_SAFE_DATA_SAVING;
+@net.minecraftforge.common.config.Config(modid = RSMixin.MODID) @EventBusSubscriber(modid = RSMixin.MODID) public class Config {
+    @Comment("Turns on extra log messages for troubleshooting. Can get spammy, leave off unless you're diagnosing a problem.")
+    public static boolean enableDebugLogging = false;
 
-    static {
-        ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
-        builder.push(RSMixin.MODID);
+    @Comment("Master switch for network update throttling. When enabled, full RS network updates run only every throttleInterval ticks instead of every tick.")
+    public static boolean enableThrottle = true;
 
-        ENABLE_DEBUG_LOGGING = builder
-                .comment("Turns on extra log messages for troubleshooting. Can get spammy, leave off unless you're diagnosing a problem.")
-                .define("enableDebugLogging", false);
+    @Comment("How often (in ticks) full network updates occur when throttling is enabled. 1 = no throttling, 20 = every second.") @RangeInt(min = 1, max = 1000)
+    public static int throttleInterval = 20;
 
-        ENABLE_THROTTLE = builder
-                .comment("""
-                        Master switch for network update throttling.
-                        When enabled, full RS network updates run only every throttleInterval ticks instead of every tick.
-                        This reduces server load in large networks but slows down some operations if not bypassed.""")
-                .define("enableThrottle", true);
+    @Comment("Allows specific nodes (importers, exporters, interfaces, etc.) to bypass throttling and update every tick.")
+    public static boolean enableBypassFastNodes = true;
 
-        THROTTLE_INTERVAL = builder
-                .comment("""
-                        How often (in ticks) full network updates occur when throttling is enabled.
-                        1 = no throttling (every tick), 20 = every second (default, ~1 operation/sec for non-bypassed nodes).
-                        Only matters if enableThrottle is true.""")
-                .defineInRange("throttleInterval", 20, 1, 1000);
+    @Comment("List of node class names that are allowed to bypass throttling when enableBypassFastNodes is true.")
+    public static String[] fastNodeClasses = new String[]{
+            "com.raoulvdberge.refinedstorage.apiimpl.network.node.NetworkNodeImporter",
+            "com.raoulvdberge.refinedstorage.apiimpl.network.node.NetworkNodeExporter",
+            "com.raoulvdberge.refinedstorage.apiimpl.network.node.NetworkNodeInterface",
+            "com.raoulvdberge.refinedstorage.apiimpl.network.node.NetworkNodeFluidInterface",
+            "com.raoulvdberge.refinedstorage.apiimpl.network.node.NetworkNodeCrafter",
+            "com.raoulvdberge.refinedstorage.apiimpl.network.node.NetworkNodeConstructor",
+            "com.raoulvdberge.refinedstorage.apiimpl.network.node.NetworkNodeDestructor",
+            "com.raoulvdberge.refinedstorage.apiimpl.network.node.diskmanipulator.NetworkNodeDiskManipulator"
+    };
 
-        ENABLE_BYPASS_FAST_NODES = builder
-                .comment("""
-                        Allows specific nodes (importers, exporters, interfaces, etc.) to bypass throttling and update more frequently.
-                        
-                        - ENABLED (default): Listed nodes can update every tick (full speed when active; speed upgrades respected).
-                          Higher performance cost when nodes are busy, but fast transfer rates.
-                        
-                        - DISABLED: All nodes strictly follow throttleInterval (~1 operation/sec at interval=20).
-                          Speed upgrades are ignored (forced to 1) for consistent rate.
-                        
-                        Interacts with fastNodeClasses (defines which nodes can bypass) and enableDynamicNodeSleep (controls node sleep behaviour when bypassing).""")
-                .define("enableBypassFastNodes", true);
+    @Comment("On controller load/reload (world load, relog, chunk load), delay then force a full network rescan. Fixes connection issues with capability-based cables (e.g., EnderIO conduits).")
+    public static boolean enableLoadRescan = true;
 
-        FAST_NODE_CLASSES = builder
-                .comment("""
-                        List of node class names that are allowed to bypass throttling when enableBypassFastNodes is true.
-                        Defaults cover core RS nodes (importers, exporters, interfaces, crafters, etc.) and popular addons.
-                        Adding extra classes is safe—even if the mod isn't installed (string matching only).
-                        Only relevant when enableBypassFastNodes is enabled.""")
-                .defineList("fastNodeClasses", java.util.Arrays.asList(
-                        "com.refinedmods.refinedstorage.apiimpl.network.node.ImporterNetworkNode",
-                        "com.refinedmods.refinedstorage.apiimpl.network.node.ExporterNetworkNode",
-                        "com.refinedmods.refinedstorage.apiimpl.network.node.InterfaceNetworkNode",
-                        "com.refinedmods.refinedstorage.apiimpl.network.node.FluidInterfaceNetworkNode",
-                        "com.refinedmods.refinedstorage.apiimpl.network.node.CrafterNetworkNode",
-                        "com.refinedmods.refinedstorage.apiimpl.network.node.ConstructorNetworkNode",
-                        "com.refinedmods.refinedstorage.apiimpl.network.node.DestructorNetworkNode",
-                        "com.refinedmods.refinedstorage.apiimpl.network.node.diskmanipulator.DiskManipulatorNetworkNode",
-                        // Cable Tiers
-                        "com.ultramega.cabletiers.node.TieredConstructorNetworkNode",
-                        "com.ultramega.cabletiers.node.TieredDestructorNetworkNode",
-                        "com.ultramega.cabletiers.node.TieredExporterNetworkNode",
-                        "com.ultramega.cabletiers.node.TieredImporterNetworkNode",
-                        "com.ultramega.cabletiers.node.TieredInterfaceNetworkNode",
-                        "com.ultramega.cabletiers.node.TieredRequesterNetworkNode",
-                        "com.ultramega.cabletiers.node.diskmanipulatorz.TieredDiskManipulatorNetworkNode",
-                        // Extra Storage
-                        "edivad.extrastorage.nodes.AdvancedExporterNetworkNode",
-                        "edivad.extrastorage.nodes.AdvancedImporterNetworkNode",
-                        "edivad.extrastorage.nodes.AdvancedCrafterNetworkNode",
-                        // Requestify
-                        "com.buuz135.refinedstoragerequestify.proxy.block.network.NetworkNodeRequester",
-                        // Reborn Storage
-                        "net.gigabit101.rebornstorage.nodes.CraftingNode",
-                        // Refined Crafter Proxy
-                        "dev.stevendoesstuffs.refinedcrafterproxy.CrafterProxyNetworkNode"
-                ), obj -> obj instanceof String);
+    @Comment("Ticks to wait after detecting controller load before rescanning. Default 20 (~1 second).") @RangeInt(min = 0, max = 400)
+    public static int loadRescanDelay = 20;
 
-        ENABLE_LOAD_RESCAN = builder
-                .comment("""
-                        On controller load/reload (world load, relog, chunk load), delay then force a full network rescan.
-                        Fixes connection issues with capability-based cables (e.g., EnderIO conduits) that aren't detected immediately on load.
-                        Safe and recommended for most setups.""")
-                .define("enableLoadRescan", true);
+    @Comment("Cache the controller's energy usage instead of summing every node twice per tick. Refreshed on graph changes, redstone mode changes, and every 20 ticks.")
+    public static boolean enableLazyEnergy = true;
 
-        LOAD_RESCAN_DELAY = builder
-                .comment("""
-                        Ticks to wait after detecting controller load before rescanning.
-                        Gives time for block entities and capabilities to initialize. Default 20 (~1 second).
-                        Only matters if enableLoadRescan is true.""")
-                .defineInRange("loadRescanDelay", 20, 0, 400);
+    @Comment("Replace concurrent hash sets in the network graph scan with plain HashSets for faster full rescans.")
+    public static boolean enableHashSetOptimize = true;
 
-        ENABLE_CONDUIT_PLACEMENT_FIX = builder
-                .comment("""
-                        When placing EnderIO conduits next to RS blocks, delay then force a network rescan.
-                        Fixes runtime detection failures where immediate rescan is too early.
-                        Safe even without EnderIO installed.""")
-                .define("enableConduitPlacementFix", true);
+    @Comment("Skip network/node graph operations for positions whose chunks are not loaded (prevents chunk-unload cascades and load-on-scan).")
+    public static boolean enableSkipUnloaded = true;
 
-        CONDUIT_PLACEMENT_RESCAN_DELAY = builder
-                .comment("""
-                        Ticks to wait after conduit placement before rescanning.
-                        Default 10 (~0.5 seconds). Increase if connections still fail occasionally.
-                        Only matters if enableConduitPlacementFix is true.""")
-                .defineInRange("conduitPlacementRescanDelay", 10, 0, 200);
+    @Comment("Let bypassed fast nodes sleep when they had no work, waking them on network changes.")
+    public static boolean enableDynamicNodeSleep = true;
 
-        ENABLE_LAZY_ENERGY = builder
-                .comment("Recalculate network energy usage only when the graph changes instead of every tick. Minor performance improvement.")
-                .define("enableLazyEnergy", true);
+    @Comment("Let crafting tasks tick every tick while active even when throttled.")
+    public static boolean enableDynamicCraftingBypass = true;
 
-        ENABLE_HASHSET_OPTIMIZE = builder
-                .comment("Replace ConcurrentHashMap/ConcurrentHashSet with regular HashMap/HashSet in single-threaded contexts. Small performance gain.")
-                .define("enableHashSetOptimize", true);
+    @Comment("Only tick nodes that are actually connected and active instead of iterating all graph entries.")
+    public static boolean enableConnectedNodeTickOptimize = true;
 
-        ENABLE_SKIP_UNLOADED = builder
-                .comment("Skip processing unloaded positions during network graph updates. Improves performance and prevents rare deadlocks on chunk unload.")
-                .define("enableSkipUnloaded", true);
+    @Comment("Enable RebornStorage multiblock crafter fixes.")
+    public static boolean enableRebornstorageCrafterFix = true;
 
-        ENABLE_DYNAMIC_NODE_SLEEP = builder
-                .comment("""
-                        Makes fast nodes sleep when idle (only relevant when enableBypassFastNodes is true and node is in fastNodeClasses).
-                        
-                        - ENABLED (default): Nodes update every tick only when work is available.
-                          When idle for a few cycles, they fall back to throttled updates → lower overhead.
-                        
-                        - DISABLED: Nodes always update every tick when bypassing is allowed (full speed even when idle).""")
-                .define("enableDynamicNodeSleep", true);
+    @Comment("Debounce storage cache invalidation during graph rescans so the cache rebuilds once per rescan instead of once per node.")
+    public static boolean enableStorageCacheDebounce = true;
 
-        ENABLE_DYNAMIC_CRAFTING_BYPASS = builder
-                .comment("""
-                        Enables dynamic throttling bypass for the crafting manager.
-                        
-                        - ENABLED (default): When there are active crafting tasks, the crafting manager updates every tick → fast crafting while active.
-                          Falls back to throttled updates when idle → lower overhead.
-                        
-                        - DISABLED: Crafting manager strictly follows throttleInterval.
-                        
-                        Only relevant when enableThrottle is true, throttleInterval > 1, and enableBypassFastNodes is true.
-                        Fully respects crafter speed upgrades.""")
-                .define("enableDynamicCraftingBypass", true);
+    @Comment("Debounce crafting pattern rebuilds during graph rescans so patterns rebuild once per rescan instead of once per crafter.")
+    public static boolean enableCraftingRebuildDebounce = true;
 
-        ENABLE_CONNECTED_NODE_TICK_OPTIMIZE = builder
-                .comment("Optimizes ticking by only updating nodes that are connected to a network. Disconnected nodes are skipped, reducing unnecessary overhead.")
-                .define("enableConnectedNodeTickOptimize", true);
+    @Comment("Index crafting patterns by output item/fluid so pattern lookups are hash lookups instead of scanning every pattern. Big win with large pattern libraries (e.g. RebornStorage multiblocks).")
+    public static boolean enablePatternLookupIndex = true;
 
-        ENABLE_ENDERIO_RS_FIX = builder
-                .comment("""
-                        Registers a passthrough factory for EnderIO's RS conduits to suppress warnings and enable compatibility.
-                        Disable if EnderIO adds their own registration in a future update.
-                        Only applies if EnderIO is loaded.""")
-                .define("enableEnderioRsFix", true);
+    @Comment("Only mark the controller chunk dirty at most once per second while crafting tasks are running, instead of every tick.")
+    public static boolean enableCraftingDirtyThrottle = true;
 
-        ENABLE_ENDERIO_CONDUIT_TYPED_BACKUP = builder
-                .comment("""
-                        Enables saving and applying a type-keyed NBT backup for EnderIO conduit data (filters, upgrades, autocrafting rows, etc.).
-                        Prevents loss/corruption on world reload when the global graph restore or positional fallback fails.
-                        Safe to disable if not needed, conflicting, or EnderIO fixes this upstream.
-                        Default: true (recommended for RS + EnderIO setups).""")
-                .define("enableEnderioConduitTypedBackup", true);
+    @Comment("Coalesce multiple graph rescans in the same tick into a single deferred rescan at end of tick.")
+    public static boolean enableGraphRescanCoalesce = true;
 
-        ENABLE_REBORNSTORAGE_CRAFTER_FIX = builder
-                .comment("""
-                        Fixes RebornStorage multiblock crafter (v5.0.7):
-                        - Immediate assembly/GUI access.
-                        - Requires CPU or storage (no all-air).
-                        - Allows air during construction.
-                        - Clean validation messages.
-                        - No pattern pages with CPU-only (clear message).
-                        Safe to disable if newer versions fix these.""")
-                .define("enableRebornstorageCrafterFix", true);
+    @Comment("Track last successful insert index in crafters to avoid rescanning all slots.")
+    public static boolean enableTrackedInsertIndex = true;
 
-        ENABLE_STORAGE_CACHE_DEBOUNCE = builder
-                .comment("""
-                        Stops your item/fluid list from rebuilding itself over and over when things reconnect.
-                        Normally, every storage block on your network can trigger a full list rebuild at the same time,
-                        which causes lag spikes when your world loads or when you place/break a lot of storage at once.
-                        This makes it rebuild the list just once instead.""")
-                .define("enableStorageCacheDebounce", true);
+    @Comment("Guard crafting calculator/task internals against crashes from malformed patterns.")
+    public static boolean enableCraftingCrashGuard = true;
 
-        ENABLE_CRAFTING_REBUILD_DEBOUNCE = builder
-                .comment("""
-                        Stops autocrafting patterns from being re-scanned over and over when crafters reconnect.
-                        Normally, every crafter reconnecting (like on world load) can trigger its own full pattern re-scan,
-                        which gets very slow with lots of crafters. This waits until everything has reconnected, then scans once.
-                        Works for regular RS crafters, Extra Storage crafters, and RebornStorage crafters.""")
-                .define("enableCraftingRebuildDebounce", true);
+    @Comment("Resync grid storage cache listeners to prevent desynced grid contents.")
+    public static boolean enableGridResync = true;
 
-        ENABLE_GRAPH_RESCAN_COALESCE = builder
-                .comment("""
-                        Stops network rescans from piling up when you place or break lots of network blocks at once.
-                        The first block still connects instantly, just like normal.
-                        Any extra rescans triggered in that same instant are merged into one, run a moment later.
-                        Great for builders, schematics, or quarries that place many cables/blocks in one go.
-                        Worst case, a block takes one extra tick to connect (not noticeable in normal play).""")
-                .define("enableGraphRescanCoalesce", true);
-
-        ENABLE_ENDERIO_NODE_UNIFY = builder
-                .comment("""
-                        Fixes a bug where EnderIO's RS conduits can end up tracked as two different objects at once
-                        after a world reload, causing weird behavior like settings not sticking or conduits acting laggy/broken.
-                        Makes sure there's only ever one real conduit object being tracked.""")
-                .define("enableEnderIONodeUnify", true);
-
-        ENABLE_TRACKED_INSERT_INDEX = builder
-                .comment("""
-                        Speeds up autocrafting for big crafting trees.
-                        Normally, every item that comes back into a crafting job gets checked against every single step
-                        of that job to see where it belongs, which gets slow with big/multi-step crafts.
-                        This looks it up directly instead, so it only checks the steps that actually need that item.""")
-                .define("enableTrackedInsertIndex", true);
-
-        ENABLE_DAMAGEABLE_INPUT_REUSE = builder
-                .comment("""
-                Lets autocrafting properly re-use damageable tools (hammers, saws, etc.) in recipes.
-                Normally RS treats a damaged tool as a completely different item, so it grabs or crafts
-                a brand new tool every single time and the damaged ones pile up unused in storage.
-                With this on, damaged tools count as valid ingredients (most-damaged used first),
-                a single tool is re-used across an entire batch craft until its durability runs out
-                (only crafting a replacement when one actually breaks), and broken tools are properly
-                consumed. The actual durability cost of each recipe is measured from the recipe itself,
-                and recipes with random durability loss are estimated conservatively.
-                Enchanted tools are never mixed up with plain ones.""")
-                .define("enableDamageableInputReuse", true);
-
-        ENABLE_CRAFTING_CRASH_GUARD = builder
-                .comment("""
-                Stops a broken autocrafting task from crashing the whole server.
-                Vanilla RS can hit an internal inventory mismatch during processing crafts and hard-crashes
-                the server, and because the broken task is saved with the world, it crashes again on every reboot.
-                With this on, the broken task is safely cancelled instead: its items are refunded to storage,
-                an error is written to the log, and the server keeps running.
-                Fixes Refined Storage issues #3751 and #3727, and the reboot crash loops behind #3755 and #3753.""")
-                .define("enableCraftingCrashGuard", true);
-
-        ENABLE_GRID_RESYNC = builder
-                .comment("""
-                Fixes grids randomly showing missing/wrong/empty item lists until reopened (RS bug #3693).
-                Whenever the network rebuilds its item list (any block placed/broken on the network, chunks
-                loading, etc.) while a grid is open, vanilla RS forgets to tell the player's screen about it,
-                leaving it permanently out of sync until the grid is reopened.
-                With this on, open grids are refreshed automatically whenever that happens.""")
-                .define("enableGridResync", true);
-
-        ENABLE_SAFE_DATA_SAVING = builder
-                .comment("""
-                Fixes disks/storage randomly wiping to 0/0 after a server restart (RS bugs #3740, #3714).
-                Vanilla RS saves its disk data by deleting the real file and then renaming a temp file over it -
-                if that rename fails (common on Windows with antivirus or backup software), your disk data file
-                is destroyed and everything shows as empty on next boot.
-                With this on, saves are atomic (the old file is never deleted first), failures are retried on the
-                next autosave instead of silently dropped, and a clear error is logged.
-                Tip: if you were already hit by this bug, look for a refinedstorage_disks.dat.temp file in your
-                world's data folder - renaming it to refinedstorage_disks.dat usually recovers everything.""")
-                .define("enableSafeDataSaving", true);
-
-        SPEC = builder.build();
+    @SubscribeEvent public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
+        if (event.getModID().equals(RSMixin.MODID)) { ConfigManager.sync(RSMixin.MODID, net.minecraftforge.common.config.Config.Type.INSTANCE); }
     }
 }

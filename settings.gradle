@@ -1,23 +1,17 @@
 pluginManagement {
     repositories {
-        maven { url 'https://files.minecraftforge.net/maven' }
-        maven { url 'https://maven.parchmentmc.org' }
+        maven { url 'https://maven.minecraftforge.net/' }
+        maven { url 'https://maven.gofancy.wtf/releases' }
+        gradlePluginPortal()
         mavenCentral()
         maven { url 'https://repo.spongepowered.org/repository/maven-public/' }
     }
-    resolutionStrategy {
-        eachPlugin {
-            if (requested.id.toString() == 'org.spongepowered.mixin') {
-                useModule("org.spongepowered:mixingradle:${requested.version}")
-            }
-        }
-    }
 }
 
-def propsFile = file('version.properties')
-def props = new Properties()
-props.load(new FileInputStream(propsFile))
+def commonProps = new Properties()
+file('../common/common-1.12.properties').withInputStream { commonProps.load(it) }
 
-def version_minecraft = props['version_mc']
-def baseVersion = props['version']
-rootProject.name = "MCT-RS-Mixin-${version_minecraft}-${baseVersion}"
+def versionProps = new Properties()
+file('version.properties').withInputStream { versionProps.load(it) }
+
+rootProject.name = "MCT-RS-Mixin-${commonProps['mcversion']}-${versionProps['version']}"

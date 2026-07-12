@@ -1,62 +1,33 @@
 package mctmods.rsmixin;
 
-import mctmods.rsmixin.helper.enderio.ConduitPlacementFix;
-import mctmods.rsmixin.helper.refinedstorage.CraftingTicker;
-import mctmods.rsmixin.helper.refinedstorage.FastNodeTicker;
-
-import mctmods.rsmixin.helper.refinedstorage.GraphRescanScheduler;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.common.config.Config.Type;
+import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-@SuppressWarnings("removal")
-@Mod("rsmixin")
+@Mod(modid = RSMixin.MODID, name = RSMixin.NAME, dependencies = "required-after:refinedstorage", acceptableRemoteVersions = "*")
 public class RSMixin {
     public static final String MODID = "rsmixin";
+    public static final String NAME = "RS Mixin";
     public static final Logger LOGGER = LogManager.getLogger(MODID);
 
-    public RSMixin() {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-        modEventBus.addListener(this::onCommonSetup);
-
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.SPEC);
-
-        MinecraftForge.EVENT_BUS.register(new FastNodeTicker());
-        MinecraftForge.EVENT_BUS.register(new ConduitPlacementFix());
-        MinecraftForge.EVENT_BUS.register(CraftingTicker.class);
-        MinecraftForge.EVENT_BUS.register(GraphRescanScheduler.class);
-
-        Thread.setDefaultUncaughtExceptionHandler((thread, t) -> {
-            System.err.println("Uncaught exception in thread " + thread.getName() + ":");
-            t.printStackTrace(System.err);
-        });
+    @Mod.EventHandler public void preInit(FMLPreInitializationEvent event) {
+        ConfigManager.sync(MODID, Type.INSTANCE);
+        LOGGER.info("RSMixin loaded: enableDebugLogging={}, enableThrottle={}, throttleInterval={}, enableBypassFastNodes={}, enableLoadRescan={}, loadRescanDelay={}, enableLazyEnergy={}, enableHashSetOptimize={}, enableSkipUnloaded={}, enableGraphRescanCoalesce={}, enableStorageCacheDebounce={}, enableCraftingRebuildDebounce={}",
+                Config.enableDebugLogging,
+                Config.enableThrottle,
+                Config.throttleInterval,
+                Config.enableBypassFastNodes,
+                Config.enableLoadRescan,
+                Config.loadRescanDelay,
+                Config.enableLazyEnergy,
+                Config.enableHashSetOptimize,
+                Config.enableSkipUnloaded,
+                Config.enableGraphRescanCoalesce,
+                Config.enableStorageCacheDebounce,
+                Config.enableCraftingRebuildDebounce);
     }
 
-    private void onCommonSetup(FMLCommonSetupEvent event) {
-        LOGGER.info("Loaded config: enableDebugLogging={}, enableThrottle={}, throttleInterval={}, enableBypassFastNodes={}, enableLoadRescan={}, loadRescanDelay={}, enableConduitPlacementFix={}, conduitPlacementRescanDelay={}, enableLazyEnergy={}, enableHashSetOptimize={}, enableSkipUnloaded={}, enableDynamicNodeSleep={}, enableDynamicCraftingBypass={}, enableConnectedNodeTickOptimize={}, enableEnderioRsFix={}, enableEnderioConduitTypedBackup={}, enableRebornstorageCrafterFix={}",
-                Config.ENABLE_DEBUG_LOGGING.get(),
-                Config.ENABLE_THROTTLE.get(),
-                Config.THROTTLE_INTERVAL.get(),
-                Config.ENABLE_BYPASS_FAST_NODES.get(),
-                Config.ENABLE_LOAD_RESCAN.get(),
-                Config.LOAD_RESCAN_DELAY.get(),
-                Config.ENABLE_CONDUIT_PLACEMENT_FIX.get(),
-                Config.CONDUIT_PLACEMENT_RESCAN_DELAY.get(),
-                Config.ENABLE_LAZY_ENERGY.get(),
-                Config.ENABLE_HASHSET_OPTIMIZE.get(),
-                Config.ENABLE_SKIP_UNLOADED.get(),
-                Config.ENABLE_DYNAMIC_NODE_SLEEP.get(),
-                Config.ENABLE_DYNAMIC_CRAFTING_BYPASS.get(),
-                Config.ENABLE_CONNECTED_NODE_TICK_OPTIMIZE.get(),
-                Config.ENABLE_ENDERIO_RS_FIX.get(),
-                Config.ENABLE_ENDERIO_CONDUIT_TYPED_BACKUP.get(),
-                Config.ENABLE_REBORNSTORAGE_CRAFTER_FIX.get());
-    }
 }

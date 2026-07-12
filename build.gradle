@@ -1,21 +1,15 @@
-import groovy.json.JsonOutput
-import groovy.json.JsonSlurper
-import net.minecraftforge.gradle.common.tasks.SignJar
-
 plugins {
-    id 'idea'
-    id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '6.0.+'
-    id 'org.spongepowered.mixin' version '0.7.+'
-    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
-    id 'org.jetbrains.gradle.plugin.idea-ext' version '1.1.6'
-    id 'eclipse'
+    id 'net.minecraftforge.gradle' version '5.1.72'
+    id 'wtf.gofancy.fancygradle' version '1.1.3-0'
+    id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
 }
 
-configurations.configureEach {
-    resolutionStrategy {
-        force 'com.google.guava:guava:32.1.3-jre'
-    }
+ext.configFile = file '../common/common-1.12.properties'
+
+configFile.withReader {
+    def prop = new Properties()
+    prop.load(it)
+    ext.common = new ConfigSlurper().parse prop
 }
 
 def versionProps = new Properties()
@@ -24,139 +18,116 @@ file('version.properties').withInputStream { versionProps.load(it) }
 def gradleProps = new Properties()
 file('gradle.properties').withInputStream { gradleProps.load(it) }
 
-version = versionProps.getProperty('version')
+ext.modversion = versionProps.getProperty('version')
 ext.version_buildnumber = versionProps.getProperty('build_number')?.toInteger() ?: 0
 ext.stage = versionProps.getProperty('stage') ?: ''
 
-println "-> build.gradle applying version: $version (build ${version_buildnumber}) ${stage}"
+version = "${common.mcversion}-${modversion}.${version_buildnumber}-${stage}"
+
+println "-> build.gradle applying version: $version"
 
 group = 'mctmods.rsmixin'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-
-tasks.withType(Jar).configureEach {
-    zip64 true
-}
-
 ext {
     mod_id = gradleProps['mod_id']
-    version_minecraft = versionProps['version_mc']
-    version_forge = versionProps['version_forge']
-    version_jei = versionProps['version_jei']
-    version_parchment = versionProps['version_parchment']
     mod_name = gradleProps['mod_name']
     mod_authors = gradleProps['mod_authors']
     mod_description = gradleProps['mod_description']
 }
 
-def version_replaces = {
-    [
-        'version'        : project.version,
-        'mod_id'         : mod_id,
-        'mod_name'       : mod_name,
-        'mod_authors'    : mod_authors,
-        'mod_description': mod_description
-    ] as Map<String, Object>
-}
+archivesBaseName = "MCT-RS-Mixin"
 
-def jsonPatterns = ["**/*.json", "**/*.mcmeta"]
+java.toolchain.languageVersion = JavaLanguageVersion.of(8)
 
-processResources {
-    duplicatesStrategy = DuplicatesStrategy.FAIL
-    inputs.properties(version_replaces())
-    filesMatching("META-INF/mods.toml") {
-        expand version_replaces()
-    }
-    exclude ".cache"
-    doLast {
-        fileTree(dir: outputs.files.asPath, includes: jsonPatterns).each { File file ->
-            file.text = JsonOutput.toJson(new JsonSlurper().parse(file, 'UTF-8'))
-        }
-    }
-}
-
-tasks.register('copyModsTomlForIntelliJ', Copy) {
-    from processResources.destinationDir
-    into "$projectDir/out/production/resources"
-    include "META-INF/mods.toml"
-    dependsOn processResources
-}
-
-minecraft {
-    mappings channel: 'parchment', version: version_parchment + '-' + version_minecraft
-
-    runs {
-        client {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', ''
-            property 'forge.enabledGameTestNamespaces', mod_id
-            ideaModule project.name + ".main"
-            mods {
-                rsmixin {
-                    source sourceSets.main
-                }
-            }
-            args '--username', 'tgstyle'
-            args '--width', '1920'
-            args '--height', '1080'
-        }
-        server {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', ''
-            property 'forge.enabledGameTestNamespaces', mod_id
-            arg '-nogui'
-            mods {
-                rsmixin {
-                    source sourceSets.main
-                }
-            }
-        }
-    }
+compileJava {
+    sourceCompatibility = '8'
+    targetCompatibility = '8'
 }
 
 repositories {
-    maven { url 'https://www.cursemaven.com' }
-    maven { url "https://cfa2.cursemaven.com" }
     maven {
-        name 'Jared maven'
-        url 'https://maven.blamejared.com/'
+        url = "https://cursemaven.com"
+        content { includeGroup "curse.maven" }
     }
-}
-
-mixin {
-    add sourceSets.main, "${mod_id}.refmap.json"
-    config "mixins.${mod_id}.json"
+    maven { url = 'https://maven.blamejared.com' }
+    maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+    maven { url = 'https://maven.minecraftforge.net' }
+    maven { url = 'https://maven.gofancy.wtf/releases' }
+    maven { url = 'https://maven.cleanroommc.com' }
+    mavenCentral()
+    gradlePluginPortal()
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${version_minecraft}-${version_forge}"
+    minecraft "net.minecraftforge:forge:${common.mcversion}-${common.forgeversion}"
 
-    implementation fg.deobf("mezz.jei:jei-1.20.1-forge:${version_jei}")
-    implementation fg.deobf("curse.maven:jade-324717:6855440")
+    implementation fg.deobf("curse.maven:${common.rsto_version}")
 
-	implementation fg.deobf("curse.maven:functional-storage-556861:6702553")
-	implementation fg.deobf("curse.maven:titanium-287342:5468426")
+    implementation fg.deobf("${common.mjei_version}")
+    implementation fg.deobf("curse.maven:${common.mtop_version}")
+    implementation fg.deobf("curse.maven:${common.rbcr_version}")
+    implementation fg.deobf("curse.maven:${common.rbst_version}")
 
-	implementation fg.deobf("curse.maven:spark-361579:4738952")
+    compileOnly fg.deobf("curse.maven:${common.sprk_version}")
 
-
-	implementation fg.deobf("curse.maven:refined-storage-243076:4844585")
-	implementation fg.deobf("curse.maven:cable-tiers-454382:5104156")
-	implementation fg.deobf("curse.maven:edivadlib-638508:4717006")
-    implementation fg.deobf("curse.maven:ender-io-64578:7183516")
-	implementation fg.deobf("curse.maven:extra-disks-351491:6366217")
-	implementation fg.deobf("curse.maven:extrastorage-410168:5168999")
-	implementation fg.deobf("curse.maven:kotlin-for-forge-351264:7291067")
-	implementation fg.deobf("curse.maven:refined-rebornstorage-256662:4861934")
-	implementation fg.deobf("curse.maven:refined-crafter-proxy-864695:5250206")
-	implementation fg.deobf("curse.maven:rs-requestify-307788:4862132")
-
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    annotationProcessor 'org.ow2.asm:asm-debug-all:5.2'
+    annotationProcessor 'com.google.guava:guava:32.1.2-jre'
+    annotationProcessor 'com.google.code.gson:gson:2.8.9'
+    implementation fg.deobf('zone.rong:mixinbooter:10.7') { transitive = false }
+    annotationProcessor('zone.rong:mixinbooter:10.7') { transitive = false }
 }
 
-def customGradle = rootProject.file('custom.gradle')
-if (customGradle.exists()) {
-    apply from: customGradle
+minecraft {
+    mappings channel: 'stable', version: "${common.mcp_mappings}"
+    runs {
+        client {
+            workingDirectory project.file('run')
+            args '--width', '1920'
+            args '--height', '1080'
+            args '--version', common.mcversion
+            args '--username', 'tgstyle'
+            property 'forge.logging.console.level', 'debug'
+            property 'fml.coreMods.load', 'mctmods.rsmixin.core.MCTMixin'
+            mods {
+                rsmixin {
+                    source sourceSets.main
+                }
+            }
+        }
+        server {
+            workingDirectory project.file('run/server')
+            args '--version', common.mcversion
+            property 'forge.logging.console.level', 'debug'
+            property 'fml.coreMods.load', 'mctmods.rsmixin.core.MCTMixin'
+            mods {
+                rsmixin {
+                    source sourceSets.main
+                }
+            }
+        }
+    }
+}
+
+tasks.withType(JavaExec).configureEach { task ->
+    if (task.name in ['runClient', 'runServer']) {
+        doFirst {
+            def modJar = project.file("build/libs/${archivesBaseName}-${version}.jar")
+            if (modJar.exists()) {
+                println "Removing JAR from classpath: ${modJar}"
+                def newClasspath = classpath.minus(modJar).plus(sourceSets.main.output)
+                classpath.setFrom(newClasspath)
+            }
+        }
+    }
+}
+
+compileJava.doLast {
+    copy {
+        from "build/tmp/compileJava"
+        include "**/*-refmap.json"
+        into sourceSets.main.output.resourcesDir
+        rename { String fileName -> "mixins.${mod_id}.refmap.json" }
+    }
 }
 
 tasks.register('bumpVersion') {
@@ -169,9 +140,8 @@ tasks.register('bumpVersion') {
         file('version.properties').withOutputStream { props.store(it, null) }
 
         ext.version_buildnumber = nextBuild
-        def stage = props['stage'] ?: ''
-        def stagePart = stage ? "-${stage}" : ""
-        def newVersion = "${props['version']}-b${nextBuild}${stagePart}"
+        def newStage = props['stage'] ?: ''
+        def newVersion = "${common.mcversion}-${props['version']}.${nextBuild}-${newStage}"
 
         project.version = newVersion
         tasks.withType(Jar).configureEach {
@@ -180,99 +150,39 @@ tasks.register('bumpVersion') {
     }
 }
 
-tasks.register('signJar', SignJar) {
-    onlyIf { project.hasProperty('keyStore') }
-    if (project.hasProperty('keyStore')) {
-        keyStore = project.keyStore
-        alias = project.storeAlias
-        storePass = project.storePass
-        keyPass = project.storePass
-        inputFile = jar.archiveFile.get().asFile
-        outputFile = jar.archiveFile.get().asFile
-    } else {
-        logger.warn("No key store found, not signing the output jar\n")
-    }
-}
-
-build.dependsOn bumpVersion, signJar
-
-tasks.register('sourcesJar', Jar) {
-    dependsOn classes
-	archiveBaseName.set("MCT-RS-Mixin-${version_minecraft}")
-    archiveClassifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-artifacts {
-    archives sourcesJar
-}
-
-void minimizePNGFile(File file) {
-    long size = file.length()
-    ExecOperations execOps = project.services.get(ExecOperations)
-    execOps.exec {
-        executable 'optipng'
-        args '-q', '-o7', '-zm1-9', '-strip', 'all', file.absolutePath
-    }
-    long newSize = file.length()
-    if (newSize < size) {
-        System.out.format("Reduced File size of %s from %d bytes to %d bytes (reduced by %.2f%%)\n",
-                file, size, newSize, ((double) (size - newSize)) / ((double) size) * 100.0)
-    }
-}
-
-tasks.register('optimizePng') {
-    def pngPatterns = ["**/*.png"]
-    doLast {
-        for (dir in sourceSets.main.resources.srcDirs) {
-            fileTree(dir: dir, includes: pngPatterns).each { minimizePNGFile(it) }
-        }
-    }
-}
-
-tasks.register('genIntellijRunsDummy') {}
-
-tasks.register('speedUpPreRun') {
-    doLast {
-        ["Client", "Server"].each { s ->
-            def runConfigFile = file(".idea/runConfigurations/run${s}.xml")
-            if (runConfigFile.exists()) {
-                ant.replace(file: runConfigFile, token: "prepareRun${s}", value: "prepareRuns")
-                def content = runConfigFile.text
-                if (!content.contains('-Dorg.gradle.logging.level=warn')) {
-                    ant.replace(file: runConfigFile,
-                            token: '<option name="VM_PARAMETERS" value="',
-                            value: '<option name="VM_PARAMETERS" value="-Dorg.gradle.logging.level=warn ')
-                }
-            }
-        }
-    }
-}
-
-tasks.withType(Task).configureEach {
-    if (it.name == "genIntellijRuns") {
-        it.finalizedBy speedUpPreRun
-        genIntellijRunsDummy.dependsOn it
-    } else if (it.name == "runServer") {
-        it.standardInput = System.in
-    }
-}
-
-idea {
-    project {
-        settings {
-            taskTriggers {
-                afterSync genIntellijRunsDummy
-            }
-        }
-    }
-}
-
+build.dependsOn bumpVersion
 processResources.dependsOn bumpVersion
 jar.dependsOn bumpVersion
-sourcesJar.dependsOn bumpVersion
+
+processResources {
+    inputs.property 'version', "${modversion}.${version_buildnumber}"
+    inputs.property 'mcversion', common.mcversion
+    filesMatching('mcmod.info') {
+        expand 'version': "${modversion}.${version_buildnumber}", 'mcversion': common.mcversion,
+                'mod_id': mod_id, 'mod_name': mod_name,
+                'mod_authors': mod_authors, 'mod_description': mod_description
+    }
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+}
+
+fancyGradle {
+    patches {
+        resources
+        asm
+        coremods
+        codeChickenLib
+        mergetool
+    }
+}
 
 jar {
-    archiveBaseName.set("MCT-RS-Mixin-${version_minecraft}")
-    archiveClassifier.set('')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes(
+                'FMLCorePlugin': 'mctmods.rsmixin.core.MCTMixin',
+                'FMLCorePluginContainsFMLMod': 'true'
+        )
+    }
 }
+
+sourceSets.configureEach { it.output.resourcesDir = it.output.classesDirs.getFiles().iterator().next() }

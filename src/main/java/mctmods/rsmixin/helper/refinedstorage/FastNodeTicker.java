@@ -1,73 +1,59 @@
 package mctmods.rsmixin.helper.refinedstorage;
 
-import com.refinedmods.refinedstorage.api.network.node.INetworkNode;
-import com.refinedmods.refinedstorage.apiimpl.API;
-import com.refinedmods.refinedstorage.apiimpl.network.NetworkNodeManager;
-
 import mctmods.rsmixin.Config;
+import mctmods.rsmixin.RSMixin;
 import mctmods.rsmixin.core.accessor.IActiveFastNodesAccessor;
 
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.Level;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import com.raoulvdberge.refinedstorage.api.network.node.INetworkNode;
+import com.raoulvdberge.refinedstorage.apiimpl.API;
+import com.raoulvdberge.refinedstorage.apiimpl.network.NetworkNodeManager;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static mctmods.rsmixin.RSMixin.MODID;
+@EventBusSubscriber(modid = RSMixin.MODID) public class FastNodeTicker {
+    private static final Logger LOGGER = LogManager.getLogger(RSMixin.MODID);
+    private static final Map<Integer, Integer> previousActiveCounts = new ConcurrentHashMap<>();
 
-public class FastNodeTicker {
-    private static final Logger LOGGER = LogManager.getLogger(MODID);
+    @SubscribeEvent public static void onWorldTick(TickEvent.WorldTickEvent event) {
+        if (!Config.enableThrottle || !Config.enableBypassFastNodes) { return; }
+        if (event.phase != TickEvent.Phase.END || event.world.isRemote) { return; }
 
-    private static final Map<ResourceKey<Level>, Integer> previousActiveCounts = new ConcurrentHashMap<>();
+        int interval = Config.throttleInterval;
+        if (interval <= 1) { return; }
 
-    @SubscribeEvent
-    public void onLevelTick(TickEvent.LevelTickEvent event) {
-        if (!Config.ENABLE_THROTTLE.get() || !Config.ENABLE_BYPASS_FAST_NODES.get()) return;
-
-        if (event.phase != TickEvent.Phase.END || event.level.isClientSide()) return;
-
-        int interval = Config.THROTTLE_INTERVAL.get();
-        if (interval <= 1) return;
-
-        long gameTime = event.level.getGameTime();
-        ResourceKey<Level> dimension = event.level.dimension();
+        long gameTime = event.world.getTotalWorldTime();
+        int dimension = event.world.provider.getDimension();
 
         if (gameTime % interval == 0) {
-            if (Config.ENABLE_DEBUG_LOGGING.get()) {
-                LOGGER.debug("RS Throttle: Full update tick in {}", dimension.location());
-            }
+            if (Config.enableDebugLogging) { LOGGER.debug("RS Throttle: Full update tick in dim {}", dimension); }
             return;
         }
 
-        event.level.getProfiler().push("rs fast node ticking");
+        event.world.profiler.startSection("rs fast node ticking");
 
-        NetworkNodeManager manager = (NetworkNodeManager) API.instance().getNetworkNodeManager((ServerLevel) event.level);
+        NetworkNodeManager manager = (NetworkNodeManager) API.instance().getNetworkNodeManager(event.world);
         Set<INetworkNode> active = ((IActiveFastNodesAccessor) manager).rsmixin$getActiveFastNodes();
 
         if (active == null) {
-            LOGGER.error("Active fast nodes set is null in dimension {}! Verify NetworkNodeManagerMixin is applied and field initialized.", dimension.location());
-            event.level.getProfiler().pop();
+            LOGGER.error("Active fast nodes set is null in dimension {}! Verify NetworkNodeManagerMixin is applied and field initialized.", dimension);
+            event.world.profiler.endSection();
             return;
         }
 
         int currentCount = active.size();
         Integer prevCount = previousActiveCounts.get(dimension);
 
-        if (Config.ENABLE_DEBUG_LOGGING.get() && (prevCount == null || prevCount != currentCount)) {
-            LOGGER.debug("Active fast nodes in {}: {} (changed from {})", dimension.location(), currentCount, prevCount == null ? "none" : prevCount);
-        }
+        if (Config.enableDebugLogging && (prevCount == null || prevCount != currentCount)) { LOGGER.debug("Active fast nodes in dim {}: {} (changed from {})", dimension, currentCount, prevCount == null ? "none" : prevCount); }
         previousActiveCounts.put(dimension, currentCount);
 
-        for (INetworkNode node : active) {
-            node.update();
-        }
+        for (INetworkNode node : active) { node.update(); }
 
-        event.level.getProfiler().pop();
+        event.world.profiler.endSection();
     }
 }
