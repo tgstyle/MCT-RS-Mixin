@@ -31,6 +31,7 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue ENABLE_CRAFTING_CRASH_GUARD;
     public static final ForgeConfigSpec.BooleanValue ENABLE_GRID_RESYNC;
     public static final ForgeConfigSpec.BooleanValue ENABLE_SAFE_DATA_SAVING;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_WIRELESS_DIMENSION_LOCK;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -278,6 +279,15 @@ public class Config {
                 Tip: if you were already hit by this bug, look for a refinedstorage_disks.dat.temp file in your
                 world's data folder - renaming it to refinedstorage_disks.dat usually recovers everything.""")
                 .define("enableSafeDataSaving", true);
+
+        ENABLE_WIRELESS_DIMENSION_LOCK = builder
+                .comment("""
+                When enabled, wireless items (Wireless Grid, Fluid Grid, Crafting Monitor, and addon wireless items)
+                can only be used in the same dimension as the network they are linked to.
+                Trying to use one from another dimension shows an on-screen message instead of opening,
+                even if an addon's infinite/cross-dimension wireless transmitter would normally allow it.
+                Disabled by default (vanilla behavior).""")
+                .define("enableWirelessDimensionLock", false);
 
         SPEC = builder.build();
     }

@@ -41,6 +41,7 @@
     "common.refinedstorage.IoUtilMixin",
     "common.refinedstorage.ItemGridStorageCacheListenerMixin",
     "common.refinedstorage.ItemStorageCacheMixin",
+    "common.refinedstorage.NetworkItemManagerMixin",
     "common.refinedstorage.NetworkListenerMixin",
     "common.refinedstorage.NetworkMixin",
     "common.refinedstorage.NetworkNodeGraphMixin",
@@ -48,6 +49,7 @@
     "common.refinedstorage.NetworkNodeGraphOperatorOptimizeMixin",
     "common.refinedstorage.NetworkNodeManagerMixin",
     "common.refinedstorage.NetworkNodeMixin",
+    "common.refinedstorage.NetworkTransmitterNetworkNodeMixin",
     "common.refinedstorage.PortableFluidGridStorageCacheListenerMixin",
     "common.refinedstorage.PortableItemGridStorageCacheListenerMixin",
     "common.refinedstorage.RSSavedDataMixin",
@@ -59,6 +61,7 @@
   },
   "client": [
     "client.rebornstorage.BlockMultiCrafterMixin",
-    "client.rebornstorage.ScreenMultiCrafterMixin"
+    "client.rebornstorage.ScreenMultiCrafterMixin",
+    "client.refinedstorage.NetworkTransmitterScreenMixin"
   ]
 }
