@@ -10,6 +10,7 @@
     "common.rebornstorage.CraftingNodeMixin",
     "common.refinedstorage.CraftingManagerMixin",
     "common.refinedstorage.CraftingTaskMixin",
+    "common.refinedstorage.NetworkItemHandlerMixin",
     "common.refinedstorage.NetworkNodeConstructorMixin",
     "common.refinedstorage.NetworkNodeCrafterMixin",
     "common.refinedstorage.NetworkNodeDestructorMixin",
@@ -23,6 +24,7 @@
     "common.refinedstorage.NetworkNodeListenerMixin",
     "common.refinedstorage.NetworkNodeManagerMixin",
     "common.refinedstorage.NetworkNodeMixin",
+    "common.refinedstorage.NetworkNodeNetworkTransmitterMixin",
     "common.refinedstorage.ProcessingMixin",
     "common.refinedstorage.StorageCacheFluidMixin",
     "common.refinedstorage.StorageCacheItemMixin",
@@ -34,5 +36,8 @@
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "client": [
+    "client.refinedstorage.GuiNetworkTransmitterMixin"
+  ]
 }

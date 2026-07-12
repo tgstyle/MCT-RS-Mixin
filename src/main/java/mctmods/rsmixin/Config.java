@@ -83,6 +83,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
     @Comment("Resync grid storage cache listeners to prevent desynced grid contents.")
     public static boolean enableGridResync = true;
 
+    @Comment("When enabled, wireless items (Wireless Grid, Fluid Grid, Crafting Monitor, and addon wireless items) can only be used in the same dimension as the network they are linked to, and Network Transmitters will not link to a Network Receiver in another dimension. Trying to use a wireless item from another dimension shows an on-screen message instead of opening, even if an addon's cross-dimension wireless transmitter would normally allow it. Disabled by default (vanilla behavior).")
+    public static boolean enableWirelessDimensionLock = false;
+
     @SubscribeEvent public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
         if (event.getModID().equals(RSMixin.MODID)) { ConfigManager.sync(RSMixin.MODID, net.minecraftforge.common.config.Config.Type.INSTANCE); }
     }

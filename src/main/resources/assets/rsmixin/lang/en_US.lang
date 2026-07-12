@@ -1,0 +1,3 @@
+gui.rsmixin.network_transmitter.dimension_blocked=Cross-dimension disabled
+
+misc.rsmixin.wireless_dimension_lock=Wireless item is linked to %s and cannot be used here
