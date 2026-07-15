@@ -14,7 +14,7 @@ description="Fixes and Optimizations for Refined Storage."
 [[dependencies.rsmixin]]
 modId="forge"
 mandatory=true
-versionRange="[47,)"
+versionRange="[${version_forge_min},)"
 ordering="NONE"
 side="BOTH"
 

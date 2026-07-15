@@ -42,6 +42,7 @@ ext {
     mod_id = gradleProps['mod_id']
     version_minecraft = versionProps['version_mc']
     version_forge = versionProps['version_forge']
+    version_forge_min = versionProps['version_forge_min']
     version_jei = versionProps['version_jei']
     version_parchment = versionProps['version_parchment']
     version_mixin = versionProps['version_mixin']
@@ -69,6 +70,7 @@ def version_replaces = {
     [
         'version'        : project.version,
         'version_mc'     : version_minecraft,
+        'version_forge_min' : version_forge_min,
         'version_refinedstorage' : version_refinedstorage,
         'mod_id'         : mod_id,
         'mod_name'       : mod_name,
