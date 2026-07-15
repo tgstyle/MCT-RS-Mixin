@@ -44,6 +44,22 @@ ext {
     version_forge = versionProps['version_forge']
     version_jei = versionProps['version_jei']
     version_parchment = versionProps['version_parchment']
+    version_mixin = versionProps['version_mixin']
+    version_jade_curse = versionProps['version_jade_curse']
+    version_functional_storage_curse = versionProps['version_functional_storage_curse']
+    version_titanium_curse = versionProps['version_titanium_curse']
+    version_spark_curse = versionProps['version_spark_curse']
+    version_refined_storage_curse = versionProps['version_refined_storage_curse']
+    version_refinedstorage = versionProps['version_refinedstorage']
+    version_cable_tiers_curse = versionProps['version_cable_tiers_curse']
+    version_edivadlib_curse = versionProps['version_edivadlib_curse']
+    version_ender_io_curse = versionProps['version_ender_io_curse']
+    version_extra_disks_curse = versionProps['version_extra_disks_curse']
+    version_extrastorage_curse = versionProps['version_extrastorage_curse']
+    version_kotlin_for_forge_curse = versionProps['version_kotlin_for_forge_curse']
+    version_refined_rebornstorage_curse = versionProps['version_refined_rebornstorage_curse']
+    version_refined_crafter_proxy_curse = versionProps['version_refined_crafter_proxy_curse']
+    version_rs_requestify_curse = versionProps['version_rs_requestify_curse']
     mod_name = gradleProps['mod_name']
     mod_authors = gradleProps['mod_authors']
     mod_description = gradleProps['mod_description']
@@ -52,6 +68,8 @@ ext {
 def version_replaces = {
     [
         'version'        : project.version,
+        'version_mc'     : version_minecraft,
+        'version_refinedstorage' : version_refinedstorage,
         'mod_id'         : mod_id,
         'mod_name'       : mod_name,
         'mod_authors'    : mod_authors,
@@ -131,27 +149,27 @@ mixin {
 dependencies {
     minecraft "net.minecraftforge:forge:${version_minecraft}-${version_forge}"
 
-    implementation fg.deobf("mezz.jei:jei-1.20.1-forge:${version_jei}")
-    implementation fg.deobf("curse.maven:jade-324717:6855440")
+    implementation fg.deobf("mezz.jei:jei-${version_minecraft}-forge:${version_jei}")
+    implementation fg.deobf("curse.maven:${version_jade_curse}")
 
-	implementation fg.deobf("curse.maven:functional-storage-556861:6702553")
-	implementation fg.deobf("curse.maven:titanium-287342:5468426")
+	implementation fg.deobf("curse.maven:${version_functional_storage_curse}")
+	implementation fg.deobf("curse.maven:${version_titanium_curse}")
 
-	implementation fg.deobf("curse.maven:spark-361579:4738952")
+	implementation fg.deobf("curse.maven:${version_spark_curse}")
 
 
-	implementation fg.deobf("curse.maven:refined-storage-243076:4844585")
-	implementation fg.deobf("curse.maven:cable-tiers-454382:5104156")
-	implementation fg.deobf("curse.maven:edivadlib-638508:4717006")
-    implementation fg.deobf("curse.maven:ender-io-64578:7183516")
-	implementation fg.deobf("curse.maven:extra-disks-351491:6366217")
-	implementation fg.deobf("curse.maven:extrastorage-410168:5168999")
-	implementation fg.deobf("curse.maven:kotlin-for-forge-351264:7291067")
-	implementation fg.deobf("curse.maven:refined-rebornstorage-256662:4861934")
-	implementation fg.deobf("curse.maven:refined-crafter-proxy-864695:5250206")
-	implementation fg.deobf("curse.maven:rs-requestify-307788:4862132")
+	implementation fg.deobf("curse.maven:${version_refined_storage_curse}")
+	implementation fg.deobf("curse.maven:${version_cable_tiers_curse}")
+	implementation fg.deobf("curse.maven:${version_edivadlib_curse}")
+    implementation fg.deobf("curse.maven:${version_ender_io_curse}")
+	implementation fg.deobf("curse.maven:${version_extra_disks_curse}")
+	implementation fg.deobf("curse.maven:${version_extrastorage_curse}")
+	implementation fg.deobf("curse.maven:${version_kotlin_for_forge_curse}")
+	implementation fg.deobf("curse.maven:${version_refined_rebornstorage_curse}")
+	implementation fg.deobf("curse.maven:${version_refined_crafter_proxy_curse}")
+	implementation fg.deobf("curse.maven:${version_rs_requestify_curse}")
 
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    annotationProcessor "org.spongepowered:mixin:${version_mixin}:processor"
 }
 
 def customGradle = rootProject.file('custom.gradle')
