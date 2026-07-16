@@ -1,17 +1,16 @@
 pluginManagement {
     repositories {
-        maven { url 'https://maven.minecraftforge.net/' }
-        maven { url 'https://maven.gofancy.wtf/releases' }
+        maven {
+            name = 'GTNH Maven'
+            url = 'https://nexus.gtnewhorizons.com/repository/public/'
+        }
         gradlePluginPortal()
         mavenCentral()
-        maven { url 'https://repo.spongepowered.org/repository/maven-public/' }
     }
 }
 
-def commonProps = new Properties()
-file('../common/common-1.12.properties').withInputStream { commonProps.load(it) }
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
 
-def versionProps = new Properties()
-file('version.properties').withInputStream { versionProps.load(it) }
-
-rootProject.name = "MCT-RS-Mixin-${commonProps['mcversion']}-${versionProps['version']}"
+rootProject.name = 'MCT-RS-Mixin'

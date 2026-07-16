@@ -1,7 +1,7 @@
 plugins {
-    id 'net.minecraftforge.gradle' version '5.1.72'
-    id 'wtf.gofancy.fancygradle' version '1.1.3-0'
-    id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
+    id 'idea'
+    id 'java'
+    id 'com.gtnewhorizons.retrofuturagradle' version '2.0.2'
 }
 
 ext.configFile = file '../common/common-1.12.properties'
@@ -26,22 +26,34 @@ version = "${common.mcversion}-${modversion}.${version_buildnumber}-${stage}"
 
 println "-> build.gradle applying version: $version"
 
-group = 'mctmods.rsmixin'
+group = modgroup
 
 ext {
     mod_id = gradleProps['mod_id']
     mod_name = gradleProps['mod_name']
     mod_authors = gradleProps['mod_authors']
     mod_description = gradleProps['mod_description']
+    mod_url = gradleProps['mod_url']
 }
 
-archivesBaseName = "MCT-RS-Mixin"
+base { archivesName = modarchivename }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(8)
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+        vendor = JvmVendorSpec.ADOPTIUM
+    }
+}
 
-compileJava {
-    sourceCompatibility = '8'
-    targetCompatibility = '8'
+minecraft {
+    mcVersion = '1.12.2'
+    mcpMappingChannel = 'stable'
+    mcpMappingVersion = common.mcp_mappings.toString().split('-')[0]
+    username = 'tgstyle'
+    extraRunJvmArguments.addAll(
+        '-Dfml.coreMods.load=mctmods.rsmixin.core.MCTMixin',
+        '-Dforge.logging.console.level=debug'
+    )
 }
 
 repositories {
@@ -49,85 +61,45 @@ repositories {
         url = "https://cursemaven.com"
         content { includeGroup "curse.maven" }
     }
+    maven { url = 'https://jitpack.io' }
     maven { url = 'https://maven.blamejared.com' }
     maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
     maven { url = 'https://maven.minecraftforge.net' }
-    maven { url = 'https://maven.gofancy.wtf/releases' }
     maven { url = 'https://maven.cleanroommc.com' }
     mavenCentral()
-    gradlePluginPortal()
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${common.mcversion}-${common.forgeversion}"
+    implementation rfg.deobf("curse.maven:${common.rsto_version}")
 
-    implementation fg.deobf("curse.maven:${common.rsto_version}")
+    implementation rfg.deobf("${common.mjei_version}")
+    implementation rfg.deobf("curse.maven:${common.mtop_version}")
+    implementation rfg.deobf("curse.maven:${common.rbcr_version}")
+    implementation rfg.deobf("curse.maven:${common.rbst_version}")
 
-    implementation fg.deobf("${common.mjei_version}")
-    implementation fg.deobf("curse.maven:${common.mtop_version}")
-    implementation fg.deobf("curse.maven:${common.rbcr_version}")
-    implementation fg.deobf("curse.maven:${common.rbst_version}")
-
-    compileOnly fg.deobf("curse.maven:${common.sprk_version}")
+    compileOnly rfg.deobf("curse.maven:${common.sprk_version}")
 
     annotationProcessor 'org.ow2.asm:asm-debug-all:5.2'
     annotationProcessor 'com.google.guava:guava:32.1.2-jre'
     annotationProcessor 'com.google.code.gson:gson:2.8.9'
-    implementation fg.deobf('zone.rong:mixinbooter:10.7') { transitive = false }
-    annotationProcessor('zone.rong:mixinbooter:10.7') { transitive = false }
+    String mixinBooter = modUtils.enableMixins('zone.rong:mixinbooter:10.7', 'mixins.rsmixin.refmap.json')
+    api(mixinBooter) { transitive = false }
+    annotationProcessor(mixinBooter) { transitive = false }
 }
 
-minecraft {
-    mappings channel: 'stable', version: "${common.mcp_mappings}"
-    runs {
-        client {
-            workingDirectory project.file('run')
-            args '--width', '1920'
-            args '--height', '1080'
-            args '--version', common.mcversion
-            args '--username', 'tgstyle'
-            property 'forge.logging.console.level', 'debug'
-            property 'fml.coreMods.load', 'mctmods.rsmixin.core.MCTMixin'
-            mods {
-                rsmixin {
-                    source sourceSets.main
-                }
-            }
-        }
-        server {
-            workingDirectory project.file('run/server')
-            args '--version', common.mcversion
-            property 'forge.logging.console.level', 'debug'
-            property 'fml.coreMods.load', 'mctmods.rsmixin.core.MCTMixin'
-            mods {
-                rsmixin {
-                    source sourceSets.main
-                }
-            }
-        }
-    }
+tasks.named('runClient').configure {
+    extraArgs.addAll('--width', '1920', '--height', '1080')
 }
 
-tasks.withType(JavaExec).configureEach { task ->
-    if (task.name in ['runClient', 'runServer']) {
-        doFirst {
-            def modJar = project.file("build/libs/${archivesBaseName}-${version}.jar")
-            if (modJar.exists()) {
-                println "Removing JAR from classpath: ${modJar}"
-                def newClasspath = classpath.minus(modJar).plus(sourceSets.main.output)
-                classpath.setFrom(newClasspath)
-            }
-        }
-    }
+tasks.register('runClientGamescope', Exec) {
+    workingDir = projectDir
+    commandLine 'flatpak-spawn', '--host', 'gamescope', '-W', '1920', '-H', '1080', '--', './gradlew', '--no-daemon', 'runClient'
+    //flatpack will need override for x11 "flatpak override --user --nosocket=fallback-x11 --socket=x11 com.jetbrains.IntelliJ-IDEA-Ultimate"
+    //flatpack may need perms "flatpak override --user --talk-name=org.freedesktop.Flatpak com.jetbrains.IntelliJ-IDEA-Ultimate"
 }
 
-compileJava.doLast {
-    copy {
-        from "build/tmp/compileJava"
-        include "**/*-refmap.json"
-        into sourceSets.main.output.resourcesDir
-        rename { String fileName -> "mixins.${mod_id}.refmap.json" }
-    }
+tasks.named('runServer').configure {
+    workingDir = file('run/server')
 }
 
 tasks.register('bumpVersion') {
@@ -158,24 +130,15 @@ processResources.dependsOn bumpVersion
 jar.dependsOn bumpVersion
 
 processResources {
-    inputs.property 'version', "${modversion}.${version_buildnumber}"
+    inputs.property('version', providers.provider { "${modversion}.${version_buildnumber}" })
     inputs.property 'mcversion', common.mcversion
-    filesMatching('mcmod.info') {
+    filesMatching(['mcmod.info', 'pack.mcmeta']) {
         expand 'version': "${modversion}.${version_buildnumber}", 'mcversion': common.mcversion,
                 'mod_id': mod_id, 'mod_name': mod_name,
-                'mod_authors': mod_authors, 'mod_description': mod_description
+                'mod_authors': mod_authors, 'mod_description': mod_description,
+                'mod_url': mod_url, 'mod_mixin_id': "${mod_id}_mixin"
     }
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
-}
-
-fancyGradle {
-    patches {
-        resources
-        asm
-        coremods
-        codeChickenLib
-        mergetool
-    }
 }
 
 jar {
@@ -189,3 +152,26 @@ jar {
 }
 
 sourceSets.configureEach { it.output.resourcesDir = it.output.classesDirs.getFiles().iterator().next() }
+
+void minimizePNGFile(File file) {
+    long size = file.length()
+    ExecOperations execOps = project.services.get(ExecOperations)
+    execOps.exec {
+        executable 'optipng'
+        args '-q', '-o7', '-zm1-9', '-strip', 'all', file.absolutePath
+    }
+    long newSize = file.length()
+    if (newSize < size) {
+        System.out.format("Reduced File size of %s from %d bytes to %d bytes (reduced by %.2f%%)\n",
+                file, size, newSize, ((double) (size - newSize)) / ((double) size) * 100.0)
+    }
+}
+
+tasks.register('optimizePng') {
+    def pngPatterns = ["**/*.png"]
+    doLast {
+        for (dir in sourceSets.main.resources.srcDirs) {
+            fileTree(dir: dir, includes: pngPatterns).each { minimizePNGFile(it) }
+        }
+    }
+}

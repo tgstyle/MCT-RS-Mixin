@@ -5,6 +5,7 @@
     "description": "${mod_description}",
     "version": "${version}",
     "mcversion": "${mcversion}",
+    "url": "${mod_url}",
     "authorList": ["${mod_authors}"],
     "logoFile": "MCTlogo.png",
     "dependencies": ["refinedstorage"]
