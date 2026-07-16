@@ -83,7 +83,7 @@ def jsonPatterns = ["**/*.json", "**/*.mcmeta"]
 
 processResources {
     duplicatesStrategy = DuplicatesStrategy.FAIL
-    inputs.properties(version_replaces())
+    inputs.property('version', providers.provider { project.version })
     filesMatching("META-INF/mods.toml") {
         expand version_replaces()
     }
@@ -225,29 +225,6 @@ tasks.register('sourcesJar', Jar) {
 
 artifacts {
     archives sourcesJar
-}
-
-void minimizePNGFile(File file) {
-    long size = file.length()
-    ExecOperations execOps = project.services.get(ExecOperations)
-    execOps.exec {
-        executable 'optipng'
-        args '-q', '-o7', '-zm1-9', '-strip', 'all', file.absolutePath
-    }
-    long newSize = file.length()
-    if (newSize < size) {
-        System.out.format("Reduced File size of %s from %d bytes to %d bytes (reduced by %.2f%%)\n",
-                file, size, newSize, ((double) (size - newSize)) / ((double) size) * 100.0)
-    }
-}
-
-tasks.register('optimizePng') {
-    def pngPatterns = ["**/*.png"]
-    doLast {
-        for (dir in sourceSets.main.resources.srcDirs) {
-            fileTree(dir: dir, includes: pngPatterns).each { minimizePNGFile(it) }
-        }
-    }
 }
 
 tasks.register('genIntellijRunsDummy') {}
