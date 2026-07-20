@@ -1,0 +1,5 @@
+{
+  "gui.rsmixin.network_transmitter.dimension_blocked": "Inter-dimension désactivé",
+
+  "misc.rsmixin.wireless_dimension_lock": "L'objet sans fil est lié à %s et ne peut pas être utilisé ici"
+}

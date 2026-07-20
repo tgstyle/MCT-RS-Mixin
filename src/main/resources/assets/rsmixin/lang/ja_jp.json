@@ -1,0 +1,5 @@
+{
+  "gui.rsmixin.network_transmitter.dimension_blocked": "次元間送信は無効です",
+
+  "misc.rsmixin.wireless_dimension_lock": "ワイヤレスアイテムは %s にリンクされているため、ここでは使用できません"
+}

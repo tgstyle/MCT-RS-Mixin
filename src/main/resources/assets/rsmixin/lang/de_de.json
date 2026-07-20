@@ -1,0 +1,5 @@
+{
+  "gui.rsmixin.network_transmitter.dimension_blocked": "Dimensionsübergreifend deaktiviert",
+
+  "misc.rsmixin.wireless_dimension_lock": "Drahtloses Item ist mit %s verknüpft und kann hier nicht verwendet werden"
+}

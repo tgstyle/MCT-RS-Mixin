@@ -1,0 +1,5 @@
+{
+  "gui.rsmixin.network_transmitter.dimension_blocked": "Transmisja międzywymiarowa wyłączona",
+
+  "misc.rsmixin.wireless_dimension_lock": "Przedmiot bezprzewodowy jest powiązany z %s i nie może być tu użyty"
+}

@@ -1,0 +1,5 @@
+{
+  "gui.rsmixin.network_transmitter.dimension_blocked": "跨維度已停用",
+
+  "misc.rsmixin.wireless_dimension_lock": "無線物品已連結至 %s，無法在此使用"
+}
