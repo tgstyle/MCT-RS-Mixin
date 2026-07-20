@@ -1,0 +1,3 @@
+gui.rsmixin.network_transmitter.dimension_blocked=차원 간 전송 비활성화됨
+
+misc.rsmixin.wireless_dimension_lock=무선 아이템이 %s에 연결되어 있어 여기서 사용할 수 없습니다
