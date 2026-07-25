@@ -7,7 +7,7 @@ import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-@net.minecraftforge.common.config.Config(modid = RSMixin.MODID) @EventBusSubscriber(modid = RSMixin.MODID) public class Config {
+@net.minecraftforge.common.config.Config(modid = RSMixin.MODID, name = "mct_rsmixin") @EventBusSubscriber(modid = RSMixin.MODID) public class Config {
     @Comment("Turns on extra log messages for troubleshooting. Can get spammy, leave off unless you're diagnosing a problem.")
     public static boolean enableDebugLogging = false;
 
