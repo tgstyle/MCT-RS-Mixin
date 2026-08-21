@@ -2,12 +2,13 @@ package mctmods.rsmixin.mixin.common.refinedstorage;
 
 import mctmods.rsmixin.Config;
 import mctmods.rsmixin.RSMixin;
-import mctmods.rsmixin.core.accessor.ICraftingRebuildAccessor;
-import mctmods.rsmixin.core.accessor.IGraphBatchAccessor;
+import mctmods.rsmixin.core.interfaces.ICraftingRebuild;
+import mctmods.rsmixin.core.interfaces.IGraphBatch;
 import mctmods.rsmixin.helper.refinedstorage.CraftingTicker;
 
 import com.raoulvdberge.refinedstorage.api.autocrafting.ICraftingPattern;
 import com.raoulvdberge.refinedstorage.api.autocrafting.task.ICraftingTask;
+import com.raoulvdberge.refinedstorage.api.autocrafting.registry.ICraftingTaskFactory;
 import com.raoulvdberge.refinedstorage.api.util.IComparer;
 import com.raoulvdberge.refinedstorage.apiimpl.API;
 import com.raoulvdberge.refinedstorage.apiimpl.autocrafting.CraftingManager;
@@ -16,6 +17,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import org.apache.logging.log4j.LogManager;
@@ -29,16 +31,18 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@Mixin(value = CraftingManager.class, remap = false) public abstract class CraftingManagerMixin implements ICraftingRebuildAccessor {
+@Mixin(value = CraftingManager.class, remap = false) public abstract class CraftingManagerMixin implements ICraftingRebuild {
     @Shadow private TileController network;
     @Shadow private Map<UUID, ICraftingTask> tasks;
     @Shadow private NBTTagList tasksToRead;
     @Shadow private List<ICraftingPattern> patterns;
+    @Shadow private List<ICraftingTask> tasksToAdd;
     @Unique private boolean rsmixin$rebuildQueued = false;
     @Unique private Map<Item, List<ICraftingPattern>> rsmixin$itemPatternIndex;
     @Unique private Map<Fluid, List<ICraftingPattern>> rsmixin$fluidPatternIndex;
@@ -46,6 +50,47 @@ import java.util.UUID;
     @Unique private static final Logger rsmixin$LOGGER = LogManager.getLogger(RSMixin.MODID);
 
     @Shadow public abstract void update();
+
+    @Unique private void rsmixin$drainPendingTasks() {
+        if (tasksToRead == null || !network.hasWorld() || !network.canRun()) { return; }
+
+        for (int i = 0; i < tasksToRead.tagCount(); ++i) {
+            NBTTagCompound taskTag = tasksToRead.getCompoundTagAt(i);
+            ICraftingTaskFactory factory = API.instance().getCraftingTaskRegistry().get(taskTag.getString("Type"));
+            if (factory == null) { continue; }
+            try {
+                ICraftingTask task = factory.createFromNbt(network, taskTag.getCompoundTag("Task"));
+                tasks.put(task.getId(), task);
+            }
+            catch (Exception e) { rsmixin$LOGGER.error("RSMixin: Dropped a saved crafting task that could not be restored for the network at {}", network.getPosition(), e); }
+        }
+        tasksToRead = null;
+    }
+
+    @Inject(method = "update", at = @At("HEAD")) private void rsmixin$guardedRestore(CallbackInfo ci) {
+        if (Config.enableCraftingCrashGuard) { rsmixin$drainPendingTasks(); }
+    }
+
+    @Inject(method = {"request(Ljava/lang/Object;Lnet/minecraft/item/ItemStack;I)Lcom/raoulvdberge/refinedstorage/api/autocrafting/task/ICraftingTask;", "request(Ljava/lang/Object;Lnet/minecraftforge/fluids/FluidStack;I)Lcom/raoulvdberge/refinedstorage/api/autocrafting/task/ICraftingTask;"}, at = @At("HEAD")) private void rsmixin$restoreBeforeRequest(CallbackInfoReturnable<ICraftingTask> cir) {
+        if (Config.enableRestoredTaskDedup) { rsmixin$drainPendingTasks(); }
+    }
+
+    @Redirect(method = {"request(Ljava/lang/Object;Lnet/minecraft/item/ItemStack;I)Lcom/raoulvdberge/refinedstorage/api/autocrafting/task/ICraftingTask;", "request(Ljava/lang/Object;Lnet/minecraftforge/fluids/FluidStack;I)Lcom/raoulvdberge/refinedstorage/api/autocrafting/task/ICraftingTask;"}, at = @At(value = "INVOKE", target = "Lcom/raoulvdberge/refinedstorage/apiimpl/autocrafting/CraftingManager;getTasks()Ljava/util/Collection;")) private Collection<ICraftingTask> rsmixin$tasksIncludingPending(CraftingManager self) {
+        Collection<ICraftingTask> current = self.getTasks();
+        if (!Config.enableRestoredTaskDedup || tasksToAdd.isEmpty()) { return current; }
+        List<ICraftingTask> all = new ArrayList<>(current);
+        all.addAll(tasksToAdd);
+        return all;
+    }
+
+    @Inject(method = "writeToNbt", at = @At("RETURN")) private void rsmixin$preservePendingTasks(NBTTagCompound tag, CallbackInfoReturnable<NBTTagCompound> cir) {
+        if (!Config.enableCraftingCrashGuard || tasksToRead == null || tasksToRead.tagCount() == 0) { return; }
+
+        NBTTagList list = tag.getTagList("Tasks", Constants.NBT.TAG_COMPOUND);
+        for (int i = 0; i < tasksToRead.tagCount(); ++i) { list.appendTag(tasksToRead.getCompoundTagAt(i).copy()); }
+        tag.setTag("Tasks", list);
+        if (Config.enableDebugLogging) { rsmixin$LOGGER.debug("RSMixin: Preserved {} not-yet-restored crafting tasks while saving the network at {}", tasksToRead.tagCount(), network.getPosition()); }
+    }
 
     @Inject(method = "rebuild", at = @At("TAIL")) private void rsmixin$rebuildPatternIndex(CallbackInfo ci) {
         if (!Config.enablePatternLookupIndex) {
@@ -140,7 +185,7 @@ import java.util.UUID;
 
     @Inject(method = "rebuild", at = @At("HEAD"), cancellable = true) private void rsmixin$deferDuringRescan(CallbackInfo ci) {
         if (!Config.enableCraftingRebuildDebounce) { return; }
-        if (network.getNodeGraph() instanceof IGraphBatchAccessor && ((IGraphBatchAccessor) network.getNodeGraph()).rsmixin$isBatching()) {
+        if (network.getNodeGraph() instanceof IGraphBatch && ((IGraphBatch) network.getNodeGraph()).rsmixin$isBatching()) {
             rsmixin$rebuildQueued = true;
             if (Config.enableDebugLogging) { rsmixin$LOGGER.debug("RSMixin: Deferred crafting pattern reindex for network at {} until rescan completes", network.getPosition()); }
             ci.cancel();
@@ -181,6 +226,8 @@ import java.util.UUID;
                 !Config.enableBypassFastNodes) {
             return;
         }
+
+        if (!network.hasWorld()) { return; }
 
         if (tasksToRead != null && tasksToRead.tagCount() > 0) {
             update();

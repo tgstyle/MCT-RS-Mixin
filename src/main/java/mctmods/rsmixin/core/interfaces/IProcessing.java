@@ -1,11 +1,11 @@
-package mctmods.rsmixin.core.accessor;
+package mctmods.rsmixin.core.interfaces;
 
 import com.raoulvdberge.refinedstorage.api.util.IStackList;
 
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 
-public interface IProcessingAccessor {
+public interface IProcessing {
     boolean rsmixin$isExtractedAll();
 
     void rsmixin$setProcessed();

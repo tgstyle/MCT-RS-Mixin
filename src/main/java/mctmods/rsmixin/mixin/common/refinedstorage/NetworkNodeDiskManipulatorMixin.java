@@ -2,7 +2,7 @@ package mctmods.rsmixin.mixin.common.refinedstorage;
 
 import mctmods.rsmixin.Config;
 import mctmods.rsmixin.RSMixin;
-import mctmods.rsmixin.core.accessor.IActiveFastNodesAccessor;
+import mctmods.rsmixin.core.interfaces.IActiveFastNodes;
 
 import com.raoulvdberge.refinedstorage.api.network.node.INetworkNodeManager;
 import com.raoulvdberge.refinedstorage.apiimpl.API;
@@ -36,7 +36,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
         if (Config.enableDynamicNodeSleep) { rsmixin$didWork = false; }
         else if (!rsmixin$wasActive && Config.enableBypassFastNodes) {
             INetworkNodeManager manager = API.instance().getNetworkNodeManager(world);
-            ((IActiveFastNodesAccessor) manager).rsmixin$addActiveFastNode(this);
+            ((IActiveFastNodes) manager).rsmixin$addActiveFastNode(this);
             rsmixin$wasActive = true;
         }
     }
@@ -73,7 +73,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
         if (this.ticks % effectiveSpeed != 0) { return; }
 
         INetworkNodeManager manager = API.instance().getNetworkNodeManager(world);
-        IActiveFastNodesAccessor accessor = (IActiveFastNodesAccessor) manager;
+        IActiveFastNodes accessor = (IActiveFastNodes) manager;
 
         boolean newActive = rsmixin$didWork;
 

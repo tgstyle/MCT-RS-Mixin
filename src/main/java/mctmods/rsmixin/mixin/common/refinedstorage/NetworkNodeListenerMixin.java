@@ -2,7 +2,7 @@ package mctmods.rsmixin.mixin.common.refinedstorage;
 
 import mctmods.rsmixin.Config;
 import mctmods.rsmixin.RSMixin;
-import mctmods.rsmixin.core.accessor.IConnectedNodesAccessor;
+import mctmods.rsmixin.core.interfaces.IConnectedNodes;
 
 import com.raoulvdberge.refinedstorage.api.network.node.INetworkNode;
 import com.raoulvdberge.refinedstorage.api.network.node.INetworkNodeManager;
@@ -40,7 +40,7 @@ import java.util.Set;
     @Redirect(method = "onWorldTick", at = @At(value = "INVOKE", target = "Lcom/raoulvdberge/refinedstorage/api/network/node/INetworkNodeManager;all()Ljava/util/Collection;")) private Collection<INetworkNode> redirectAll(INetworkNodeManager manager) {
         if (!Config.enableConnectedNodeTickOptimize) { return manager.all(); }
 
-        Set<INetworkNode> connected = ((IConnectedNodesAccessor) manager).rsmixin$getConnectedNodes();
+        Set<INetworkNode> connected = ((IConnectedNodes) manager).rsmixin$getConnectedNodes();
         List<INetworkNode> toTick = new ArrayList<>(connected);
         for (INetworkNode node : manager.all()) {
             if (!(node instanceof NetworkNode)) { toTick.add(node); }

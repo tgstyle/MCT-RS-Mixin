@@ -1,9 +1,9 @@
 package mctmods.rsmixin.mixin.common.refinedstorage;
 
 import mctmods.rsmixin.Config;
-import mctmods.rsmixin.core.accessor.ICraftingRebuildAccessor;
-import mctmods.rsmixin.core.accessor.IGraphBatchAccessor;
-import mctmods.rsmixin.core.accessor.IStorageCacheDebounceAccessor;
+import mctmods.rsmixin.core.interfaces.ICraftingRebuild;
+import mctmods.rsmixin.core.interfaces.IGraphBatch;
+import mctmods.rsmixin.core.interfaces.IStorageCacheDebounce;
 import mctmods.rsmixin.helper.refinedstorage.GraphRescanScheduler;
 
 import com.google.common.collect.Sets;
@@ -23,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.HashSet;
 import java.util.Set;
 
-@Mixin(value = NetworkNodeGraph.class, remap = false) public class NetworkNodeGraphMixin implements IGraphBatchAccessor {
+@Mixin(value = NetworkNodeGraph.class, remap = false) public class NetworkNodeGraphMixin implements IGraphBatch {
     @Shadow private INetwork network;
     @Unique private int rsmixin$batchDepth = 0;
     @Unique private long rsmixin$lastRescanGameTime = Long.MIN_VALUE;
@@ -55,8 +55,8 @@ import java.util.Set;
     @Inject(method = "invalidate", at = @At("HEAD")) private void rsmixin$beginBatch(Action action, World world, BlockPos origin, CallbackInfo ci) {
         rsmixin$batchDepth++;
         if (rsmixin$batchDepth == 1 && Config.enableStorageCacheDebounce) {
-            if (network.getItemStorageCache() instanceof IStorageCacheDebounceAccessor) { ((IStorageCacheDebounceAccessor) network.getItemStorageCache()).rsmixin$resetInvalidated(); }
-            if (network.getFluidStorageCache() instanceof IStorageCacheDebounceAccessor) { ((IStorageCacheDebounceAccessor) network.getFluidStorageCache()).rsmixin$resetInvalidated(); }
+            if (network.getItemStorageCache() instanceof IStorageCacheDebounce) { ((IStorageCacheDebounce) network.getItemStorageCache()).rsmixin$resetInvalidated(); }
+            if (network.getFluidStorageCache() instanceof IStorageCacheDebounce) { ((IStorageCacheDebounce) network.getFluidStorageCache()).rsmixin$resetInvalidated(); }
         }
     }
 
@@ -64,8 +64,8 @@ import java.util.Set;
         if (rsmixin$batchDepth > 0) { rsmixin$batchDepth--; }
         if (rsmixin$batchDepth == 0
                 && Config.enableCraftingRebuildDebounce
-                && network.getCraftingManager() instanceof ICraftingRebuildAccessor
-                && ((ICraftingRebuildAccessor) network.getCraftingManager()).rsmixin$consumeRebuildQueued()) {
+                && network.getCraftingManager() instanceof ICraftingRebuild
+                && ((ICraftingRebuild) network.getCraftingManager()).rsmixin$consumeRebuildQueued()) {
             network.getCraftingManager().rebuild();
         }
     }

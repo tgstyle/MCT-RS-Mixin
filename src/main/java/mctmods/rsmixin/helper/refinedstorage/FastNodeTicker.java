@@ -2,7 +2,7 @@ package mctmods.rsmixin.helper.refinedstorage;
 
 import mctmods.rsmixin.Config;
 import mctmods.rsmixin.RSMixin;
-import mctmods.rsmixin.core.accessor.IActiveFastNodesAccessor;
+import mctmods.rsmixin.core.interfaces.IActiveFastNodes;
 
 import com.raoulvdberge.refinedstorage.api.network.node.INetworkNode;
 import com.raoulvdberge.refinedstorage.apiimpl.API;
@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
         event.world.profiler.startSection("rs fast node ticking");
 
         NetworkNodeManager manager = (NetworkNodeManager) API.instance().getNetworkNodeManager(event.world);
-        Set<INetworkNode> active = ((IActiveFastNodesAccessor) manager).rsmixin$getActiveFastNodes();
+        Set<INetworkNode> active = ((IActiveFastNodes) manager).rsmixin$getActiveFastNodes();
 
         if (active == null) {
             LOGGER.error("Active fast nodes set is null in dimension {}! Verify NetworkNodeManagerMixin is applied and field initialized.", dimension);

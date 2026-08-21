@@ -2,12 +2,16 @@ package mctmods.rsmixin.mixin.common.refinedstorage;
 
 import mctmods.rsmixin.Config;
 import mctmods.rsmixin.RSMixin;
-import mctmods.rsmixin.core.accessor.IEnergyDirtyAccessor;
+import mctmods.rsmixin.core.interfaces.IEnergyDirty;
 
 import com.raoulvdberge.refinedstorage.api.network.INetworkNodeGraph;
 import com.raoulvdberge.refinedstorage.api.util.Action;
+import com.raoulvdberge.refinedstorage.apiimpl.network.node.cover.Cover;
+import com.raoulvdberge.refinedstorage.apiimpl.network.node.cover.CoverManager;
+import com.raoulvdberge.refinedstorage.apiimpl.network.node.cover.CoverType;
 import com.raoulvdberge.refinedstorage.tile.TileController;
 import com.raoulvdberge.refinedstorage.tile.config.RedstoneMode;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
@@ -17,10 +21,11 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value = TileController.class, remap = false) public abstract class TileControllerMixin implements IEnergyDirtyAccessor {
+@Mixin(value = TileController.class, remap = false) public abstract class TileControllerMixin implements IEnergyDirty {
     @Unique private boolean rsmixin$dirtyEnergyUsage = true;
     @Unique private int rsmixin$cachedEnergyUsage = -1;
     @Unique private boolean rsmixin$wasLoaded = false;
@@ -82,4 +87,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
     }
 
     @Inject(method = "setRedstoneMode", at = @At("HEAD")) private void dirtyOnRedstoneMode(RedstoneMode mode, CallbackInfo ci) { rsmixin$dirtyEnergyUsage = true; }
+
+    @Redirect(method = "visit", at = @At(value = "INVOKE", target = "Lcom/raoulvdberge/refinedstorage/apiimpl/network/node/cover/CoverManager;hasCover(Lnet/minecraft/util/EnumFacing;)Z")) private boolean rsmixin$nonHollowCoversOnly(CoverManager manager, EnumFacing facing) {
+        if (!Config.enableHollowCoverConnectionFix) { return manager.hasCover(facing); }
+        Cover cover = manager.getCover(facing);
+        return cover != null && cover.getType() != CoverType.HOLLOW;
+    }
 }

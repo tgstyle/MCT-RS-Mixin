@@ -2,15 +2,21 @@ package mctmods.rsmixin.mixin.common.refinedstorage;
 
 import mctmods.rsmixin.Config;
 import mctmods.rsmixin.RSMixin;
-import mctmods.rsmixin.core.accessor.IActiveFastNodesAccessor;
+import mctmods.rsmixin.core.interfaces.IActiveFastNodes;
 
 import com.raoulvdberge.refinedstorage.api.network.node.INetworkNodeManager;
+import com.raoulvdberge.refinedstorage.api.util.Action;
 import com.raoulvdberge.refinedstorage.apiimpl.API;
 import com.raoulvdberge.refinedstorage.apiimpl.network.node.NetworkNode;
 import com.raoulvdberge.refinedstorage.apiimpl.network.node.NetworkNodeExporter;
 import com.raoulvdberge.refinedstorage.inventory.item.ItemHandlerUpgrade;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
@@ -36,7 +42,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
         if (Config.enableDynamicNodeSleep) { rsmixin$didWork = false; }
         else if (!rsmixin$wasActive && Config.enableBypassFastNodes) {
             INetworkNodeManager manager = API.instance().getNetworkNodeManager(world);
-            ((IActiveFastNodesAccessor) manager).rsmixin$addActiveFastNode(this);
+            ((IActiveFastNodes) manager).rsmixin$addActiveFastNode(this);
             rsmixin$wasActive = true;
         }
     }
@@ -72,6 +78,27 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
     }
 
 
+    @Redirect(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/items/ItemHandlerHelper;insertItem(Lnet/minecraftforge/items/IItemHandler;Lnet/minecraft/item/ItemStack;Z)Lnet/minecraft/item/ItemStack;", ordinal = 1)) private ItemStack rsmixin$insertWithRefund(IItemHandler dest, ItemStack stack, boolean simulate) {
+        ItemStack remainder = ItemHandlerHelper.insertItem(dest, stack, simulate);
+        if (Config.enableExporterVoidGuard && !simulate && !remainder.isEmpty() && network != null) {
+            network.insertItem(remainder, remainder.getCount(), Action.PERFORM);
+            if (Config.enableDebugLogging) { rsmixin$LOGGER.debug("RSMixin: Exporter at {} returned {}x {} to the network after the destination refused them", pos, remainder.getCount(), remainder.getDisplayName()); }
+        }
+        return remainder;
+    }
+
+    @Redirect(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fluids/capability/IFluidHandler;fill(Lnet/minecraftforge/fluids/FluidStack;Z)I", ordinal = 1)) private int rsmixin$fillWithRefund(IFluidHandler handler, FluidStack resource, boolean doFill) {
+        if (!Config.enableExporterVoidGuard) { return handler.fill(resource, doFill); }
+        if (resource == null) { return 0; }
+
+        int filled = handler.fill(resource, doFill);
+        if (filled < resource.amount && network != null) {
+            network.insertFluid(resource, resource.amount - filled, Action.PERFORM);
+            if (Config.enableDebugLogging) { rsmixin$LOGGER.debug("RSMixin: Exporter at {} returned {} mB of {} to the network after the destination refused it", pos, resource.amount - filled, resource.getFluid().getName()); }
+        }
+        return filled;
+    }
+
     @Inject(method = "update", at = @At("TAIL")) private void manageActivation(CallbackInfo ci) {
         if (!Config.enableDynamicNodeSleep) { return; }
         if (world == null || world.isRemote) { return; }
@@ -81,7 +108,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
         if (this.ticks % effectiveSpeed != 0) { return; }
 
         INetworkNodeManager manager = API.instance().getNetworkNodeManager(world);
-        IActiveFastNodesAccessor accessor = (IActiveFastNodesAccessor) manager;
+        IActiveFastNodes accessor = (IActiveFastNodes) manager;
 
         boolean newActive = rsmixin$didWork;
 

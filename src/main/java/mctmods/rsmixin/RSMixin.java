@@ -15,7 +15,7 @@ public class RSMixin {
 
     @Mod.EventHandler public void preInit(FMLPreInitializationEvent event) {
         ConfigManager.sync(MODID, Type.INSTANCE);
-        LOGGER.info("RSMixin loaded: enableDebugLogging={}, enableThrottle={}, throttleInterval={}, enableBypassFastNodes={}, enableLoadRescan={}, loadRescanDelay={}, enableLazyEnergy={}, enableHashSetOptimize={}, enableSkipUnloaded={}, enableGraphRescanCoalesce={}, enableStorageCacheDebounce={}, enableCraftingRebuildDebounce={}",
+        LOGGER.info("RSMixin loaded: enableDebugLogging={}, enableThrottle={}, throttleInterval={}, enableBypassFastNodes={}, enableLoadRescan={}, loadRescanDelay={}, enableLazyEnergy={}, enableHashSetOptimize={}, enableSkipUnloaded={}, enableDynamicNodeSleep={}, enableDynamicCraftingBypass={}, enableConnectedNodeTickOptimize={}, enableRebornstorageCrafterFix={}, enableStorageCacheDebounce={}, enableCraftingRebuildDebounce={}, enablePatternLookupIndex={}, enableCraftingDirtyThrottle={}, enableGraphRescanCoalesce={}, enableTrackedInsertIndex={}, enableCraftingCrashGuard={}, enableGridResync={}, enableWirelessDimensionLock={}, enableFluidExtractionGuard={}, enableFluidInterfaceStackFix={}, enableOverstackExtractionFix={}, enableExporterVoidGuard={}, enableProcessingVoidGuard={}, enableRestoredTaskDedup={}, enableSafeDataSaving={}, enableTemplateNodeGuard={}, enableCompressedGridSync={}, enableJeiTransferLimit={}, enablePatternCacheFix={}, enableNestedFilterFix={}, enableCraftAmountLimit={}, maxCraftAmount={}, enableCrafterManagerInsertGuard={}, enableHollowCoverConnectionFix={}",
                 Config.enableDebugLogging,
                 Config.enableThrottle,
                 Config.throttleInterval,
@@ -25,9 +25,35 @@ public class RSMixin {
                 Config.enableLazyEnergy,
                 Config.enableHashSetOptimize,
                 Config.enableSkipUnloaded,
-                Config.enableGraphRescanCoalesce,
+                Config.enableDynamicNodeSleep,
+                Config.enableDynamicCraftingBypass,
+                Config.enableConnectedNodeTickOptimize,
+                Config.enableRebornstorageCrafterFix,
                 Config.enableStorageCacheDebounce,
-                Config.enableCraftingRebuildDebounce);
+                Config.enableCraftingRebuildDebounce,
+                Config.enablePatternLookupIndex,
+                Config.enableCraftingDirtyThrottle,
+                Config.enableGraphRescanCoalesce,
+                Config.enableTrackedInsertIndex,
+                Config.enableCraftingCrashGuard,
+                Config.enableGridResync,
+                Config.enableWirelessDimensionLock,
+                Config.enableFluidExtractionGuard,
+                Config.enableFluidInterfaceStackFix,
+                Config.enableOverstackExtractionFix,
+                Config.enableExporterVoidGuard,
+                Config.enableProcessingVoidGuard,
+                Config.enableRestoredTaskDedup,
+                Config.enableSafeDataSaving,
+                Config.enableTemplateNodeGuard,
+                Config.enableCompressedGridSync,
+                Config.enableJeiTransferLimit,
+                Config.enablePatternCacheFix,
+                Config.enableNestedFilterFix,
+                Config.enableCraftAmountLimit,
+                Config.maxCraftAmount,
+                Config.enableCrafterManagerInsertGuard,
+                Config.enableHollowCoverConnectionFix);
     }
 
 }

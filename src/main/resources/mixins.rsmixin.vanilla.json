@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "mctmods.rsmixin.mixin.vanilla",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "mixins.rsmixin.refmap.json",
+  "mixins": [
+    "MapStorageMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

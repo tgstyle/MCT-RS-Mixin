@@ -1,7 +1,7 @@
 package mctmods.rsmixin.mixin.common.refinedstorage;
 
-import mctmods.rsmixin.core.accessor.IActiveFastNodesAccessor;
-import mctmods.rsmixin.core.accessor.IConnectedNodesAccessor;
+import mctmods.rsmixin.core.interfaces.IActiveFastNodes;
+import mctmods.rsmixin.core.interfaces.IConnectedNodes;
 
 import com.raoulvdberge.refinedstorage.api.network.node.INetworkNode;
 import com.raoulvdberge.refinedstorage.apiimpl.network.NetworkNodeManager;
@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Unique;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Mixin(value = NetworkNodeManager.class, remap = false) public abstract class NetworkNodeManagerMixin implements IActiveFastNodesAccessor, IConnectedNodesAccessor {
+@Mixin(value = NetworkNodeManager.class, remap = false) public abstract class NetworkNodeManagerMixin implements IActiveFastNodes, IConnectedNodes {
     @Unique private Set<INetworkNode> rsmixin$activeFastNodes;
     @Unique private Set<INetworkNode> rsmixin$connectedNodes;
 

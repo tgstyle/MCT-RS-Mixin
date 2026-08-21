@@ -2,7 +2,7 @@ package mctmods.rsmixin.mixin.common.refinedstorage;
 
 import mctmods.rsmixin.Config;
 import mctmods.rsmixin.RSMixin;
-import mctmods.rsmixin.core.accessor.IActiveFastNodesAccessor;
+import mctmods.rsmixin.core.interfaces.IActiveFastNodes;
 
 import com.raoulvdberge.refinedstorage.api.network.node.INetworkNodeManager;
 import com.raoulvdberge.refinedstorage.apiimpl.API;
@@ -24,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
         if (thiz.getWorld() == null || thiz.getWorld().isRemote) { return; }
 
         INetworkNodeManager manager = API.instance().getNetworkNodeManager(thiz.getWorld());
-        IActiveFastNodesAccessor accessor = (IActiveFastNodesAccessor) manager;
+        IActiveFastNodes accessor = (IActiveFastNodes) manager;
 
         if (Config.enableBypassFastNodes) {
             if (!rsmixin$forcedActive) {

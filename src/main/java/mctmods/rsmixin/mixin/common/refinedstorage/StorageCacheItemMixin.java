@@ -2,8 +2,8 @@ package mctmods.rsmixin.mixin.common.refinedstorage;
 
 import mctmods.rsmixin.Config;
 import mctmods.rsmixin.RSMixin;
-import mctmods.rsmixin.core.accessor.IGraphBatchAccessor;
-import mctmods.rsmixin.core.accessor.IStorageCacheDebounceAccessor;
+import mctmods.rsmixin.core.interfaces.IGraphBatch;
+import mctmods.rsmixin.core.interfaces.IStorageCacheDebounce;
 
 import com.raoulvdberge.refinedstorage.api.network.INetwork;
 import com.raoulvdberge.refinedstorage.apiimpl.storage.StorageCacheItem;
@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value = StorageCacheItem.class, remap = false) public abstract class StorageCacheItemMixin implements IStorageCacheDebounceAccessor {
+@Mixin(value = StorageCacheItem.class, remap = false) public abstract class StorageCacheItemMixin implements IStorageCacheDebounce {
     @Shadow private INetwork network;
     @Unique private boolean rsmixin$invalidatedDuringBatch = false;
     @Unique private static final Logger rsmixin$LOGGER = LogManager.getLogger(RSMixin.MODID);
@@ -25,7 +25,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
     @Inject(method = "invalidate", at = @At("HEAD"), cancellable = true) private void rsmixin$debouncePre(CallbackInfo ci) {
         if (!Config.enableStorageCacheDebounce) { return; }
-        if (!(network.getNodeGraph() instanceof IGraphBatchAccessor) || !((IGraphBatchAccessor) network.getNodeGraph()).rsmixin$isBatching()) { return; }
+        if (!(network.getNodeGraph() instanceof IGraphBatch) || !((IGraphBatch) network.getNodeGraph()).rsmixin$isBatching()) { return; }
         if (rsmixin$invalidatedDuringBatch) {
             if (Config.enableDebugLogging) { rsmixin$LOGGER.debug("RSMixin: Skipped redundant item storage cache rebuild for network at {}", network.getPosition()); }
             ci.cancel();
@@ -34,6 +34,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
     @Inject(method = "invalidate", at = @At("RETURN")) private void rsmixin$debouncePost(CallbackInfo ci) {
         if (!Config.enableStorageCacheDebounce) { return; }
-        if (network.getNodeGraph() instanceof IGraphBatchAccessor && ((IGraphBatchAccessor) network.getNodeGraph()).rsmixin$isBatching()) { rsmixin$invalidatedDuringBatch = true; }
+        if (network.getNodeGraph() instanceof IGraphBatch && ((IGraphBatch) network.getNodeGraph()).rsmixin$isBatching()) { rsmixin$invalidatedDuringBatch = true; }
     }
 }

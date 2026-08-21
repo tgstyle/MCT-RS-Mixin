@@ -163,6 +163,129 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
             "Disabled by default (vanilla behavior)."})
     public static boolean enableWirelessDimensionLock = false;
 
+    @Comment({
+            "Stops the fluid grid from destroying fluid when filling a bucket fails.",
+            "Vanilla RS takes the fluid out of the network first and only then tries to fill the bucket;",
+            "if the fill fails or comes up short (modded fluids the bucket won't take, storage races),",
+            "that fluid is simply gone. With this on, whatever the bucket doesn't accept goes back into storage.",
+            "Covers the regular, wireless, and portable fluid grids."})
+    public static boolean enableFluidExtractionGuard = true;
+
+    @Comment({
+            "Fixes the Fluid Interface destroying whole stacks of fluid containers.",
+            "Vanilla RS drains one container from the input slot and then replaces the entire stack with",
+            "that single empty container - a stack of 64 filled cells or capsules becomes 1 empty one and",
+            "the other 63 (plus their fluid) are destroyed. With this on, one container is processed at a",
+            "time: the empty goes into the network and the rest of the stack stays in the slot."})
+    public static boolean enableFluidInterfaceStackFix = true;
+
+    @Comment({
+            "Fixes wrong item counts with external storage on containers that hold more than 64 items per slot",
+            "(Storage Drawers and similar). Vanilla RS asks such a slot for items only once, which by Forge's",
+            "rules returns at most one vanilla stack, so large slots quietly hand out less than requested.",
+            "Also stops extraction from blending different NBT variants from separate slots into one stack,",
+            "which could duplicate NBT data when exact mode is off."})
+    public static boolean enableOverstackExtractionFix = true;
+
+    @Comment({
+            "Stops exporters from destroying items and fluids the destination doesn't accept.",
+            "Vanilla RS checks up front whether everything fits, but ignores the result of the actual",
+            "transfer - if the destination takes less than promised (filtered slots, machines that changed",
+            "state in between), the difference is destroyed. With this on, anything refused is put back",
+            "into the network."})
+    public static boolean enableExporterVoidGuard = true;
+
+    @Comment({
+            "Stops autocrafting from destroying inputs a machine doesn't accept (the 'remainder has been",
+            "voided!' console message). Vanilla RS checks each input separately, so for example two fluids",
+            "can both pass the check for a machine with a single tank; whatever the machine then refuses is",
+            "destroyed. With this on, refused items and fluids are returned to the network instead.",
+            "The craft still waits (cancelling it refunds the rest), but nothing is lost."})
+    public static boolean enableProcessingVoidGuard = true;
+
+    @Comment({
+            "Prevents duplicate autocrafting tasks right after world load and within the same tick.",
+            "Vanilla RS restores saved crafting tasks lazily and its duplicate check misses both tasks that",
+            "aren't restored yet and tasks scheduled earlier in the same tick, so requesters and exporters",
+            "with crafting upgrades can start the same craft twice. With this on, saved tasks are restored",
+            "before any new request and pending tasks count toward the duplicate check."})
+    public static boolean enableRestoredTaskDedup = true;
+
+    @Comment({
+            "Protects the Refined Storage save files (refinedstorage_disks.dat and refinedstorage_nodes.dat).",
+            "Vanilla Minecraft overwrites these files in place, so a crash or power loss during a world save",
+            "can truncate them - and with them every disk's contents - without any error message.",
+            "With this on, they are written to a temporary file first and swapped in atomically, so a",
+            "half-finished write can never eat the previous good data."})
+    public static boolean enableSafeDataSaving = true;
+
+    @Comment({
+            "Prevents crashes when other mods make copies of RS blocks without a world, e.g. schematic and",
+            "scan tools that build a preview of a block entity. Asking such a copy for its network node",
+            "crashes vanilla RS. With this on, world-less copies get a detached placeholder node instead."})
+    public static boolean enableTemplateNodeGuard = true;
+
+    @Comment({
+            "Fixes clients being kicked with 'Payload may not be larger than 1048576 bytes' when opening a",
+            "grid on very large systems. The full item list is sent in a single packet with a 1 MB limit;",
+            "with this on, lists that would exceed it are compressed before sending (NBT-heavy lists shrink",
+            "several times over). Smaller lists are sent unchanged, so clients without this mod are only",
+            "affected in the cases that would have kicked them anyway."})
+    public static boolean enableCompressedGridSync = true;
+
+    @Comment({
+            "Fixes being kicked with 'Payload may not be larger than 32767 bytes' when using JEI's",
+            "transfer (+) button. Vanilla RS sends every possible variant of every ingredient to the",
+            "server, which for ore dictionary recipes in large packs easily exceeds the packet limit.",
+            "With this on, the list is trimmed to at most 16 variants per slot (the displayed one first)",
+            "and kept under the limit. Also validates the packet on the server side."})
+    public static boolean enableJeiTransferLimit = true;
+
+    @Comment({
+            "Fixes pattern tooltips and icons rescanning the entire recipe registry over and over.",
+            "Vanilla RS caches patterns by exact stack instance, so every GUI refresh or inventory sync",
+            "creates a cache miss that walks every recipe in the game, and the old entries pile up forever",
+            "(a slow memory leak). With this on, patterns are cached by their actual contents with a",
+            "bounded, thread-safe cache."})
+    public static boolean enablePatternCacheFix = true;
+
+    @Comment({
+            "Fixes Filter items nested inside other Filter items.",
+            "Vanilla RS parses a nested filter as if it stood alone: its contents leak into the untabbed",
+            "default view (or become their own top-level tab) instead of staying inside the parent filter's",
+            "tab, which also scrambles the whitelist/blacklist outcome. With this on, a nested filter's",
+            "entries belong to the filter that contains it, keeping their own compare and list settings."})
+    public static boolean enableNestedFilterFix = true;
+
+    @Comment({
+            "Bounds how much a single autocrafting request may ask for.",
+            "Vanilla RS only rejects amounts of zero or less, so a request for up to 2 billion is legal.",
+            "The calculation runs one craft at a time on the server thread, so a huge request freezes the",
+            "server until RS's calculation timeout (5 seconds minimum) while allocating a step object per",
+            "craft. With this on, requests are clamped to maxCraftAmount, and the crafting preview also",
+            "rejects non-positive amounts (vanilla lets 0 through and it errors in the preview thread)."})
+    public static boolean enableCraftAmountLimit = true;
+
+    @Comment({
+            "Largest amount one autocrafting request may ask for.",
+            "Only used when enableCraftAmountLimit is enabled. For fluids this is in mB."}) @RangeInt(min = 1)
+    public static int maxCraftAmount = 1000000;
+
+    @Comment({
+            "Stops shift-clicked patterns from being inserted through the Crafter Manager while it is",
+            "inactive (no network or no power). Vanilla accepts them into crafters of the dead network.",
+            "Note: patterns shift-clicked into an active Crafter Manager still go to the first crafter",
+            "with a free slot, which may be scrolled out of view - the server has no way of knowing what",
+            "part of the list a player is looking at."})
+    public static boolean enableCrafterManagerInsertGuard = true;
+
+    @Comment({
+            "Makes hollow covers placed directly against a Controller behave like they do everywhere else.",
+            "Vanilla RS checks only whether a cover exists on the neighboring cable's side facing the",
+            "controller, so a hollow cover (which is supposed to let the connection through) cuts the",
+            "controller off. With this on, only full covers block the connection there."})
+    public static boolean enableHollowCoverConnectionFix = true;
+
     @SubscribeEvent public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
         if (event.getModID().equals(RSMixin.MODID)) { ConfigManager.sync(RSMixin.MODID, net.minecraftforge.common.config.Config.Type.INSTANCE); }
     }
