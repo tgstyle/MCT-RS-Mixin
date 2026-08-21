@@ -39,6 +39,7 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue ENABLE_PATTERN_CACHE_THREAD_SAFETY;
     public static final ForgeConfigSpec.BooleanValue ENABLE_OVERSTACK_EXTRACTION_FIX;
     public static final ForgeConfigSpec.BooleanValue ENABLE_CHUNK_LOAD_DISCOVERY;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_RESTORED_TASK_DEDUP;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -369,6 +370,16 @@ public class Config {
                 With this on, freshly loaded chunks are checked for disconnected RS blocks and the adjacent
                 network is rescanned automatically. Uses loadRescanDelay as the settle delay after chunk load.""")
                 .define("enableChunkLoadDiscovery", true);
+
+        ENABLE_RESTORED_TASK_DEDUP = builder
+                .comment("""
+                Stops requesters (RS Requestify and similar addons) from starting a duplicate craft after
+                a world reload when the original craft was still running at save time.
+                RS saves running crafting tasks with the world but only restores them lazily on the first
+                crafting manager tick - a requester asking right after load sees an empty task list, so
+                RS's own duplicate check passes and the same craft is started a second time.
+                With this on, saved tasks are always restored before any crafting request is processed.""")
+                .define("enableRestoredTaskDedup", true);
 
         SPEC = builder.build();
     }

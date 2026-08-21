@@ -19,6 +19,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.Map;
 import java.util.UUID;
 
@@ -33,10 +34,20 @@ import static mctmods.rsmixin.RSMixin.MODID;
 
     @Shadow public void update() {}
 
+    @Shadow protected abstract void readTasks();
+
     @Override public boolean rsmixin$consumeRebuildQueued() {
         boolean queued = rsmixin$rebuildQueued;
         rsmixin$rebuildQueued = false;
         return queued;
+    }
+
+    @Inject(method = {"request(Ljava/lang/Object;Lnet/minecraft/world/item/ItemStack;I)Lcom/refinedmods/refinedstorage/api/autocrafting/task/ICraftingTask;", "request(Ljava/lang/Object;Lnet/minecraftforge/fluids/FluidStack;I)Lcom/refinedmods/refinedstorage/api/autocrafting/task/ICraftingTask;"}, at = @At("HEAD")) private void rsmixin$readTasksBeforeRequest(CallbackInfoReturnable<ICraftingTask> cir) {
+        if (!Config.ENABLE_RESTORED_TASK_DEDUP.get()) { return; }
+        if (tasksToRead != null) {
+            readTasks();
+            if (Config.ENABLE_DEBUG_LOGGING.get()) { rsmixin$LOGGER.debug("RSMixin: Restored saved crafting tasks before processing a request for network at {}", network.getPosition()); }
+        }
     }
 
     @Redirect(method = "updateTasks", at = @At(value = "INVOKE", target = "Lcom/refinedmods/refinedstorage/api/autocrafting/task/ICraftingTask;update()Z")) private boolean rsmixin$guardedTaskUpdate(ICraftingTask task) {
