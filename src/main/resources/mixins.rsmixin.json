@@ -68,6 +68,7 @@
   },
   "client": [
     "client.rebornstorage.BlockMultiCrafterMixin",
+    "client.refinedstorage.CableCoverItemBakedModelMixin",
     "client.rebornstorage.ScreenMultiCrafterMixin",
     "client.refinedstorage.ClientSetupMixin",
     "client.refinedstorage.GridRecipeTransferHandlerMixin",

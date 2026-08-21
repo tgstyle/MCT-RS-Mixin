@@ -46,6 +46,7 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue ENABLE_JEI_TRACKER_REFRESH;
     public static final ForgeConfigSpec.BooleanValue ENABLE_EXPORTER_VOID_GUARD;
     public static final ForgeConfigSpec.BooleanValue ENABLE_PROCESSING_VOID_GUARD;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_COVER_PARTICLE_FIX;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -458,6 +459,14 @@ public class Config {
                 instead of destroyed. The craft still stalls (cancel it to refund the rest), but nothing
                 is lost.""")
                 .define("enableProcessingVoidGuard", true);
+
+        ENABLE_COVER_PARTICLE_FIX = builder
+                .comment("""
+                Fixes warning spam from JEI and other mods when they sample cover items (RS bug #3659).
+                RS's cover item model returns no particle texture at all, which crashes JEI's color scanner
+                into a logged warning for every cover variant it inspects.
+                With this on, covers report the particle texture of the block they are made of.""")
+                .define("enableCoverParticleFix", true);
 
         SPEC = builder.build();
     }
