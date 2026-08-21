@@ -5,6 +5,7 @@ import mctmods.rsmixin.Config;
 import com.refinedmods.refinedstorage.apiimpl.network.node.NetworkNode;
 import com.refinedmods.refinedstorage.blockentity.NetworkNodeBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,8 +22,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
     @Inject(method = "getNode()Lcom/refinedmods/refinedstorage/apiimpl/network/node/NetworkNode;", at = @At("HEAD"), cancellable = true) private void rsmixin$guardLevelLessNode(CallbackInfoReturnable<NetworkNode> cir) {
         if (!Config.ENABLE_TEMPLATE_NODE_GUARD.get()) { return; }
         BlockEntity self = (BlockEntity) (Object) this;
-        if (self.getLevel() != null) { return; }
-        if (clientNode == null) { clientNode = createNode(null, self.getBlockPos()); }
+        Level level = self.getLevel();
+        if (level != null && (level.isClientSide || level instanceof ServerLevel)) { return; }
+        if (clientNode == null) { clientNode = createNode(level, self.getBlockPos()); }
         cir.setReturnValue(clientNode);
     }
 }

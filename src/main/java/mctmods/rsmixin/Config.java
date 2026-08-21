@@ -412,12 +412,13 @@ public class Config {
 
         ENABLE_TEMPLATE_NODE_GUARD = builder
                 .comment("""
-                Fixes crashes with schematic and scan tools that copy RS blocks (RS bugs #3605, #3422).
-                Structurize/MineColonies build template copies of block entities that never belong to a world;
-                when such a copy of an RS block is asked for its inventory (the scan tool's resource list),
-                RS assumes a world is present and crashes with a NullPointerException.
-                With this on, world-less copies get a detached placeholder node instead, so scan tools see
-                an empty inventory rather than crashing.""")
+                Fixes crashes with schematic and scan tools that copy RS blocks (RS bugs #3605, #3422, #3713).
+                Structurize/MineColonies build template copies of block entities without a world, and Create's
+                schematicannon loads schematics into a wrapper world that is not a real server world; in both
+                cases RS assumes a real world is present and fails (scan tool resource lists crash, and
+                schematics containing connected cables refuse to load into the cannon).
+                With this on, such copies get a detached placeholder node instead, so scan tools see an empty
+                inventory and schematics load normally.""")
                 .define("enableTemplateNodeGuard", true);
 
         ENABLE_JEI_TRACKER_REFRESH = builder
