@@ -293,8 +293,9 @@ public class Config {
                 is destroyed and everything shows as empty on next boot.
                 With this on, saves are atomic (the old file is never deleted first), failures are retried on the
                 next autosave instead of silently dropped, and a clear error is logged.
-                Tip: if you were already hit by this bug, look for a refinedstorage_disks.dat.temp file in your
-                world's data folder - renaming it to refinedstorage_disks.dat usually recovers everything.""")
+                Also heals existing damage on server start (RS bug #3637): an empty refinedstorage_*.dat left
+                behind by the vanilla bug is restored from its .temp backup when one exists, or removed so a
+                fresh file can be created instead of erroring on every boot.""")
                 .define("enableSafeDataSaving", true);
 
         ENABLE_WIRELESS_DIMENSION_LOCK = builder
