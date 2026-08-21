@@ -36,7 +36,10 @@ import java.util.WeakHashMap;
         if (!Config.ENABLE_PATTERN_CACHE_THREAD_SAFETY.get() && !renderCache) { return; }
         synchronized (rsmixin$CACHE_LOCK) {
             ICraftingPattern pattern = CACHE.computeIfAbsent(new ItemStackKey(stack), s -> CraftingPatternFactory.INSTANCE.create(level, null, s.getStack()));
-            if (CACHE.size() > 16384) { CACHE.clear(); }
+            if (CACHE.size() > 16384) {
+                CACHE.clear();
+                rsmixin$RENDER_CACHE.clear();
+            }
             if (renderCache) { rsmixin$RENDER_CACHE.put(stack, pattern); }
             cir.setReturnValue(pattern);
         }
