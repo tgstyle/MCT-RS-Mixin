@@ -45,6 +45,7 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue ENABLE_TEMPLATE_NODE_GUARD;
     public static final ForgeConfigSpec.BooleanValue ENABLE_JEI_TRACKER_REFRESH;
     public static final ForgeConfigSpec.BooleanValue ENABLE_EXPORTER_VOID_GUARD;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_PROCESSING_VOID_GUARD;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -446,6 +447,17 @@ public class Config {
                 machines, void-on-overflow containers, buggy handlers) silently destroys the difference.
                 With this on, anything the destination refuses is put straight back into the network.""")
                 .define("enableExporterVoidGuard", true);
+
+        ENABLE_PROCESSING_VOID_GUARD = builder
+                .comment("""
+                Stops autocrafting from destroying inputs the target machine does not accept (RS bug #3684).
+                When a processing recipe pushes its inputs into a machine, RS checks each item and fluid
+                against the machine one at a time - two fluids can both pass the check for a single tank,
+                and RS's own log admits what happens next: "the remainder has been voided!".
+                With this on, anything the machine does not actually accept is refunded to the network
+                instead of destroyed. The craft still stalls (cancel it to refund the rest), but nothing
+                is lost.""")
+                .define("enableProcessingVoidGuard", true);
 
         SPEC = builder.build();
     }

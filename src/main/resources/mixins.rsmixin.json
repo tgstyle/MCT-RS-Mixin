@@ -58,6 +58,7 @@
     "common.refinedstorage.PatternItemMixin",
     "common.refinedstorage.PortableFluidGridStorageCacheListenerMixin",
     "common.refinedstorage.PortableItemGridStorageCacheListenerMixin",
+    "common.refinedstorage.ProcessingNodeMixin",
     "common.refinedstorage.RSSavedDataMixin",
     "common.refinedstorage.TaskCraftingNodeMixin",
     "common.refinedstoragerequestify.NetworkNodeRequesterMixin"
