@@ -47,6 +47,7 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue ENABLE_EXPORTER_VOID_GUARD;
     public static final ForgeConfigSpec.BooleanValue ENABLE_PROCESSING_VOID_GUARD;
     public static final ForgeConfigSpec.BooleanValue ENABLE_COVER_PARTICLE_FIX;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_HOTKEY_MODIFIER_FIX;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -467,6 +468,16 @@ public class Config {
                 into a logged warning for every cover variant it inspects.
                 With this on, covers report the particle texture of the block they are made of.""")
                 .define("enableCoverParticleFix", true);
+
+        ENABLE_HOTKEY_MODIFIER_FIX = builder
+                .comment("""
+                Fixes wireless item hotkeys bound to key combinations like Shift+E (RS bug #3692).
+                RS polls the binding's pressed state on every key event; opening and closing a screen with
+                the same base key leaves that state stuck, so on newer Forge versions (47.2.14+) pressing
+                the modifier alone falsely opens the wireless grid.
+                With this on, hotkeys react only to an actual press of their bound key with the right
+                modifiers held, so combinations behave as configured.""")
+                .define("enableHotkeyModifierFix", true);
 
         SPEC = builder.build();
     }

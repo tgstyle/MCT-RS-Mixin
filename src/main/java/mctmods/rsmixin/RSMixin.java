@@ -44,7 +44,7 @@ public class RSMixin {
     }
 
     private void onCommonSetup(FMLCommonSetupEvent event) {
-        LOGGER.info("Loaded config: enableDebugLogging={}, enableThrottle={}, throttleInterval={}, enableBypassFastNodes={}, enableLoadRescan={}, loadRescanDelay={}, enableConduitPlacementFix={}, conduitPlacementRescanDelay={}, enableLazyEnergy={}, enableHashSetOptimize={}, enableSkipUnloaded={}, enableDynamicNodeSleep={}, enableDynamicCraftingBypass={}, enableConnectedNodeTickOptimize={}, enableEnderioRsFix={}, enableEnderioConduitTypedBackup={}, enableRebornstorageCrafterFix={}, enableStorageCacheDebounce={}, enableCraftingRebuildDebounce={}, enableGraphRescanCoalesce={}, enableEnderIONodeUnify={}, enableTrackedInsertIndex={}, enableDamageableInputReuse={}, enableCraftingCrashGuard={}, enableGridResync={}, enableSafeDataSaving={}, enableWirelessDimensionLock={}, enableModelRegistrationFix={}, enableFluidExtractionGuard={}, enableRaisedPacketLimit={}, maxSplitPackets={}, enablePatternCacheThreadSafety={}, enableOverstackExtractionFix={}, enableChunkLoadDiscovery={}, enableRestoredTaskDedup={}, enableJeiTransferLimit={}, enablePatternRenderCache={}, enableTemplateNodeGuard={}, enableJeiTrackerRefresh={}, enableExporterVoidGuard={}, enableProcessingVoidGuard={}, enableCoverParticleFix={}",
+        LOGGER.info("Loaded config: enableDebugLogging={}, enableThrottle={}, throttleInterval={}, enableBypassFastNodes={}, enableLoadRescan={}, loadRescanDelay={}, enableConduitPlacementFix={}, conduitPlacementRescanDelay={}, enableLazyEnergy={}, enableHashSetOptimize={}, enableSkipUnloaded={}, enableDynamicNodeSleep={}, enableDynamicCraftingBypass={}, enableConnectedNodeTickOptimize={}, enableEnderioRsFix={}, enableEnderioConduitTypedBackup={}, enableRebornstorageCrafterFix={}, enableStorageCacheDebounce={}, enableCraftingRebuildDebounce={}, enableGraphRescanCoalesce={}, enableEnderIONodeUnify={}, enableTrackedInsertIndex={}, enableDamageableInputReuse={}, enableCraftingCrashGuard={}, enableGridResync={}, enableSafeDataSaving={}, enableWirelessDimensionLock={}, enableModelRegistrationFix={}, enableFluidExtractionGuard={}, enableRaisedPacketLimit={}, maxSplitPackets={}, enablePatternCacheThreadSafety={}, enableOverstackExtractionFix={}, enableChunkLoadDiscovery={}, enableRestoredTaskDedup={}, enableJeiTransferLimit={}, enablePatternRenderCache={}, enableTemplateNodeGuard={}, enableJeiTrackerRefresh={}, enableExporterVoidGuard={}, enableProcessingVoidGuard={}, enableCoverParticleFix={}, enableHotkeyModifierFix={}",
                 Config.ENABLE_DEBUG_LOGGING.get(),
                 Config.ENABLE_THROTTLE.get(),
                 Config.THROTTLE_INTERVAL.get(),
@@ -86,6 +86,7 @@ public class RSMixin {
                 Config.ENABLE_JEI_TRACKER_REFRESH.get(),
                 Config.ENABLE_EXPORTER_VOID_GUARD.get(),
                 Config.ENABLE_PROCESSING_VOID_GUARD.get(),
-                Config.ENABLE_COVER_PARTICLE_FIX.get());
+                Config.ENABLE_COVER_PARTICLE_FIX.get(),
+                Config.ENABLE_HOTKEY_MODIFIER_FIX.get());
     }
 }

@@ -73,6 +73,7 @@
     "client.refinedstorage.ClientSetupMixin",
     "client.refinedstorage.GridRecipeTransferHandlerMixin",
     "client.refinedstorage.IngredientTrackerMixin",
+    "client.refinedstorage.KeyInputListenerMixin",
     "client.refinedstorage.NetworkTransmitterScreenMixin"
   ]
 }
