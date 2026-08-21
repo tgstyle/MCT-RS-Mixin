@@ -3,6 +3,7 @@ package mctmods.rsmixin.mixin.common.refinedstorage;
 import mctmods.rsmixin.Config;
 
 import com.refinedmods.refinedstorage.api.util.Action;
+import com.refinedmods.refinedstorage.api.util.IComparer;
 import com.refinedmods.refinedstorage.apiimpl.API;
 import com.refinedmods.refinedstorage.apiimpl.storage.externalstorage.ItemExternalStorage;
 import net.minecraft.world.item.ItemStack;
@@ -28,6 +29,7 @@ import java.util.function.Supplier;
         for (int i = 0; i < handler.getSlots() && remaining > 0; ++i) {
             ItemStack slot = handler.getStackInSlot(i);
             if (slot.isEmpty() || !API.instance().getComparer().isEqual(slot, stack, flags)) { continue; }
+            if (!received.isEmpty() && !API.instance().getComparer().isEqual(slot, received, IComparer.COMPARE_NBT)) { continue; }
             if (action == Action.SIMULATE) {
                 ItemStack got = handler.extractItem(i, remaining, true);
                 if (!got.isEmpty()) {

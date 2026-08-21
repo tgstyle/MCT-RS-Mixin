@@ -366,7 +366,10 @@ public class Config {
                 handing out the full crafted output while consuming only part of the inputs.
                 With this on, external storage keeps draining a slot until the request is satisfied, and
                 shift-crafting checks what is actually extractable before crafting instead of trusting
-                the cached counts.""")
+                the cached counts.
+                Also fixes an NBT duplication exploit (RS bug #3700): extracting with exact mode off used to
+                merge different item variants from several slots into copies of the first one, cloning its
+                data (drawer contents, bee cages, etc). Extraction now never mixes variants.""")
                 .define("enableOverstackExtractionFix", true);
 
         ENABLE_CHUNK_LOAD_DISCOVERY = builder
