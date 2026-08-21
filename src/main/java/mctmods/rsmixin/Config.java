@@ -38,6 +38,7 @@ public class Config {
     public static final ForgeConfigSpec.IntValue MAX_SPLIT_PACKETS;
     public static final ForgeConfigSpec.BooleanValue ENABLE_PATTERN_CACHE_THREAD_SAFETY;
     public static final ForgeConfigSpec.BooleanValue ENABLE_OVERSTACK_EXTRACTION_FIX;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_CHUNK_LOAD_DISCOVERY;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -356,6 +357,18 @@ public class Config {
                 shift-crafting checks what is actually extractable before crafting instead of trusting
                 the cached counts.""")
                 .define("enableOverstackExtractionFix", true);
+
+        ENABLE_CHUNK_LOAD_DISCOVERY = builder
+                .comment("""
+                Reconnects network blocks whose chunks load after the controller has already scanned
+                (RS bugs #3578, #3703, #3609, #3601).
+                RS only discovers nodes when a block is placed - there is no discovery on chunk load at all.
+                After a restart, anything in a chunk that loads later than the controller (external storage,
+                exporters, receivers, crafters) stays disconnected until a cable is broken and replaced or
+                the controller is power-cycled.
+                With this on, freshly loaded chunks are checked for disconnected RS blocks and the adjacent
+                network is rescanned automatically. Uses loadRescanDelay as the settle delay after chunk load.""")
+                .define("enableChunkLoadDiscovery", true);
 
         SPEC = builder.build();
     }

@@ -1,6 +1,7 @@
 package mctmods.rsmixin;
 
 import mctmods.rsmixin.helper.enderio.ConduitPlacementFix;
+import mctmods.rsmixin.helper.refinedstorage.ChunkNodeDiscovery;
 import mctmods.rsmixin.helper.refinedstorage.CraftingTicker;
 import mctmods.rsmixin.helper.refinedstorage.FastNodeTicker;
 
@@ -32,6 +33,7 @@ public class RSMixin {
         MinecraftForge.EVENT_BUS.register(new ConduitPlacementFix());
         MinecraftForge.EVENT_BUS.register(CraftingTicker.class);
         MinecraftForge.EVENT_BUS.register(GraphRescanScheduler.class);
+        MinecraftForge.EVENT_BUS.register(ChunkNodeDiscovery.class);
 
         Thread.setDefaultUncaughtExceptionHandler((thread, t) -> {
             System.err.println("Uncaught exception in thread " + thread.getName() + ":");
@@ -40,7 +42,7 @@ public class RSMixin {
     }
 
     private void onCommonSetup(FMLCommonSetupEvent event) {
-        LOGGER.info("Loaded config: enableDebugLogging={}, enableThrottle={}, throttleInterval={}, enableBypassFastNodes={}, enableLoadRescan={}, loadRescanDelay={}, enableConduitPlacementFix={}, conduitPlacementRescanDelay={}, enableLazyEnergy={}, enableHashSetOptimize={}, enableSkipUnloaded={}, enableDynamicNodeSleep={}, enableDynamicCraftingBypass={}, enableConnectedNodeTickOptimize={}, enableEnderioRsFix={}, enableEnderioConduitTypedBackup={}, enableRebornstorageCrafterFix={}, enableStorageCacheDebounce={}, enableCraftingRebuildDebounce={}, enableGraphRescanCoalesce={}, enableEnderIONodeUnify={}, enableTrackedInsertIndex={}, enableDamageableInputReuse={}, enableCraftingCrashGuard={}, enableGridResync={}, enableSafeDataSaving={}, enableWirelessDimensionLock={}, enableModelRegistrationFix={}, enableFluidExtractionGuard={}, enableRaisedPacketLimit={}, maxSplitPackets={}, enablePatternCacheThreadSafety={}, enableOverstackExtractionFix={}",
+        LOGGER.info("Loaded config: enableDebugLogging={}, enableThrottle={}, throttleInterval={}, enableBypassFastNodes={}, enableLoadRescan={}, loadRescanDelay={}, enableConduitPlacementFix={}, conduitPlacementRescanDelay={}, enableLazyEnergy={}, enableHashSetOptimize={}, enableSkipUnloaded={}, enableDynamicNodeSleep={}, enableDynamicCraftingBypass={}, enableConnectedNodeTickOptimize={}, enableEnderioRsFix={}, enableEnderioConduitTypedBackup={}, enableRebornstorageCrafterFix={}, enableStorageCacheDebounce={}, enableCraftingRebuildDebounce={}, enableGraphRescanCoalesce={}, enableEnderIONodeUnify={}, enableTrackedInsertIndex={}, enableDamageableInputReuse={}, enableCraftingCrashGuard={}, enableGridResync={}, enableSafeDataSaving={}, enableWirelessDimensionLock={}, enableModelRegistrationFix={}, enableFluidExtractionGuard={}, enableRaisedPacketLimit={}, maxSplitPackets={}, enablePatternCacheThreadSafety={}, enableOverstackExtractionFix={}, enableChunkLoadDiscovery={}",
                 Config.ENABLE_DEBUG_LOGGING.get(),
                 Config.ENABLE_THROTTLE.get(),
                 Config.THROTTLE_INTERVAL.get(),
@@ -73,6 +75,7 @@ public class RSMixin {
                 Config.ENABLE_RAISED_PACKET_LIMIT.get(),
                 Config.MAX_SPLIT_PACKETS.get(),
                 Config.ENABLE_PATTERN_CACHE_THREAD_SAFETY.get(),
-                Config.ENABLE_OVERSTACK_EXTRACTION_FIX.get());
+                Config.ENABLE_OVERSTACK_EXTRACTION_FIX.get(),
+                Config.ENABLE_CHUNK_LOAD_DISCOVERY.get());
     }
 }
