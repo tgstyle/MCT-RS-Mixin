@@ -24,6 +24,8 @@ import static mctmods.rsmixin.RSMixin.MODID;
 @Mixin(value = Network.class, remap = false) public abstract class NetworkMixin implements IEnergyDirtyAccessor {
     @Final @Shadow private BlockPos pos;
     @Final @Shadow private Level level;
+    @Shadow private int ticksSinceUpdateChanged;
+    @Shadow private int ticksSinceEnergyTypeChanged;
     @Unique private boolean rsmixin$dirtyEnergyUsage = true;
     @Unique private boolean rsmixin$wasLoaded = false;
     @Unique private long rsmixin$rescanAtGameTime = -1L;
@@ -32,6 +34,14 @@ import static mctmods.rsmixin.RSMixin.MODID;
     @Shadow public abstract INetworkNodeGraph getNodeGraph();
 
     @Override public void rsmixin$markEnergyDirty() { rsmixin$dirtyEnergyUsage = true; }
+
+    @Inject(method = "update", at = @At("TAIL")) private void rsmixin$scaleThrottledDebounce(CallbackInfo ci) {
+        if (!Config.ENABLE_THROTTLE.get()) { return; }
+        int interval = Config.THROTTLE_INTERVAL.get();
+        if (interval <= 1) { return; }
+        if (ticksSinceUpdateChanged > 0) { ticksSinceUpdateChanged += interval - 1; }
+        if (ticksSinceEnergyTypeChanged > 0) { ticksSinceEnergyTypeChanged += interval - 1; }
+    }
 
     @Inject(method = "update", at = @At("HEAD"), cancellable = true) private void updateWithLoadRescan(CallbackInfo ci) {
         if (Config.ENABLE_SKIP_UNLOADED.get()) {
