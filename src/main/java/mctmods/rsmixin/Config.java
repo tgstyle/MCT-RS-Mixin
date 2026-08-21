@@ -34,6 +34,8 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue ENABLE_WIRELESS_DIMENSION_LOCK;
     public static final ForgeConfigSpec.BooleanValue ENABLE_MODEL_REGISTRATION_FIX;
     public static final ForgeConfigSpec.BooleanValue ENABLE_FLUID_EXTRACTION_GUARD;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_RAISED_PACKET_LIMIT;
+    public static final ForgeConfigSpec.IntValue MAX_SPLIT_PACKETS;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -313,6 +315,22 @@ public class Config {
                 or the network can't supply a full bucket's worth, the click simply does nothing and
                 no fluid or bucket is lost.""")
                 .define("enableFluidExtractionGuard", true);
+
+        ENABLE_RAISED_PACKET_LIMIT = builder
+                .comment("""
+                Stops big storage systems from kicking players when a grid opens (RS bugs #3724, #3719, #3716).
+                RS sends the grid's whole item list in one message, split into ~0.9 MB packets, but refuses
+                to send more than 10 of them. Past roughly 200k stored items the list no longer fits, RS gives
+                up halfway, and the client is disconnected with "Failure Splitting Packets".
+                With this on, the packet limit is raised to maxSplitPackets so the full list always arrives.""")
+                .define("enableRaisedPacketLimit", true);
+
+        MAX_SPLIT_PACKETS = builder
+                .comment("""
+                Maximum number of ~0.9 MB packets one RS message may be split into (vanilla RS: 10).
+                Default 100 supports item lists up to roughly 90 MB - only ever used if the data needs it.
+                Only matters if enableRaisedPacketLimit is true.""")
+                .defineInRange("maxSplitPackets", 100, 10, 2000);
 
         SPEC = builder.build();
     }

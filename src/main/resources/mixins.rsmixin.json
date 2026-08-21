@@ -51,6 +51,7 @@
     "common.refinedstorage.NetworkNodeManagerMixin",
     "common.refinedstorage.NetworkNodeMixin",
     "common.refinedstorage.NetworkTransmitterNetworkNodeMixin",
+    "common.refinedstorage.PacketSplitterMixin",
     "common.refinedstorage.PortableFluidGridStorageCacheListenerMixin",
     "common.refinedstorage.PortableItemGridStorageCacheListenerMixin",
     "common.refinedstorage.RSSavedDataMixin",
