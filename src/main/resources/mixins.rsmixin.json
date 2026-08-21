@@ -34,6 +34,7 @@
     "common.refinedstorage.DestructorNetworkNodeMixin",
     "common.refinedstorage.DiskManipulatorNetworkNodeMixin",
     "common.refinedstorage.ExporterNetworkNodeMixin",
+    "common.refinedstorage.FluidGridHandlerMixin",
     "common.refinedstorage.FluidGridStorageCacheListenerMixin",
     "common.refinedstorage.FluidStorageCacheMixin",
     "common.refinedstorage.ImporterNetworkNodeMixin",
@@ -62,6 +63,7 @@
   "client": [
     "client.rebornstorage.BlockMultiCrafterMixin",
     "client.rebornstorage.ScreenMultiCrafterMixin",
+    "client.refinedstorage.ClientSetupMixin",
     "client.refinedstorage.NetworkTransmitterScreenMixin"
   ]
 }

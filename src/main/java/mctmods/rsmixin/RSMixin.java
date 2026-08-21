@@ -40,7 +40,7 @@ public class RSMixin {
     }
 
     private void onCommonSetup(FMLCommonSetupEvent event) {
-        LOGGER.info("Loaded config: enableDebugLogging={}, enableThrottle={}, throttleInterval={}, enableBypassFastNodes={}, enableLoadRescan={}, loadRescanDelay={}, enableConduitPlacementFix={}, conduitPlacementRescanDelay={}, enableLazyEnergy={}, enableHashSetOptimize={}, enableSkipUnloaded={}, enableDynamicNodeSleep={}, enableDynamicCraftingBypass={}, enableConnectedNodeTickOptimize={}, enableEnderioRsFix={}, enableEnderioConduitTypedBackup={}, enableRebornstorageCrafterFix={}",
+        LOGGER.info("Loaded config: enableDebugLogging={}, enableThrottle={}, throttleInterval={}, enableBypassFastNodes={}, enableLoadRescan={}, loadRescanDelay={}, enableConduitPlacementFix={}, conduitPlacementRescanDelay={}, enableLazyEnergy={}, enableHashSetOptimize={}, enableSkipUnloaded={}, enableDynamicNodeSleep={}, enableDynamicCraftingBypass={}, enableConnectedNodeTickOptimize={}, enableEnderioRsFix={}, enableEnderioConduitTypedBackup={}, enableRebornstorageCrafterFix={}, enableStorageCacheDebounce={}, enableCraftingRebuildDebounce={}, enableGraphRescanCoalesce={}, enableEnderIONodeUnify={}, enableTrackedInsertIndex={}, enableDamageableInputReuse={}, enableCraftingCrashGuard={}, enableGridResync={}, enableSafeDataSaving={}, enableWirelessDimensionLock={}, enableModelRegistrationFix={}, enableFluidExtractionGuard={}",
                 Config.ENABLE_DEBUG_LOGGING.get(),
                 Config.ENABLE_THROTTLE.get(),
                 Config.THROTTLE_INTERVAL.get(),
@@ -57,6 +57,18 @@ public class RSMixin {
                 Config.ENABLE_CONNECTED_NODE_TICK_OPTIMIZE.get(),
                 Config.ENABLE_ENDERIO_RS_FIX.get(),
                 Config.ENABLE_ENDERIO_CONDUIT_TYPED_BACKUP.get(),
-                Config.ENABLE_REBORNSTORAGE_CRAFTER_FIX.get());
+                Config.ENABLE_REBORNSTORAGE_CRAFTER_FIX.get(),
+                Config.ENABLE_STORAGE_CACHE_DEBOUNCE.get(),
+                Config.ENABLE_CRAFTING_REBUILD_DEBOUNCE.get(),
+                Config.ENABLE_GRAPH_RESCAN_COALESCE.get(),
+                Config.ENABLE_ENDERIO_NODE_UNIFY.get(),
+                Config.ENABLE_TRACKED_INSERT_INDEX.get(),
+                Config.ENABLE_DAMAGEABLE_INPUT_REUSE.get(),
+                Config.ENABLE_CRAFTING_CRASH_GUARD.get(),
+                Config.ENABLE_GRID_RESYNC.get(),
+                Config.ENABLE_SAFE_DATA_SAVING.get(),
+                Config.ENABLE_WIRELESS_DIMENSION_LOCK.get(),
+                Config.ENABLE_MODEL_REGISTRATION_FIX.get(),
+                Config.ENABLE_FLUID_EXTRACTION_GUARD.get());
     }
 }

@@ -32,6 +32,8 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue ENABLE_GRID_RESYNC;
     public static final ForgeConfigSpec.BooleanValue ENABLE_SAFE_DATA_SAVING;
     public static final ForgeConfigSpec.BooleanValue ENABLE_WIRELESS_DIMENSION_LOCK;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_MODEL_REGISTRATION_FIX;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_FLUID_EXTRACTION_GUARD;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -288,6 +290,29 @@ public class Config {
                 even if an addon's infinite/cross-dimension wireless transmitter would normally allow it.
                 Disabled by default (vanilla behavior).""")
                 .define("enableWirelessDimensionLock", false);
+
+        ENABLE_MODEL_REGISTRATION_FIX = builder
+                .comment("""
+                Fixes covers crafting up purple/black and turning invisible when placed, and patterns
+                not previewing their output while Shift is held (RS bug #3747).
+                RS registers its custom cover and pattern models during mod setup, which the game runs
+                at the same time as its first model bake. If the bake finishes first (more likely on
+                slower PCs), the custom models are never swapped in and stay broken for the whole session.
+                With this on, the models are registered right before every bake, so the race can't be lost.
+                If a bake fires before this config file has loaded, the fix is applied regardless and this
+                setting takes effect from the next bake onward.""")
+                .define("enableModelRegistrationFix", true);
+
+        ENABLE_FLUID_EXTRACTION_GUARD = builder
+                .comment("""
+                Stops the fluid grid from destroying fluids that can't go into a bucket (RS bugs #3732, #3169).
+                Vanilla RS takes the fluid out of the network first and only then tries to fill the bucket -
+                if the fluid has no bucket form (Create potions, many modded fluids), the fill silently fails
+                and the fluid is gone, leaving the player holding an empty bucket.
+                With this on, the extraction is checked first: if a bucket can't actually hold that fluid,
+                or the network can't supply a full bucket's worth, the click simply does nothing and
+                no fluid or bucket is lost.""")
+                .define("enableFluidExtractionGuard", true);
 
         SPEC = builder.build();
     }
