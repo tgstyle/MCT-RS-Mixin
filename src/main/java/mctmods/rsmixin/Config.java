@@ -37,6 +37,7 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue ENABLE_RAISED_PACKET_LIMIT;
     public static final ForgeConfigSpec.IntValue MAX_SPLIT_PACKETS;
     public static final ForgeConfigSpec.BooleanValue ENABLE_PATTERN_CACHE_THREAD_SAFETY;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_OVERSTACK_EXTRACTION_FIX;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -342,6 +343,19 @@ public class Config {
                 in PatternItem.fromCache - or silently corrupting the cache.
                 With this on, cache access is properly locked. No behavior change otherwise.""")
                 .define("enablePatternCacheThreadSafety", true);
+
+        ENABLE_OVERSTACK_EXTRACTION_FIX = builder
+                .comment("""
+                Fixes item duplication and under-consumed ingredients with storage that holds more than 64
+                items per slot, like Sophisticated Storage barrels/backpacks (RS bugs #3242, #3640, #3614).
+                RS asks external storage for items one slot at a time, but a single request can never return
+                more than one full stack - from a slot holding 256 items RS gets 64, moves on, and never
+                comes back for the rest. Shift-crafting then ignores the missing ingredients entirely,
+                handing out the full crafted output while consuming only part of the inputs.
+                With this on, external storage keeps draining a slot until the request is satisfied, and
+                shift-crafting checks what is actually extractable before crafting instead of trusting
+                the cached counts.""")
+                .define("enableOverstackExtractionFix", true);
 
         SPEC = builder.build();
     }
