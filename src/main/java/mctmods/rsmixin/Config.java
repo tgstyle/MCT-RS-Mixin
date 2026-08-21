@@ -36,6 +36,7 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue ENABLE_FLUID_EXTRACTION_GUARD;
     public static final ForgeConfigSpec.BooleanValue ENABLE_RAISED_PACKET_LIMIT;
     public static final ForgeConfigSpec.IntValue MAX_SPLIT_PACKETS;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_PATTERN_CACHE_THREAD_SAFETY;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -331,6 +332,16 @@ public class Config {
                 Default 100 supports item lists up to roughly 90 MB - only ever used if the data needs it.
                 Only matters if enableRaisedPacketLimit is true.""")
                 .defineInRange("maxSplitPackets", 100, 10, 2000);
+
+        ENABLE_PATTERN_CACHE_THREAD_SAFETY = builder
+                .comment("""
+                Fixes random crashes when crafting or using JEI's + button while patterns exist (RS bug #3712).
+                RS keeps a shared pattern cache that both the server (crafters validating patterns) and the
+                client (rendering patterns on screen) read and write at the same time, without any locking.
+                In singleplayer the two threads can collide, crashing with a ConcurrentModificationException
+                in PatternItem.fromCache - or silently corrupting the cache.
+                With this on, cache access is properly locked. No behavior change otherwise.""")
+                .define("enablePatternCacheThreadSafety", true);
 
         SPEC = builder.build();
     }
