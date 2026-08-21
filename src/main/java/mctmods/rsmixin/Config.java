@@ -40,6 +40,7 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue ENABLE_OVERSTACK_EXTRACTION_FIX;
     public static final ForgeConfigSpec.BooleanValue ENABLE_CHUNK_LOAD_DISCOVERY;
     public static final ForgeConfigSpec.BooleanValue ENABLE_RESTORED_TASK_DEDUP;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_JEI_TRANSFER_LIMIT;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -380,6 +381,17 @@ public class Config {
                 RS's own duplicate check passes and the same craft is started a second time.
                 With this on, saved tasks are always restored before any crafting request is processed.""")
                 .define("enableRestoredTaskDedup", true);
+
+        ENABLE_JEI_TRANSFER_LIMIT = builder
+                .comment("""
+                Stops JEI's + button from kicking the player on recipes with many ingredient variants
+                (RS bugs #3676, #3450).
+                RS sends every possible variant for every recipe slot to the server - for recipes like the
+                note block ("any planks") or RS covers this easily exceeds Minecraft's 32 KB limit for
+                client-to-server packets, and the player is disconnected.
+                With this on, each slot's list is trimmed before sending: variants the player actually has
+                (in inventory or storage) are kept first, so the transfer still picks the right items.""")
+                .define("enableJeiTransferLimit", true);
 
         SPEC = builder.build();
     }

@@ -68,6 +68,7 @@
     "client.rebornstorage.BlockMultiCrafterMixin",
     "client.rebornstorage.ScreenMultiCrafterMixin",
     "client.refinedstorage.ClientSetupMixin",
+    "client.refinedstorage.GridRecipeTransferHandlerMixin",
     "client.refinedstorage.NetworkTransmitterScreenMixin"
   ]
 }
