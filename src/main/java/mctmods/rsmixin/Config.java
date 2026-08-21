@@ -41,6 +41,7 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue ENABLE_CHUNK_LOAD_DISCOVERY;
     public static final ForgeConfigSpec.BooleanValue ENABLE_RESTORED_TASK_DEDUP;
     public static final ForgeConfigSpec.BooleanValue ENABLE_JEI_TRANSFER_LIMIT;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_PATTERN_RENDER_CACHE;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -392,6 +393,16 @@ public class Config {
                 With this on, each slot's list is trimmed before sending: variants the player actually has
                 (in inventory or storage) are kept first, so the transfer still picks the right items.""")
                 .define("enableJeiTransferLimit", true);
+
+        ENABLE_PATTERN_RENDER_CACHE = builder
+                .comment("""
+                Speeds up rendering of patterns whose items carry a lot of NBT data (RS bugs #3618, #3582, #3674).
+                Every frame, for every visible pattern, RS re-hashes and re-compares the pattern's entire NBT
+                tree (which contains full copies of all input and output items) just to look up what to render.
+                For patterns of NBT-heavy items this tanks the framerate whenever they are on screen.
+                With this on, the client remembers the result per pattern stack, so after the first frame the
+                lookup is instant. Client-side only; no behavior change.""")
+                .define("enablePatternRenderCache", true);
 
         SPEC = builder.build();
     }
