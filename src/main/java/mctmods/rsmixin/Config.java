@@ -42,6 +42,7 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue ENABLE_RESTORED_TASK_DEDUP;
     public static final ForgeConfigSpec.BooleanValue ENABLE_JEI_TRANSFER_LIMIT;
     public static final ForgeConfigSpec.BooleanValue ENABLE_PATTERN_RENDER_CACHE;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_TEMPLATE_NODE_GUARD;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -266,7 +267,11 @@ public class Config {
                 the server, and because the broken task is saved with the world, it crashes again on every reboot.
                 With this on, the broken task is safely cancelled instead: its items are refunded to storage,
                 an error is written to the log, and the server keeps running.
-                Fixes Refined Storage issues #3751 and #3727, and the reboot crash loops behind #3755 and #3753.""")
+                Also covers world load: a saved task that can no longer be restored (for example its crafting
+                pattern became invalid after a pack update) is dropped with a log entry instead of crash-looping
+                the world forever.
+                Fixes Refined Storage issues #3751, #3727, #3645, and #3635, and the reboot crash loops behind
+                #3755 and #3753.""")
                 .define("enableCraftingCrashGuard", true);
 
         ENABLE_GRID_RESYNC = builder
@@ -403,6 +408,16 @@ public class Config {
                 With this on, the client remembers the result per pattern stack, so after the first frame the
                 lookup is instant. Client-side only; no behavior change.""")
                 .define("enablePatternRenderCache", true);
+
+        ENABLE_TEMPLATE_NODE_GUARD = builder
+                .comment("""
+                Fixes crashes with schematic and scan tools that copy RS blocks (RS bugs #3605, #3422).
+                Structurize/MineColonies build template copies of block entities that never belong to a world;
+                when such a copy of an RS block is asked for its inventory (the scan tool's resource list),
+                RS assumes a world is present and crashes with a NullPointerException.
+                With this on, world-less copies get a detached placeholder node instead, so scan tools see
+                an empty inventory rather than crashing.""")
+                .define("enableTemplateNodeGuard", true);
 
         SPEC = builder.build();
     }

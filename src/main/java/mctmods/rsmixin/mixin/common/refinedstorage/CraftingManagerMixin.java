@@ -6,9 +6,13 @@ import mctmods.rsmixin.core.accessor.IGraphBatchAccessor;
 import mctmods.rsmixin.helper.refinedstorage.CraftingTicker;
 
 import com.refinedmods.refinedstorage.api.autocrafting.task.ICraftingTask;
+import com.refinedmods.refinedstorage.api.autocrafting.task.ICraftingTaskFactory;
 import com.refinedmods.refinedstorage.api.network.INetwork;
+import com.refinedmods.refinedstorage.apiimpl.API;
 import com.refinedmods.refinedstorage.apiimpl.autocrafting.CraftingManager;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.resources.ResourceLocation;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Final;
@@ -40,6 +44,25 @@ import static mctmods.rsmixin.RSMixin.MODID;
         boolean queued = rsmixin$rebuildQueued;
         rsmixin$rebuildQueued = false;
         return queued;
+    }
+
+    @Inject(method = "readTasks", at = @At("HEAD"), cancellable = true) private void rsmixin$guardedReadTasks(CallbackInfo ci) {
+        if (!Config.ENABLE_CRAFTING_CRASH_GUARD.get()) { return; }
+        for (int i = 0; i < tasksToRead.size(); ++i) {
+            CompoundTag taskTag = tasksToRead.getCompound(i);
+            ResourceLocation taskType = ResourceLocation.tryParse(taskTag.getString("Type"));
+            CompoundTag taskData = taskTag.getCompound("Task");
+            ICraftingTaskFactory factory = taskType == null ? null : API.instance().getCraftingTaskRegistry().get(taskType);
+            if (factory != null) {
+                try {
+                    ICraftingTask task = factory.createFromNbt(network, taskData);
+                    tasks.put(task.getId(), task);
+                }
+                catch (Exception e) { rsmixin$LOGGER.error("RSMixin: Could not restore a saved crafting task for the network at {}; the task was dropped to prevent a crash loop on world load.", network.getPosition(), e); }
+            }
+        }
+        tasksToRead = null;
+        ci.cancel();
     }
 
     @Inject(method = {"request(Ljava/lang/Object;Lnet/minecraft/world/item/ItemStack;I)Lcom/refinedmods/refinedstorage/api/autocrafting/task/ICraftingTask;", "request(Ljava/lang/Object;Lnet/minecraftforge/fluids/FluidStack;I)Lcom/refinedmods/refinedstorage/api/autocrafting/task/ICraftingTask;"}, at = @At("HEAD")) private void rsmixin$readTasksBeforeRequest(CallbackInfoReturnable<ICraftingTask> cir) {

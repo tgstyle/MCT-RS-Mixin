@@ -47,6 +47,7 @@
     "common.refinedstorage.NetworkItemManagerMixin",
     "common.refinedstorage.NetworkListenerMixin",
     "common.refinedstorage.NetworkMixin",
+    "common.refinedstorage.NetworkNodeBlockEntityMixin",
     "common.refinedstorage.NetworkNodeGraphMixin",
     "common.refinedstorage.NetworkNodeGraphOperatorMixin",
     "common.refinedstorage.NetworkNodeGraphOperatorOptimizeMixin",
