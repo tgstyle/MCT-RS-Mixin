@@ -1,6 +1,7 @@
 package mctmods.rsmixin.mixin.common.refinedstorage;
 
 import com.refinedmods.refinedstorage.api.network.node.INetworkNodeManager;
+import com.refinedmods.refinedstorage.api.util.Action;
 import com.refinedmods.refinedstorage.apiimpl.API;
 import com.refinedmods.refinedstorage.apiimpl.network.node.ExporterNetworkNode;
 import com.refinedmods.refinedstorage.apiimpl.network.node.NetworkNode;
@@ -11,7 +12,12 @@ import mctmods.rsmixin.core.accessor.IActiveFastNodesAccessor;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,6 +42,28 @@ public abstract class ExporterNetworkNodeMixin extends NetworkNode {
 
     protected ExporterNetworkNodeMixin(Level level, BlockPos pos) {
         super(level, pos);
+    }
+
+    @Redirect(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/items/ItemHandlerHelper;insertItem(Lnet/minecraftforge/items/IItemHandler;Lnet/minecraft/world/item/ItemStack;Z)Lnet/minecraft/world/item/ItemStack;", ordinal = 1), remap = false)
+    private ItemStack rsmixin$refundItemRemainder(IItemHandler dest, ItemStack stack, boolean simulate) {
+        ItemStack remainder = ItemHandlerHelper.insertItem(dest, stack, simulate);
+        if (Config.ENABLE_EXPORTER_VOID_GUARD.get() && !remainder.isEmpty() && network != null) {
+            if (Config.ENABLE_DEBUG_LOGGING.get()) { rsmixin$LOGGER.debug("RSMixin: Exporter at {} could not deliver {} x{}, refunding to the network", pos, remainder.getItem(), remainder.getCount()); }
+            return network.insertItem(remainder, remainder.getCount(), Action.PERFORM);
+        }
+        return remainder;
+    }
+
+    @Redirect(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraftforge/fluids/capability/IFluidHandler;fill(Lnet/minecraftforge/fluids/FluidStack;Lnet/minecraftforge/fluids/capability/IFluidHandler$FluidAction;)I", ordinal = 1), remap = false)
+    private int rsmixin$refundFluidRemainder(IFluidHandler handler, FluidStack stack, IFluidHandler.FluidAction action) {
+        int filled = handler.fill(stack, action);
+        if (Config.ENABLE_EXPORTER_VOID_GUARD.get() && action.execute() && filled < stack.getAmount() && network != null) {
+            FluidStack refund = stack.copy();
+            refund.setAmount(stack.getAmount() - filled);
+            if (Config.ENABLE_DEBUG_LOGGING.get()) { rsmixin$LOGGER.debug("RSMixin: Exporter at {} could not deliver {} mB of {}, refunding to the network", pos, refund.getAmount(), refund.getDisplayName().getString()); }
+            network.insertFluid(refund, refund.getAmount(), Action.PERFORM);
+        }
+        return filled;
     }
 
     @Inject(method = "<init>", at = @At("TAIL"), remap = false)

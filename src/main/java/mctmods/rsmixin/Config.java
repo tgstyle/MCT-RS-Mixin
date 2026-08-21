@@ -44,6 +44,7 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue ENABLE_PATTERN_RENDER_CACHE;
     public static final ForgeConfigSpec.BooleanValue ENABLE_TEMPLATE_NODE_GUARD;
     public static final ForgeConfigSpec.BooleanValue ENABLE_JEI_TRACKER_REFRESH;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_EXPORTER_VOID_GUARD;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -431,6 +432,16 @@ public class Config {
                 as "missing items" for the rest of the session.
                 With this on, a stale snapshot is rebuilt as soon as the real item list is available.""")
                 .define("enableJeiTrackerRefresh", true);
+
+        ENABLE_EXPORTER_VOID_GUARD = builder
+                .comment("""
+                Stops exporters from destroying items or fluids when the destination takes less than it
+                promised (RS bug #3652).
+                RS asks the destination how much fits before extracting, but ignores the result of the real
+                insert afterward - a destination that accepts less than its simulation promised (slot-filtered
+                machines, void-on-overflow containers, buggy handlers) silently destroys the difference.
+                With this on, anything the destination refuses is put straight back into the network.""")
+                .define("enableExporterVoidGuard", true);
 
         SPEC = builder.build();
     }
