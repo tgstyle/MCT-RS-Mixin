@@ -43,6 +43,7 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue ENABLE_JEI_TRANSFER_LIMIT;
     public static final ForgeConfigSpec.BooleanValue ENABLE_PATTERN_RENDER_CACHE;
     public static final ForgeConfigSpec.BooleanValue ENABLE_TEMPLATE_NODE_GUARD;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_JEI_TRACKER_REFRESH;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -418,6 +419,17 @@ public class Config {
                 With this on, world-less copies get a detached placeholder node instead, so scan tools see
                 an empty inventory rather than crashing.""")
                 .define("enableTemplateNodeGuard", true);
+
+        ENABLE_JEI_TRACKER_REFRESH = builder
+                .comment("""
+                Fixes JEI's + button doing nothing even though the ingredients are in storage,
+                until the world is rejoined (RS bugs #3680, #3681).
+                RS snapshots the storage contents for JEI exactly once, the first time a recipe is hovered.
+                If that happens before the item list has arrived from the server (common on slower PCs or
+                heavy modpacks), the snapshot is empty and never recovers - JEI then blocks every transfer
+                as "missing items" for the rest of the session.
+                With this on, a stale snapshot is rebuilt as soon as the real item list is available.""")
+                .define("enableJeiTrackerRefresh", true);
 
         SPEC = builder.build();
     }

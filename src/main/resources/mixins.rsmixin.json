@@ -70,6 +70,7 @@
     "client.rebornstorage.ScreenMultiCrafterMixin",
     "client.refinedstorage.ClientSetupMixin",
     "client.refinedstorage.GridRecipeTransferHandlerMixin",
+    "client.refinedstorage.IngredientTrackerMixin",
     "client.refinedstorage.NetworkTransmitterScreenMixin"
   ]
 }
