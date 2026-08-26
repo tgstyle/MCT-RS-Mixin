@@ -112,7 +112,7 @@ tasks.register('bumpVersion') {
         props['build_number'] = nextBuild.toString()
         file('version.properties').withOutputStream { props.store(it, null) }
 
-        ext.version_buildnumber = nextBuild
+        project.ext.version_buildnumber = nextBuild
         def newStage = props['stage'] ?: ''
         def newVersion = "${common.mcversion}-${props['version']}.${nextBuild}-${newStage}"
 
