@@ -1,6 +1,7 @@
 package mctmods.rsmixin.mixin.common.rebornstorage;
 
 import mctmods.rsmixin.Config;
+import mctmods.rsmixin.helper.refinedstorage.FastNodeTicker;
 
 import me.modmuss50.rebornstorage.tiles.CraftingNode;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,8 +17,14 @@ import java.util.HashMap;
     @Shadow private boolean needsRebuild;
     @Unique private boolean rsmixin$patternChanged;
     @Unique private int rsmixin$rebuildCounter = 0;
+    @Unique private boolean rsmixin$forcedActive = false;
 
     @Shadow public abstract void rebuildPatterns(String reason);
+
+    @Inject(method = "update", at = @At("HEAD")) private void rsmixin$ensureFastTick(CallbackInfo ci) {
+        CraftingNode thiz = (CraftingNode) (Object) this;
+        rsmixin$forcedActive = FastNodeTicker.assertForced(thiz, rsmixin$forcedActive, "RebornStorage crafting node");
+    }
 
     @Inject(method = "update", at = @At("HEAD")) private void rsmixin$deterministicRebuildTimer(CallbackInfo ci) {
         if (!Config.enableRebornstorageCrafterFix) { return; }

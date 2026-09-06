@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "mctmods.rsmixin.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "mixins.rsmixin.refmap.json",
+  "mixins": [
+    "common.rebornstorage.BlockMultiCrafterMixin",
+    "common.rebornstorage.ContainerMultiCrafterMixin",
+    "common.rebornstorage.CraftingNodeMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -52,7 +52,9 @@ minecraft {
     username = 'tgstyle'
     extraRunJvmArguments.addAll(
         '-Dfml.coreMods.load=mctmods.rsmixin.core.MCTMixin',
-        '-Dforge.logging.console.level=debug'
+        '-Dforge.logging.console.level=debug',
+        '-XX:+FlightRecorder',
+        '-XX:StartFlightRecording=maxsize=512M,dumponexit=true,filename=logs/profile.jfr,settings=profile'
     )
 }
 
@@ -76,6 +78,7 @@ dependencies {
     implementation rfg.deobf("curse.maven:${common.mtop_version}")
     implementation rfg.deobf("curse.maven:${common.rbcr_version}")
     implementation rfg.deobf("curse.maven:${common.rbst_version}")
+    implementation rfg.deobf("curse.maven:${common.rqfy_version}")
 
     compileOnly rfg.deobf("curse.maven:${common.sprk_version}")
 

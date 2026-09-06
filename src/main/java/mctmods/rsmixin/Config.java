@@ -37,7 +37,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
     @Comment({
             "List of node class names that are allowed to bypass throttling when enableBypassFastNodes is true.",
-            "Defaults cover core RS nodes (importers, exporters, interfaces, crafters, etc.).",
+            "Defaults cover core RS nodes (importers, exporters, interfaces, crafters, etc.), the RS Requestify requester and the RebornStorage multiblock crafter.",
             "Adding extra classes is safe—even if the mod isn't installed (string matching only).",
             "Only relevant when enableBypassFastNodes is enabled."})
     public static String[] fastNodeClasses = new String[]{
@@ -48,7 +48,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
             "com.raoulvdberge.refinedstorage.apiimpl.network.node.NetworkNodeCrafter",
             "com.raoulvdberge.refinedstorage.apiimpl.network.node.NetworkNodeConstructor",
             "com.raoulvdberge.refinedstorage.apiimpl.network.node.NetworkNodeDestructor",
-            "com.raoulvdberge.refinedstorage.apiimpl.network.node.diskmanipulator.NetworkNodeDiskManipulator"
+            "com.raoulvdberge.refinedstorage.apiimpl.network.node.diskmanipulator.NetworkNodeDiskManipulator",
+            "com.buuz135.refinedstoragerequestify.proxy.block.network.NetworkNodeRequester",
+            "me.modmuss50.rebornstorage.tiles.CraftingNode"
     };
 
     @Comment({
