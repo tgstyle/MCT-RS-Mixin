@@ -111,6 +111,7 @@ minecraft {
             property 'forge.logging.markers', ''
             property 'forge.enabledGameTestNamespaces', mod_id
             ideaModule project.name + ".main"
+            jvmArgs '-Xmx3G', '-Xms1G'
             mods {
                 rsmixin {
                     source sourceSets.main
@@ -125,6 +126,7 @@ minecraft {
             property 'forge.logging.markers', ''
             property 'forge.enabledGameTestNamespaces', mod_id
             arg '-nogui'
+            jvmArgs '-Xmx3G', '-Xms1G'
             mods {
                 rsmixin {
                     source sourceSets.main

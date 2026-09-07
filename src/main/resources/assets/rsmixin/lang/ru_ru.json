@@ -1,5 +1,21 @@
 {
   "gui.rsmixin.network_transmitter.dimension_blocked": "Межпространственная передача отключена",
 
-  "misc.rsmixin.wireless_dimension_lock": "Беспроводной предмет привязан к %s и не может быть использован здесь"
+  "misc.rsmixin.wireless_dimension_lock": "Беспроводной предмет привязан к %s и не может быть использован здесь",
+
+  "misc.rsmixin.rebornstorage.header": "Сборщик не собран - %s от %s до %s",
+  "misc.rsmixin.rebornstorage.formed": "Сборщик собран - %s от %s до %s",
+  "misc.rsmixin.rebornstorage.missing": "%s: не хватает %s в %s",
+  "misc.rsmixin.rebornstorage.wrong": "%s: %s x %s здесь не место, в %s",
+  "misc.rsmixin.rebornstorage.allowed": "%s - допустимо: %s",
+  "misc.rsmixin.rebornstorage.more": "...и ещё %s",
+  "misc.rsmixin.rebornstorage.actionbar": "Сборщик не собран - блоков исправить: %s",
+  "misc.rsmixin.rebornstorage.region.frame": "Рёбра каркаса",
+  "misc.rsmixin.rebornstorage.region.face": "Внешние грани",
+  "misc.rsmixin.rebornstorage.region.interior": "Внутренняя часть",
+  "misc.rsmixin.rebornstorage.no_storage": "Нет блоков хранения!",
+  "misc.rsmixin.rebornstorage.no_storage_tip": "Поставьте блоки хранения внутри сборщика, чтобы получить страницы шаблонов.",
+  "misc.rsmixin.rebornstorage.no_cpu": "Нет процессора сборки - ничего не будет обрабатываться, пока вы его не добавите.",
+  "misc.rsmixin.rebornstorage.no_storage_hint": "Нет блока хранения - у сборщика нет страниц шаблонов.",
+  "misc.rsmixin.rebornstorage.region.shell": "Оболочка (рёбра и грани)"
 }

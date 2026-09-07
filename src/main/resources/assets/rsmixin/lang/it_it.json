@@ -1,5 +1,21 @@
 {
   "gui.rsmixin.network_transmitter.dimension_blocked": "Trasmissione tra dimensioni disabilitata",
 
-  "misc.rsmixin.wireless_dimension_lock": "L'oggetto wireless è collegato a %s e non può essere usato qui"
+  "misc.rsmixin.wireless_dimension_lock": "L'oggetto wireless è collegato a %s e non può essere usato qui",
+
+  "misc.rsmixin.rebornstorage.header": "Assemblatore non formato - %s da %s a %s",
+  "misc.rsmixin.rebornstorage.formed": "Assemblatore formato - %s da %s a %s",
+  "misc.rsmixin.rebornstorage.missing": "%s: ne mancano %s in %s",
+  "misc.rsmixin.rebornstorage.wrong": "%s: %s x %s non va qui, in %s",
+  "misc.rsmixin.rebornstorage.allowed": "%s - ammesso: %s",
+  "misc.rsmixin.rebornstorage.more": "...e altri %s",
+  "misc.rsmixin.rebornstorage.actionbar": "Assemblatore non formato - %s blocchi da sistemare",
+  "misc.rsmixin.rebornstorage.region.frame": "Spigoli del telaio",
+  "misc.rsmixin.rebornstorage.region.face": "Facce esterne",
+  "misc.rsmixin.rebornstorage.region.interior": "Interno",
+  "misc.rsmixin.rebornstorage.no_storage": "Nessun blocco di stoccaggio!",
+  "misc.rsmixin.rebornstorage.no_storage_tip": "Metti dei blocchi di stoccaggio dentro l'assemblatore per ottenere le pagine degli schemi.",
+  "misc.rsmixin.rebornstorage.no_cpu": "Nessuna CPU di assemblaggio: non verrà elaborato nulla finché non ne aggiungi una.",
+  "misc.rsmixin.rebornstorage.no_storage_hint": "Nessun blocco di stoccaggio: l'assemblatore non ha pagine degli schemi.",
+  "misc.rsmixin.rebornstorage.region.shell": "Guscio (spigoli e facce)"
 }

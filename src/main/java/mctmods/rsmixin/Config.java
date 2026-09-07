@@ -48,6 +48,7 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue ENABLE_PROCESSING_VOID_GUARD;
     public static final ForgeConfigSpec.BooleanValue ENABLE_COVER_PARTICLE_FIX;
     public static final ForgeConfigSpec.BooleanValue ENABLE_HOTKEY_MODIFIER_FIX;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_REBORNSTORAGE_BUILD_HINTS;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -205,10 +206,12 @@ public class Config {
                 .comment("""
                         Fixes RebornStorage multiblock crafter (v5.0.7):
                         - Immediate assembly/GUI access.
-                        - Requires CPU or storage (no all-air).
-                        - Allows air during construction.
-                        - Clean validation messages.
-                        - No pattern pages with CPU-only (clear message).
+                        - Shell may be any mix of Frame, Heat, CPU and Storage blocks; vanilla insisted on
+                          Heat for every face and Frame for every edge, which nothing in the mod requires.
+                        - Interior may be air, any crafter block, or anything in #rebornstorage:multiblock_inner_base.
+                        - Needs at least one CPU and one Storage block somewhere in the structure, since
+                          without them RebornStorage runs no crafting updates and has nowhere for patterns.
+                        - Every fault in the structure is reported at once, with positions.
                         Safe to disable if newer versions fix these.""")
                 .define("enableRebornstorageCrafterFix", true);
 
@@ -478,6 +481,18 @@ public class Config {
                 With this on, hotkeys react only to an actual press of their bound key with the right
                 modifiers held, so combinations behave as configured.""")
                 .define("enableHotkeyModifierFix", true);
+
+        ENABLE_REBORNSTORAGE_BUILD_HINTS = builder
+                .comment("""
+                Shows what is wrong with an unfinished RebornStorage crafter instead of one block at a time.
+                Poke the crafter with an empty hand (or anything that is not a block) and you get the machine's
+                size and position, a grouped list of everything still wrong, and what each part of the shell
+                accepts - plus a short summary on the action bar.
+                Every offending spot is outlined in the world for a few seconds: blue where a block is missing,
+                red where the wrong block is in the way. Holding a block never triggers the prompt, so building
+                is not interrupted.
+                Client-side only. Turn off for plain single-line messages.""")
+                .define("enableRebornstorageBuildHints", true);
 
         SPEC = builder.build();
     }

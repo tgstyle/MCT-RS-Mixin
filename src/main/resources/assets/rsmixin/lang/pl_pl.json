@@ -1,5 +1,21 @@
 {
   "gui.rsmixin.network_transmitter.dimension_blocked": "Transmisja międzywymiarowa wyłączona",
 
-  "misc.rsmixin.wireless_dimension_lock": "Przedmiot bezprzewodowy jest powiązany z %s i nie może być tu użyty"
+  "misc.rsmixin.wireless_dimension_lock": "Przedmiot bezprzewodowy jest powiązany z %s i nie może być tu użyty",
+
+  "misc.rsmixin.rebornstorage.header": "Krafter nie został złożony - %s od %s do %s",
+  "misc.rsmixin.rebornstorage.formed": "Krafter został złożony - %s od %s do %s",
+  "misc.rsmixin.rebornstorage.missing": "%s: brakuje %s w %s",
+  "misc.rsmixin.rebornstorage.wrong": "%s: %s x %s tu nie pasuje, w %s",
+  "misc.rsmixin.rebornstorage.allowed": "%s - dozwolone: %s",
+  "misc.rsmixin.rebornstorage.more": "...i jeszcze %s",
+  "misc.rsmixin.rebornstorage.actionbar": "Krafter nie został złożony - bloków do poprawy: %s",
+  "misc.rsmixin.rebornstorage.region.frame": "Krawędzie ramy",
+  "misc.rsmixin.rebornstorage.region.face": "Ściany zewnętrzne",
+  "misc.rsmixin.rebornstorage.region.interior": "Wnętrze",
+  "misc.rsmixin.rebornstorage.no_storage": "Brak bloków magazynowych!",
+  "misc.rsmixin.rebornstorage.no_storage_tip": "Umieść bloki magazynowe wewnątrz kraftera, aby uzyskać strony wzorów.",
+  "misc.rsmixin.rebornstorage.no_cpu": "Brak procesora craftingu - nic nie zostanie przetworzone, dopóki go nie dodasz.",
+  "misc.rsmixin.rebornstorage.no_storage_hint": "Brak bloku magazynowego - krafter nie ma stron wzorów.",
+  "misc.rsmixin.rebornstorage.region.shell": "Obudowa (krawędzie i ściany)"
 }

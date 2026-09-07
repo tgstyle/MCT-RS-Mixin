@@ -1,5 +1,21 @@
 {
   "gui.rsmixin.network_transmitter.dimension_blocked": "Cross-dimension disabled",
 
-  "misc.rsmixin.wireless_dimension_lock": "Wireless item is linked to %s and cannot be used here"
+  "misc.rsmixin.wireless_dimension_lock": "Wireless item is linked to %s and cannot be used here",
+
+  "misc.rsmixin.rebornstorage.header": "Crafter not formed - %s from %s to %s",
+  "misc.rsmixin.rebornstorage.formed": "Crafter formed - %s from %s to %s",
+  "misc.rsmixin.rebornstorage.missing": "%s: %s missing at %s",
+  "misc.rsmixin.rebornstorage.wrong": "%s: %s x %s does not belong at %s",
+  "misc.rsmixin.rebornstorage.allowed": "%s - allowed: %s",
+  "misc.rsmixin.rebornstorage.more": "...and %s more",
+  "misc.rsmixin.rebornstorage.actionbar": "Crafter not formed - %s blocks to fix",
+  "misc.rsmixin.rebornstorage.region.frame": "Frame edges",
+  "misc.rsmixin.rebornstorage.region.face": "Outer faces",
+  "misc.rsmixin.rebornstorage.region.interior": "Interior",
+  "misc.rsmixin.rebornstorage.no_storage": "No Storage Blocks!",
+  "misc.rsmixin.rebornstorage.no_storage_tip": "Place Storage blocks inside the crafter to get pattern pages.",
+  "misc.rsmixin.rebornstorage.no_cpu": "No Crafting CPU - nothing will be processed until you add one.",
+  "misc.rsmixin.rebornstorage.no_storage_hint": "No Storage Block - the crafter has no pattern pages.",
+  "misc.rsmixin.rebornstorage.region.shell": "Shell (edges and faces)"
 }

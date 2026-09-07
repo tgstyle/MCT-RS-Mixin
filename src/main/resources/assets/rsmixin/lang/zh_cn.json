@@ -1,5 +1,21 @@
 {
   "gui.rsmixin.network_transmitter.dimension_blocked": "跨维度已禁用",
 
-  "misc.rsmixin.wireless_dimension_lock": "无线物品已链接到 %s，无法在此使用"
+  "misc.rsmixin.wireless_dimension_lock": "无线物品已链接到 %s，无法在此使用",
+
+  "misc.rsmixin.rebornstorage.header": "合成器未成形 - %s，从 %s 到 %s",
+  "misc.rsmixin.rebornstorage.formed": "合成器已成形 - %s，从 %s 到 %s",
+  "misc.rsmixin.rebornstorage.missing": "%s：缺少 %s 个 — %s",
+  "misc.rsmixin.rebornstorage.wrong": "%s：%s 个 %s 不该放在这里 — %s",
+  "misc.rsmixin.rebornstorage.allowed": "%s - 可放置：%s",
+  "misc.rsmixin.rebornstorage.more": "...还有 %s 处",
+  "misc.rsmixin.rebornstorage.actionbar": "合成器未成形 - 需修正 %s 个方块",
+  "misc.rsmixin.rebornstorage.region.frame": "框架棱边",
+  "misc.rsmixin.rebornstorage.region.face": "外表面",
+  "misc.rsmixin.rebornstorage.region.interior": "内部",
+  "misc.rsmixin.rebornstorage.no_storage": "没有存储方块！",
+  "misc.rsmixin.rebornstorage.no_storage_tip": "在合成器内部放置存储方块即可获得样板页。",
+  "misc.rsmixin.rebornstorage.no_cpu": "没有合成 CPU：在添加之前不会处理任何任务。",
+  "misc.rsmixin.rebornstorage.no_storage_hint": "没有存储方块：合成器没有样板页。",
+  "misc.rsmixin.rebornstorage.region.shell": "外壳（棱边与表面）"
 }

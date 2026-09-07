@@ -1,5 +1,21 @@
 {
   "gui.rsmixin.network_transmitter.dimension_blocked": "Inter-dimension désactivé",
 
-  "misc.rsmixin.wireless_dimension_lock": "L'objet sans fil est lié à %s et ne peut pas être utilisé ici"
+  "misc.rsmixin.wireless_dimension_lock": "L'objet sans fil est lié à %s et ne peut pas être utilisé ici",
+
+  "misc.rsmixin.rebornstorage.header": "Assembleur non formé - %s de %s à %s",
+  "misc.rsmixin.rebornstorage.formed": "Assembleur formé - %s de %s à %s",
+  "misc.rsmixin.rebornstorage.missing": "%s : %s manquant(s) en %s",
+  "misc.rsmixin.rebornstorage.wrong": "%s : %s x %s n'a rien à faire en %s",
+  "misc.rsmixin.rebornstorage.allowed": "%s - autorisé : %s",
+  "misc.rsmixin.rebornstorage.more": "...et %s de plus",
+  "misc.rsmixin.rebornstorage.actionbar": "Assembleur non formé - %s blocs à corriger",
+  "misc.rsmixin.rebornstorage.region.frame": "Arêtes du cadre",
+  "misc.rsmixin.rebornstorage.region.face": "Faces extérieures",
+  "misc.rsmixin.rebornstorage.region.interior": "Intérieur",
+  "misc.rsmixin.rebornstorage.no_storage": "Aucun bloc de stockage !",
+  "misc.rsmixin.rebornstorage.no_storage_tip": "Placez des blocs de stockage à l'intérieur de l'assembleur pour obtenir des pages de schémas.",
+  "misc.rsmixin.rebornstorage.no_cpu": "Aucun CPU d'assemblage - rien ne sera traité tant que vous n'en ajoutez pas un.",
+  "misc.rsmixin.rebornstorage.no_storage_hint": "Aucun bloc de stockage - l'assembleur n'a aucune page de schémas.",
+  "misc.rsmixin.rebornstorage.region.shell": "Coque (arêtes et faces)"
 }

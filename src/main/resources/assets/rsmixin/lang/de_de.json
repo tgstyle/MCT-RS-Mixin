@@ -1,5 +1,21 @@
 {
   "gui.rsmixin.network_transmitter.dimension_blocked": "Dimensionsübergreifend deaktiviert",
 
-  "misc.rsmixin.wireless_dimension_lock": "Drahtloses Item ist mit %s verknüpft und kann hier nicht verwendet werden"
+  "misc.rsmixin.wireless_dimension_lock": "Drahtloses Item ist mit %s verknüpft und kann hier nicht verwendet werden",
+
+  "misc.rsmixin.rebornstorage.header": "Crafter nicht gebildet - %s von %s bis %s",
+  "misc.rsmixin.rebornstorage.formed": "Crafter gebildet - %s von %s bis %s",
+  "misc.rsmixin.rebornstorage.missing": "%s: %s fehlen bei %s",
+  "misc.rsmixin.rebornstorage.wrong": "%s: %s x %s gehört nicht hierher bei %s",
+  "misc.rsmixin.rebornstorage.allowed": "%s - erlaubt: %s",
+  "misc.rsmixin.rebornstorage.more": "...und %s weitere",
+  "misc.rsmixin.rebornstorage.actionbar": "Crafter nicht gebildet - %s Blöcke zu beheben",
+  "misc.rsmixin.rebornstorage.region.frame": "Rahmenkanten",
+  "misc.rsmixin.rebornstorage.region.face": "Außenflächen",
+  "misc.rsmixin.rebornstorage.region.interior": "Innenraum",
+  "misc.rsmixin.rebornstorage.no_storage": "Keine Speicherblöcke!",
+  "misc.rsmixin.rebornstorage.no_storage_tip": "Platziere Speicherblöcke im Inneren des Crafters, um Vorlagenseiten zu erhalten.",
+  "misc.rsmixin.rebornstorage.no_cpu": "Keine Crafting-CPU - es wird nichts verarbeitet, bis du eine einbaust.",
+  "misc.rsmixin.rebornstorage.no_storage_hint": "Kein Speicherblock - der Crafter hat keine Vorlagenseiten.",
+  "misc.rsmixin.rebornstorage.region.shell": "Hülle (Kanten und Flächen)"
 }

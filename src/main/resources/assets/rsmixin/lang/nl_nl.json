@@ -1,5 +1,21 @@
 {
   "gui.rsmixin.network_transmitter.dimension_blocked": "Cross-dimensie uitgeschakeld",
 
-  "misc.rsmixin.wireless_dimension_lock": "Draadloos item is gekoppeld aan %s en kan hier niet worden gebruikt"
+  "misc.rsmixin.wireless_dimension_lock": "Draadloos item is gekoppeld aan %s en kan hier niet worden gebruikt",
+
+  "misc.rsmixin.rebornstorage.header": "Crafter niet gevormd - %s van %s tot %s",
+  "misc.rsmixin.rebornstorage.formed": "Crafter gevormd - %s van %s tot %s",
+  "misc.rsmixin.rebornstorage.missing": "%s: %s ontbreken op %s",
+  "misc.rsmixin.rebornstorage.wrong": "%s: %s x %s hoort hier niet, op %s",
+  "misc.rsmixin.rebornstorage.allowed": "%s - toegestaan: %s",
+  "misc.rsmixin.rebornstorage.more": "...en nog %s",
+  "misc.rsmixin.rebornstorage.actionbar": "Crafter niet gevormd - %s blokken te herstellen",
+  "misc.rsmixin.rebornstorage.region.frame": "Randen van het frame",
+  "misc.rsmixin.rebornstorage.region.face": "Buitenvlakken",
+  "misc.rsmixin.rebornstorage.region.interior": "Binnenkant",
+  "misc.rsmixin.rebornstorage.no_storage": "Geen opslagblokken!",
+  "misc.rsmixin.rebornstorage.no_storage_tip": "Plaats opslagblokken in de crafter om patroonpagina's te krijgen.",
+  "misc.rsmixin.rebornstorage.no_cpu": "Geen crafting-CPU - er wordt niets verwerkt tot je er een toevoegt.",
+  "misc.rsmixin.rebornstorage.no_storage_hint": "Geen opslagblok - de crafter heeft geen patroonpagina's.",
+  "misc.rsmixin.rebornstorage.region.shell": "Omhulsel (randen en vlakken)"
 }

@@ -1,5 +1,21 @@
 {
   "gui.rsmixin.network_transmitter.dimension_blocked": "Transferencia entre dimensiones desactivada",
 
-  "misc.rsmixin.wireless_dimension_lock": "El objeto inalámbrico está vinculado a %s y no se puede usar aquí"
+  "misc.rsmixin.wireless_dimension_lock": "El objeto inalámbrico está vinculado a %s y no se puede usar aquí",
+
+  "misc.rsmixin.rebornstorage.header": "Ensamblador no formado - %s desde %s hasta %s",
+  "misc.rsmixin.rebornstorage.formed": "Ensamblador formado - %s desde %s hasta %s",
+  "misc.rsmixin.rebornstorage.missing": "%s: faltan %s en %s",
+  "misc.rsmixin.rebornstorage.wrong": "%s: %s x %s no va aquí, en %s",
+  "misc.rsmixin.rebornstorage.allowed": "%s - se permite: %s",
+  "misc.rsmixin.rebornstorage.more": "...y %s más",
+  "misc.rsmixin.rebornstorage.actionbar": "Ensamblador no formado - %s bloques por corregir",
+  "misc.rsmixin.rebornstorage.region.frame": "Aristas del marco",
+  "misc.rsmixin.rebornstorage.region.face": "Caras exteriores",
+  "misc.rsmixin.rebornstorage.region.interior": "Interior",
+  "misc.rsmixin.rebornstorage.no_storage": "¡Sin bloques de almacenamiento!",
+  "misc.rsmixin.rebornstorage.no_storage_tip": "Coloca bloques de almacenamiento dentro del ensamblador para obtener páginas de patrones.",
+  "misc.rsmixin.rebornstorage.no_cpu": "Sin CPU de fabricación: no se procesará nada hasta que añadas una.",
+  "misc.rsmixin.rebornstorage.no_storage_hint": "Sin bloque de almacenamiento: el ensamblador no tiene páginas de patrones.",
+  "misc.rsmixin.rebornstorage.region.shell": "Carcasa (aristas y caras)"
 }

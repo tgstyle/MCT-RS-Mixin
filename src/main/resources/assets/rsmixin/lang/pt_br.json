@@ -1,5 +1,21 @@
 {
   "gui.rsmixin.network_transmitter.dimension_blocked": "Transmissão entre dimensões desativada",
 
-  "misc.rsmixin.wireless_dimension_lock": "O item sem fio está vinculado a %s e não pode ser usado aqui"
+  "misc.rsmixin.wireless_dimension_lock": "O item sem fio está vinculado a %s e não pode ser usado aqui",
+
+  "misc.rsmixin.rebornstorage.header": "Montador não formado - %s de %s até %s",
+  "misc.rsmixin.rebornstorage.formed": "Montador formado - %s de %s até %s",
+  "misc.rsmixin.rebornstorage.missing": "%s: faltam %s em %s",
+  "misc.rsmixin.rebornstorage.wrong": "%s: %s x %s não pertence aqui, em %s",
+  "misc.rsmixin.rebornstorage.allowed": "%s - permitido: %s",
+  "misc.rsmixin.rebornstorage.more": "...e mais %s",
+  "misc.rsmixin.rebornstorage.actionbar": "Montador não formado - %s blocos para corrigir",
+  "misc.rsmixin.rebornstorage.region.frame": "Arestas da estrutura",
+  "misc.rsmixin.rebornstorage.region.face": "Faces externas",
+  "misc.rsmixin.rebornstorage.region.interior": "Interior",
+  "misc.rsmixin.rebornstorage.no_storage": "Nenhum bloco de armazenamento!",
+  "misc.rsmixin.rebornstorage.no_storage_tip": "Coloque blocos de armazenamento dentro do montador para obter páginas de padrões.",
+  "misc.rsmixin.rebornstorage.no_cpu": "Sem CPU de fabricação - nada será processado até você adicionar uma.",
+  "misc.rsmixin.rebornstorage.no_storage_hint": "Sem bloco de armazenamento - o montador não tem páginas de padrões.",
+  "misc.rsmixin.rebornstorage.region.shell": "Casca (arestas e faces)"
 }

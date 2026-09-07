@@ -1,5 +1,21 @@
 {
   "gui.rsmixin.network_transmitter.dimension_blocked": "次元間送信は無効です",
 
-  "misc.rsmixin.wireless_dimension_lock": "ワイヤレスアイテムは %s にリンクされているため、ここでは使用できません"
+  "misc.rsmixin.wireless_dimension_lock": "ワイヤレスアイテムは %s にリンクされているため、ここでは使用できません",
+
+  "misc.rsmixin.rebornstorage.header": "クラフターが完成していません - %s（%s から %s）",
+  "misc.rsmixin.rebornstorage.formed": "クラフターが完成しました - %s（%s から %s）",
+  "misc.rsmixin.rebornstorage.missing": "%s: %s 個が不足 — %s",
+  "misc.rsmixin.rebornstorage.wrong": "%s: %s 個の %s は置けません — %s",
+  "misc.rsmixin.rebornstorage.allowed": "%s - 設置できるもの: %s",
+  "misc.rsmixin.rebornstorage.more": "...ほか %s 件",
+  "misc.rsmixin.rebornstorage.actionbar": "クラフターが完成していません - 修正が必要なブロック: %s",
+  "misc.rsmixin.rebornstorage.region.frame": "枠の辺",
+  "misc.rsmixin.rebornstorage.region.face": "外側の面",
+  "misc.rsmixin.rebornstorage.region.interior": "内部",
+  "misc.rsmixin.rebornstorage.no_storage": "ストレージブロックがありません！",
+  "misc.rsmixin.rebornstorage.no_storage_tip": "パターンページを使うには、クラフターの内部にストレージブロックを設置してください。",
+  "misc.rsmixin.rebornstorage.no_cpu": "クラフト CPU がありません。追加するまで何も処理されません。",
+  "misc.rsmixin.rebornstorage.no_storage_hint": "ストレージブロックがありません。クラフターにパターンページがありません。",
+  "misc.rsmixin.rebornstorage.region.shell": "外殻（辺と面）"
 }

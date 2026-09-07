@@ -26,21 +26,17 @@ public class BlockMultiCrafterMixin {
     @Inject(method = "use",
             at = @At("HEAD"),
             cancellable = true)
-    private void rsmixin$handleServerInteraction(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit, CallbackInfoReturnable<InteractionResult> cir) {
+    private void rsmixin$handleServerInteraction(BlockState blockState, Level level, BlockPos blockPos, Player player, InteractionHand hand, BlockHitResult blockHitResult, CallbackInfoReturnable<InteractionResult> cir) {
         if (level.isClientSide()) return;
+        if (!Config.ENABLE_REBORNSTORAGE_CRAFTER_FIX.get()) return;
 
-        if (!(level.getBlockEntity(pos) instanceof BlockEntityMultiCrafter tile)) {
+        if (!(level.getBlockEntity(blockPos) instanceof BlockEntityMultiCrafter tile)) {
             cir.setReturnValue(InteractionResult.PASS);
             return;
         }
 
         MultiblockControllerBase controller = tile.getMultiblockController();
         if (controller == null) {
-            cir.setReturnValue(InteractionResult.PASS);
-            return;
-        }
-
-        if (!Config.ENABLE_REBORNSTORAGE_CRAFTER_FIX.get()) {
             cir.setReturnValue(InteractionResult.PASS);
             return;
         }
@@ -54,7 +50,7 @@ public class BlockMultiCrafterMixin {
                 BlockState bs = level.getBlockState(ref);
                 level.sendBlockUpdated(ref, bs, bs, 3);
             }
-            NetworkHooks.openScreen((ServerPlayer) player, tile, pos);
+            NetworkHooks.openScreen((ServerPlayer) player, tile, blockPos);
             cir.setReturnValue(InteractionResult.SUCCESS);
         } else {
             cir.setReturnValue(InteractionResult.PASS);
