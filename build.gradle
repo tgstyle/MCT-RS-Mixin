@@ -1,13 +1,11 @@
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
-import net.minecraftforge.gradle.common.tasks.SignJar
 
 plugins {
+    id 'java-library'
     id 'idea'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '6.0.+'
-    id 'org.spongepowered.mixin' version '0.7.+'
-    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+    id 'net.neoforged.moddev.legacyforge' version '2.0.140'
     id 'org.jetbrains.gradle.plugin.idea-ext' version '1.1.6'
     id 'eclipse'
 }
@@ -102,41 +100,50 @@ tasks.register('copyModsTomlForIntelliJ', Copy) {
     dependsOn processResources
 }
 
-minecraft {
-    mappings channel: 'parchment', version: version_parchment + '-' + version_minecraft
+legacyForge {
+    version = "${version_minecraft}-${version_forge}"
+
+    parchment {
+        mappingsVersion = project.version_parchment
+        minecraftVersion = project.version_minecraft
+    }
+
+    validateAccessTransformers = true
+
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+    }
 
     runs {
         client {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', ''
-            property 'forge.enabledGameTestNamespaces', mod_id
-            ideaModule project.name + ".main"
-            jvmArgs '-Xmx3G', '-Xms1G'
-            mods {
-                rsmixin {
-                    source sourceSets.main
-                }
-            }
-            args '--username', 'tgstyle'
-            args '--width', '1920'
-            args '--height', '1080'
+            client()
+            systemProperty 'forge.logging.markers', ''
+            systemProperty 'forge.enabledGameTestNamespaces', mod_id
+            jvmArgument '-Xmx3G'
+            jvmArgument '-Xms1G'
+            programArguments.addAll '--username', 'tgstyle', '--width', '1920', '--height', '1080'
         }
         server {
-            workingDirectory project.file('run')
-            property 'forge.logging.markers', ''
-            property 'forge.enabledGameTestNamespaces', mod_id
-            arg '-nogui'
-            jvmArgs '-Xmx3G', '-Xms1G'
-            mods {
-                rsmixin {
-                    source sourceSets.main
-                }
-            }
+            server()
+            systemProperty 'forge.logging.markers', ''
+            systemProperty 'forge.enabledGameTestNamespaces', mod_id
+            jvmArgument '-Xmx3G'
+            jvmArgument '-Xms1G'
+            programArguments.addAll '--nogui'
+        }
+        configureEach {
+            gameDirectory = project.file('run')
         }
     }
 }
 
 repositories {
+    maven {
+        name 'ParchmentMC'
+        url 'https://ldtteam.jfrog.io/artifactory/parchmentmc-public/'
+    }
     maven { url 'https://www.cursemaven.com' }
     maven { url "https://cfa2.cursemaven.com" }
     maven {
@@ -151,27 +158,25 @@ mixin {
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${version_minecraft}-${version_forge}"
+    modImplementation "mezz.jei:jei-${version_minecraft}-forge:${version_jei}"
+    modImplementation "curse.maven:${version_jade_curse}"
 
-    implementation fg.deobf("mezz.jei:jei-${version_minecraft}-forge:${version_jei}")
-    implementation fg.deobf("curse.maven:${version_jade_curse}")
+	modImplementation "curse.maven:${version_functional_storage_curse}"
+	modImplementation "curse.maven:${version_titanium_curse}"
 
-	implementation fg.deobf("curse.maven:${version_functional_storage_curse}")
-	implementation fg.deobf("curse.maven:${version_titanium_curse}")
-
-	implementation fg.deobf("curse.maven:${version_spark_curse}")
+	modImplementation "curse.maven:${version_spark_curse}"
 
 
-	implementation fg.deobf("curse.maven:${version_refined_storage_curse}")
-	implementation fg.deobf("curse.maven:${version_cable_tiers_curse}")
-	implementation fg.deobf("curse.maven:${version_edivadlib_curse}")
-    implementation fg.deobf("curse.maven:${version_ender_io_curse}")
-	implementation fg.deobf("curse.maven:${version_extra_disks_curse}")
-	implementation fg.deobf("curse.maven:${version_extrastorage_curse}")
-	implementation fg.deobf("curse.maven:${version_kotlin_for_forge_curse}")
-	implementation fg.deobf("curse.maven:${version_refined_rebornstorage_curse}")
-	implementation fg.deobf("curse.maven:${version_refined_crafter_proxy_curse}")
-	implementation fg.deobf("curse.maven:${version_rs_requestify_curse}")
+	modImplementation "curse.maven:${version_refined_storage_curse}"
+	modImplementation "curse.maven:${version_cable_tiers_curse}"
+	modImplementation "curse.maven:${version_edivadlib_curse}"
+    modImplementation "curse.maven:${version_ender_io_curse}"
+	modImplementation "curse.maven:${version_extra_disks_curse}"
+	modImplementation "curse.maven:${version_extrastorage_curse}"
+	modImplementation "curse.maven:${version_kotlin_for_forge_curse}"
+	modImplementation "curse.maven:${version_refined_rebornstorage_curse}"
+	modImplementation "curse.maven:${version_refined_crafter_proxy_curse}"
+	modImplementation "curse.maven:${version_rs_requestify_curse}"
 
     annotationProcessor "org.spongepowered:mixin:${version_mixin}:processor"
 }
@@ -202,18 +207,24 @@ tasks.register('bumpVersion') {
     }
 }
 
-tasks.register('signJar', SignJar) {
+tasks.register('signJar') {
+    dependsOn tasks.named('jar')
     onlyIf { project.hasProperty('keyStore') }
-    if (project.hasProperty('keyStore')) {
-        keyStore = project.keyStore
-        alias = project.storeAlias
-        storePass = project.storePass
-        keyPass = project.storePass
-        inputFile = jar.archiveFile.get().asFile
-        outputFile = jar.archiveFile.get().asFile
-    } else {
-        logger.warn("No key store found, not signing the output jar\n")
+    def jarFile = tasks.named('jar', Jar).flatMap { it.archiveFile }
+    doLast {
+        // FG6's SignJar task type is gone with ForgeGradle; Ant's signjar is the
+        // equivalent and signs in place, as the FG6 config did (in == out).
+        ant.signjar(
+                jar: jarFile.get().asFile,
+                alias: project.storeAlias,
+                keystore: project.keyStore,
+                storepass: project.storePass,
+                keypass: project.storePass
+        )
     }
+}
+if (!project.hasProperty('keyStore')) {
+    logger.warn("No key store found, not signing the output jar\n")
 }
 
 build.dependsOn bumpVersion, signJar
