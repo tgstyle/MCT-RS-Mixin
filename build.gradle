@@ -121,7 +121,7 @@ legacyForge {
             client()
             systemProperty 'forge.logging.markers', ''
             systemProperty 'forge.enabledGameTestNamespaces', mod_id
-            jvmArgument '-Xmx3G'
+            jvmArgument '-Xmx4G'
             jvmArgument '-Xms1G'
             programArguments.addAll '--username', 'tgstyle', '--width', '1920', '--height', '1080'
         }
@@ -129,7 +129,7 @@ legacyForge {
             server()
             systemProperty 'forge.logging.markers', ''
             systemProperty 'forge.enabledGameTestNamespaces', mod_id
-            jvmArgument '-Xmx3G'
+            jvmArgument '-Xmx4G'
             jvmArgument '-Xms1G'
             programArguments.addAll '--nogui'
         }
@@ -229,17 +229,6 @@ if (!project.hasProperty('keyStore')) {
 
 build.dependsOn bumpVersion, signJar
 
-tasks.register('sourcesJar', Jar) {
-    dependsOn classes
-	archiveBaseName.set("MCT-RS-Mixin-${version_minecraft}")
-    archiveClassifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-artifacts {
-    archives sourcesJar
-}
-
 tasks.register('genIntellijRunsDummy') {}
 
 tasks.register('speedUpPreRun') {
@@ -280,7 +269,6 @@ idea {
 
 processResources.dependsOn bumpVersion
 jar.dependsOn bumpVersion
-sourcesJar.dependsOn bumpVersion
 
 jar {
     archiveBaseName.set("MCT-RS-Mixin-${version_minecraft}")
