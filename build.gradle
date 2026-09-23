@@ -49,8 +49,9 @@ minecraft {
     mcVersion = '1.12.2'
     mcpMappingChannel = 'stable'
     mcpMappingVersion = common.mcp_mappings.toString().split('-')[0]
-    username = 'tgstyle'
+    username = 'TGstyle'
     extraRunJvmArguments.addAll(
+        '-Xmx4G',
         '-Dfml.coreMods.load=mctmods.rsmixin.core.MCTMixin',
         '-Dforge.logging.console.level=debug',
         '-XX:+FlightRecorder',
@@ -71,6 +72,13 @@ repositories {
     mavenCentral()
 }
 
+configurations {
+    clientRuntime {
+        canBeConsumed = false
+        canBeResolved = true
+    }
+}
+
 dependencies {
     implementation rfg.deobf("curse.maven:${common.rsto_version}")
 
@@ -82,6 +90,8 @@ dependencies {
 
     compileOnly rfg.deobf("curse.maven:${common.sprk_version}")
 
+    clientRuntime rfg.deobf("curse.maven:${common.bf3r_version}")
+
     annotationProcessor 'org.ow2.asm:asm-debug-all:5.2'
     annotationProcessor 'com.google.guava:guava:32.1.2-jre'
     annotationProcessor 'com.google.code.gson:gson:2.8.9'
@@ -92,6 +102,7 @@ dependencies {
 
 tasks.named('runClient').configure {
     extraArgs.addAll('--width', '1920', '--height', '1080')
+    classpath configurations.clientRuntime
 }
 
 tasks.named('runServer').configure {
