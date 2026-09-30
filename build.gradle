@@ -1,5 +1,6 @@
 import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
+import java.security.MessageDigest
 
 plugins {
     id 'java-library'
@@ -8,6 +9,20 @@ plugins {
     id 'net.neoforged.moddev.legacyforge' version '2.0.140'
     id 'org.jetbrains.gradle.plugin.idea-ext' version '1.1.6'
     id 'eclipse'
+}
+
+class JarStamp {
+    static String hash(Set<File> files, File versionProps, File root) {
+        def digest = MessageDigest.getInstance('SHA-256')
+        files.sort { it.path }.each { File file ->
+            digest.update(root.toPath().relativize(file.toPath()).toString().getBytes('UTF-8'))
+            digest.update(file.bytes)
+        }
+        versionProps.readLines().findAll { !it.startsWith('#') && !it.startsWith('build_number=') }.sort().each { digest.update(it.getBytes('UTF-8')) }
+        digest.digest().encodeHex().toString()
+    }
+
+    static boolean changed(Set<File> files, File versionProps, File root, File stamp) { !stamp.isFile() || stamp.text != hash(files, versionProps, root) }
 }
 
 configurations.configureEach {
@@ -100,6 +115,8 @@ tasks.register('copyModsTomlForIntelliJ', Copy) {
     dependsOn processResources
 }
 
+def modIdValue = mod_id as String
+
 legacyForge {
     version = "${version_minecraft}-${version_forge}"
 
@@ -110,17 +127,13 @@ legacyForge {
 
     validateAccessTransformers = true
 
-    mods {
-        "${mod_id}" {
-            sourceSet sourceSets.main
-        }
-    }
+    mods.register(mod_id as String) { sourceSet(sourceSets.main) }
 
     runs {
         client {
             client()
             systemProperty 'forge.logging.markers', ''
-            systemProperty 'forge.enabledGameTestNamespaces', mod_id
+            systemProperty 'forge.enabledGameTestNamespaces', modIdValue
             jvmArgument '-Xmx4G'
             jvmArgument '-Xms1G'
             programArguments.addAll '--username', 'tgstyle', '--width', '1920', '--height', '1080'
@@ -128,13 +141,13 @@ legacyForge {
         server {
             server()
             systemProperty 'forge.logging.markers', ''
-            systemProperty 'forge.enabledGameTestNamespaces', mod_id
+            systemProperty 'forge.enabledGameTestNamespaces', modIdValue
             jvmArgument '-Xmx4G'
             jvmArgument '-Xms1G'
             programArguments.addAll '--nogui'
         }
         configureEach {
-            gameDirectory = project.file('run')
+            gameDirectory = layout.projectDirectory.dir('run')
         }
     }
 }
@@ -186,7 +199,15 @@ if (customGradle.exists()) {
     apply from: customGradle
 }
 
+def stampInputs = files(sourceSets.main.java.srcDirs, sourceSets.main.resources.srcDirs, file('gradle.properties'), file('build.gradle'), file('custom.gradle')).asFileTree
+def stampProps = file('version.properties')
+def stampRoot = rootDir
+def stampFile = layout.buildDirectory.file('jar-inputs.sha256')
+def builtJar = layout.buildDirectory.file("libs/MCT-RS-Mixin-${version_minecraft}-${version}-b${ext.version_buildnumber}${ext.stage ? "-${ext.stage}" : ''}.jar")
+def needsJar = { !builtJar.get().asFile.isFile() || JarStamp.changed(stampInputs.files, stampProps, stampRoot, stampFile.get().asFile) }
+
 tasks.register('bumpVersion') {
+    onlyIf { needsJar() }
     doLast {
         def props = new Properties()
         file('version.properties').withInputStream { props.load(it) }
@@ -276,4 +297,10 @@ jar {
     // MDG's mixin { config } only feeds the dev runs; the release jar must carry
     // the attribute itself or no mixin applies in production.
     manifest { attributes 'MixinConfigs': "mixins.${mod_id}.json" }
+    onlyIf { needsJar() }
+}
+
+tasks.named('reobfJar') {
+    onlyIf { needsJar() }
+    doLast { stampFile.get().asFile.text = JarStamp.hash(stampInputs.files, stampProps, stampRoot) }
 }
