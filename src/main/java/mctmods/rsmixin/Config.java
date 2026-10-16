@@ -297,6 +297,13 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
             "no longer attaches them to the wrong items. Older saves are read as before."})
     public static boolean enableLastModifiedTrackerFix = true;
 
+    @Comment({
+            "Stops External Storages from rebuilding the whole item and fluid list on every neighbor update (RS bug #2568).",
+            "Vanilla RS reconnects the storage and rebuilds the network's list whenever any neighboring block",
+            "sends an update, and some blocks (DimStorage chests, for one) send one every second. With this on,",
+            "the storage is only reconnected when the block it faces, or the inventory or tank it exposes, actually changed."})
+    public static boolean enableExternalStorageRefreshFilter = true;
+
     @SubscribeEvent public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
         if (event.getModID().equals(RSMixin.MODID)) { ConfigManager.sync(RSMixin.MODID, net.minecraftforge.common.config.Config.Type.INSTANCE); }
     }

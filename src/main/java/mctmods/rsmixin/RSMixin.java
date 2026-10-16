@@ -15,7 +15,7 @@ public class RSMixin {
 
     @Mod.EventHandler public void preInit(FMLPreInitializationEvent event) {
         ConfigManager.sync(MODID, Type.INSTANCE);
-        LOGGER.info("RSMixin loaded: enableDebugLogging={}, enableThrottle={}, throttleInterval={}, enableBypassFastNodes={}, enableLoadRescan={}, loadRescanDelay={}, enableLazyEnergy={}, enableHashSetOptimize={}, enableSkipUnloaded={}, enableDynamicNodeSleep={}, enableDynamicCraftingBypass={}, enableConnectedNodeTickOptimize={}, enableRebornstorageCrafterFix={}, enableStorageCacheDebounce={}, enableCraftingRebuildDebounce={}, enablePatternLookupIndex={}, enableCraftingDirtyThrottle={}, enableGraphRescanCoalesce={}, enableTrackedInsertIndex={}, enableCraftingCrashGuard={}, enableGridResync={}, enableWirelessDimensionLock={}, enableFluidExtractionGuard={}, enableFluidInterfaceStackFix={}, enableOverstackExtractionFix={}, enableExporterVoidGuard={}, enableProcessingVoidGuard={}, enableRestoredTaskDedup={}, enableSafeDataSaving={}, enableTemplateNodeGuard={}, enableCompressedGridSync={}, enableJeiTransferLimit={}, enablePatternCacheFix={}, enableNestedFilterFix={}, enableCraftAmountLimit={}, maxCraftAmount={}, enableCrafterManagerInsertGuard={}, enableHollowCoverConnectionFix={}, enableLastModifiedTrackerFix={}",
+        LOGGER.info("RSMixin loaded: enableDebugLogging={}, enableThrottle={}, throttleInterval={}, enableBypassFastNodes={}, enableLoadRescan={}, loadRescanDelay={}, enableLazyEnergy={}, enableHashSetOptimize={}, enableSkipUnloaded={}, enableDynamicNodeSleep={}, enableDynamicCraftingBypass={}, enableConnectedNodeTickOptimize={}, enableRebornstorageCrafterFix={}, enableStorageCacheDebounce={}, enableCraftingRebuildDebounce={}, enablePatternLookupIndex={}, enableCraftingDirtyThrottle={}, enableGraphRescanCoalesce={}, enableTrackedInsertIndex={}, enableCraftingCrashGuard={}, enableGridResync={}, enableWirelessDimensionLock={}, enableFluidExtractionGuard={}, enableFluidInterfaceStackFix={}, enableOverstackExtractionFix={}, enableExporterVoidGuard={}, enableProcessingVoidGuard={}, enableRestoredTaskDedup={}, enableSafeDataSaving={}, enableTemplateNodeGuard={}, enableCompressedGridSync={}, enableJeiTransferLimit={}, enablePatternCacheFix={}, enableNestedFilterFix={}, enableCraftAmountLimit={}, maxCraftAmount={}, enableCrafterManagerInsertGuard={}, enableHollowCoverConnectionFix={}, enableLastModifiedTrackerFix={}, enableExternalStorageRefreshFilter={}",
                 Config.enableDebugLogging,
                 Config.enableThrottle,
                 Config.throttleInterval,
@@ -54,7 +54,8 @@ public class RSMixin {
                 Config.maxCraftAmount,
                 Config.enableCrafterManagerInsertGuard,
                 Config.enableHollowCoverConnectionFix,
-                Config.enableLastModifiedTrackerFix);
+                Config.enableLastModifiedTrackerFix,
+                Config.enableExternalStorageRefreshFilter);
     }
 
 }

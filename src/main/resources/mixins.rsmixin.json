@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "mixins.rsmixin.refmap.json",
   "mixins": [
+    "common.refinedstorage.BlockExternalStorageMixin",
     "common.refinedstorage.ContainerCrafterManagerMixin",
     "common.refinedstorage.CraftingManagerMixin",
     "common.refinedstorage.CraftingTaskMixin",
@@ -21,6 +22,7 @@
     "common.refinedstorage.NetworkNodeCrafterMixin",
     "common.refinedstorage.NetworkNodeDestructorMixin",
     "common.refinedstorage.NetworkNodeDiskManipulatorMixin",
+    "common.refinedstorage.NetworkNodeExternalStorageMixin",
     "common.refinedstorage.NetworkNodeExporterMixin",
     "common.refinedstorage.NetworkNodeFluidInterfaceMixin",
     "common.refinedstorage.NetworkNodeGraphMixin",
