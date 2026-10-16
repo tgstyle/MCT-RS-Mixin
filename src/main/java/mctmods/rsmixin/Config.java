@@ -50,6 +50,7 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue ENABLE_HOTKEY_MODIFIER_FIX;
     public static final ForgeConfigSpec.BooleanValue ENABLE_REBORNSTORAGE_BUILD_HINTS;
     public static final ForgeConfigSpec.BooleanValue ENABLE_LAST_MODIFIED_TRACKER_FIX;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_EXTERNAL_STORAGE_REFRESH_FILTER;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -502,6 +503,18 @@ public class Config {
                 by importers, interfaces, external storage or autocrafting never get one and sink to the bottom.
                 With this on, every insert or extract records the time (keeping the last player's name).""")
                 .define("enableLastModifiedTrackerFix", true);
+
+        ENABLE_EXTERNAL_STORAGE_REFRESH_FILTER = builder
+                .comment("""
+                Fixes items in the grid that cannot be taken out while an External Storage faces certain blocks
+                (RS bug #2568).
+                RS reconnects the External Storage and rebuilds the network's whole item and fluid list whenever
+                the block it faces sends a neighbor update, and some blocks (DimStorage chests, for one) send one
+                every second. Each rebuild gives every item a new id, so clicks in an open grid point at ids that
+                no longer exist and do nothing.
+                With this on, the storage is only reconnected when the block it faces, or the inventory or tank it
+                exposes, actually changed.""")
+                .define("enableExternalStorageRefreshFilter", true);
 
         SPEC = builder.build();
     }
