@@ -3,9 +3,12 @@ package mctmods.rsmixin.mixin.common.refinedstorage;
 import mctmods.rsmixin.Config;
 import mctmods.rsmixin.core.accessor.IGraphBatchAccessor;
 import mctmods.rsmixin.core.accessor.IStorageCacheDebounceAccessor;
+import mctmods.rsmixin.helper.refinedstorage.TrackerTouch;
 
 import com.refinedmods.refinedstorage.api.network.INetwork;
 import com.refinedmods.refinedstorage.apiimpl.storage.cache.FluidStorageCache;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraftforge.fluids.FluidStack;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Final;
@@ -37,5 +40,15 @@ import static mctmods.rsmixin.RSMixin.MODID;
     @Inject(method = "invalidate", at = @At("RETURN")) private void rsmixin$debouncePost(CallbackInfo ci) {
         if (!Config.ENABLE_STORAGE_CACHE_DEBOUNCE.get()) { return; }
         if (network.getNodeGraph() instanceof IGraphBatchAccessor graph && graph.rsmixin$isBatching()) { rsmixin$invalidatedDuringBatch = true; }
+    }
+
+    @Inject(method = "add(Lnet/minecraftforge/fluids/FluidStack;IZZ)V", at = @At("HEAD")) private void rsmixin$trackAdd(FluidStack stack, int size, boolean rebuilding, boolean batched, CallbackInfo ci) {
+        if (!rebuilding) { rsmixin$touchTracker(stack); }
+    }
+
+    @Inject(method = "remove(Lnet/minecraftforge/fluids/FluidStack;IZ)V", at = @At("HEAD")) private void rsmixin$trackRemove(FluidStack stack, int size, boolean batched, CallbackInfo ci) { rsmixin$touchTracker(stack); }
+
+    @Unique private void rsmixin$touchTracker(FluidStack stack) {
+        if (Config.ENABLE_LAST_MODIFIED_TRACKER_FIX.get()) { TrackerTouch.touch(network, network.getFluidStorageTracker(), stack, fluid -> fluid.writeToNBT(new CompoundTag())); }
     }
 }

@@ -49,6 +49,7 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue ENABLE_COVER_PARTICLE_FIX;
     public static final ForgeConfigSpec.BooleanValue ENABLE_HOTKEY_MODIFIER_FIX;
     public static final ForgeConfigSpec.BooleanValue ENABLE_REBORNSTORAGE_BUILD_HINTS;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_LAST_MODIFIED_TRACKER_FIX;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -493,6 +494,14 @@ public class Config {
                 is not interrupted.
                 Client-side only. Turn off for plain single-line messages.""")
                 .define("enableRebornstorageBuildHints", true);
+
+        ENABLE_LAST_MODIFIED_TRACKER_FIX = builder
+                .comment("""
+                Fixes the grid's 'Last modified' sorting and tooltip (RS bug #3288).
+                Vanilla RS only records a time when a player inserts or extracts through a grid, so items moved
+                by importers, interfaces, external storage or autocrafting never get one and sink to the bottom.
+                With this on, every insert or extract records the time (keeping the last player's name).""")
+                .define("enableLastModifiedTrackerFix", true);
 
         SPEC = builder.build();
     }
