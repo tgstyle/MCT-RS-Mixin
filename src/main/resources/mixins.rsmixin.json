@@ -40,6 +40,8 @@
     "common.refinedstorage.StorageCacheListenerGridPortableFluidMixin",
     "common.refinedstorage.StorageCacheListenerGridPortableMixin",
     "common.refinedstorage.StorageExternalItemMixin",
+    "common.refinedstorage.StorageTrackerFluidMixin",
+    "common.refinedstorage.StorageTrackerItemMixin",
     "common.refinedstorage.TileControllerMixin",
     "common.refinedstorage.TileNodeMixin"
   ],

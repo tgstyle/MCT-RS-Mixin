@@ -288,6 +288,15 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
             "controller off. With this on, only full covers block the connection there."})
     public static boolean enableHollowCoverConnectionFix = true;
 
+    @Comment({
+            "Fixes the grid's 'Last modified' sorting and tooltip.",
+            "Vanilla RS only records a time when a player inserts or extracts through a grid, so items moved",
+            "by importers, interfaces, external storage or autocrafting never get one and sink to the bottom.",
+            "With this on, every insert or extract records the time (keeping the last player's name), and",
+            "the saved times are stored by item name instead of numeric item id, so adding or removing mods",
+            "no longer attaches them to the wrong items. Older saves are read as before."})
+    public static boolean enableLastModifiedTrackerFix = true;
+
     @SubscribeEvent public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
         if (event.getModID().equals(RSMixin.MODID)) { ConfigManager.sync(RSMixin.MODID, net.minecraftforge.common.config.Config.Type.INSTANCE); }
     }

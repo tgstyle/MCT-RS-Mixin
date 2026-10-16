@@ -3,10 +3,12 @@ package mctmods.rsmixin.mixin.common.refinedstorage;
 import mctmods.rsmixin.Config;
 import mctmods.rsmixin.RSMixin;
 import mctmods.rsmixin.core.interfaces.IGraphBatch;
+import mctmods.rsmixin.core.interfaces.IItemTrackerTouch;
 import mctmods.rsmixin.core.interfaces.IStorageCacheDebounce;
 
 import com.raoulvdberge.refinedstorage.api.network.INetwork;
 import com.raoulvdberge.refinedstorage.apiimpl.storage.StorageCacheItem;
+import net.minecraft.item.ItemStack;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
@@ -35,5 +37,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
     @Inject(method = "invalidate", at = @At("RETURN")) private void rsmixin$debouncePost(CallbackInfo ci) {
         if (!Config.enableStorageCacheDebounce) { return; }
         if (network.getNodeGraph() instanceof IGraphBatch && ((IGraphBatch) network.getNodeGraph()).rsmixin$isBatching()) { rsmixin$invalidatedDuringBatch = true; }
+    }
+
+    @Inject(method = "add(Lnet/minecraft/item/ItemStack;IZZ)V", at = @At("HEAD")) private void rsmixin$trackAdd(ItemStack stack, int size, boolean rebuilding, boolean batched, CallbackInfo ci) {
+        if (!rebuilding) { rsmixin$touchTracker(stack); }
+    }
+
+    @Inject(method = "remove(Lnet/minecraft/item/ItemStack;IZ)V", at = @At("HEAD")) private void rsmixin$trackRemove(ItemStack stack, int size, boolean batched, CallbackInfo ci) { rsmixin$touchTracker(stack); }
+
+    @Unique private void rsmixin$touchTracker(ItemStack stack) {
+        if (Config.enableLastModifiedTrackerFix && network.getItemStorageTracker() instanceof IItemTrackerTouch) { ((IItemTrackerTouch) network.getItemStorageTracker()).rsmixin$touchItem(stack); }
     }
 }
