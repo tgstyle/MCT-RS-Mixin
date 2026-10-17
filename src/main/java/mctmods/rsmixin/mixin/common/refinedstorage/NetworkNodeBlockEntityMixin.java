@@ -23,7 +23,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
         if (!Config.ENABLE_TEMPLATE_NODE_GUARD.get()) { return; }
         BlockEntity self = (BlockEntity) (Object) this;
         Level level = self.getLevel();
-        if (level != null && (level.isClientSide || level instanceof ServerLevel)) { return; }
+        if (level == null || level.isClientSide || level instanceof ServerLevel) { return; }
         if (clientNode == null) { clientNode = createNode(level, self.getBlockPos()); }
         cir.setReturnValue(clientNode);
     }
