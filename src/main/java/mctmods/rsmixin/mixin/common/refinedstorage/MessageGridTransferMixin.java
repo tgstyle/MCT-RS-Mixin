@@ -33,40 +33,51 @@ import java.util.Map;
     @Inject(method = "toBytes", at = @At("HEAD"), cancellable = true) private void rsmixin$trimmedToBytes(ByteBuf buf, CallbackInfo ci) {
         if (!Config.enableJeiTransferLimit) { return; }
 
-        buf.writeInt(slots.size());
+        List<List<ByteBuf>> encoded = new ArrayList<>();
+        for (Slot slot : slots) { encoded.add(rsmixin$encode(inputs.get(slot.getSlotIndex() + 1))); }
 
-        for (Slot slot : slots) {
-            IGuiIngredient<ItemStack> ingredient = inputs.get(slot.getSlotIndex() + 1);
-
-            List<ItemStack> ingredients = new ArrayList<>();
-            if (ingredient != null) {
-                ItemStack displayed = ingredient.getDisplayedIngredient();
-                if (displayed != null && !displayed.isEmpty()) { ingredients.add(displayed); }
-                for (ItemStack possibleStack : ingredient.getAllIngredients()) {
-                    if (ingredients.size() >= rsmixin$MAX_VARIANTS) { break; }
-                    if (possibleStack == null || possibleStack.isEmpty()) { continue; }
-                    if (displayed != null && ItemStack.areItemStacksEqual(displayed, possibleStack)) { continue; }
-                    ingredients.add(possibleStack);
+        int budget = rsmixin$MAX_BYTES - buf.writerIndex() - 4 - 4 * encoded.size();
+        int[] taken = new int[encoded.size()];
+        for (int pass = 0; pass < 2; ++pass) {
+            for (int i = 0; i < encoded.size(); ++i) {
+                List<ByteBuf> variants = encoded.get(i);
+                int limit = pass == 0 ? Math.min(1, variants.size()) : variants.size();
+                while (taken[i] < limit && variants.get(taken[i]).readableBytes() <= budget) {
+                    budget -= variants.get(taken[i]).readableBytes();
+                    taken[i]++;
                 }
             }
+        }
 
-            ByteBuf slotBuf = Unpooled.buffer();
-            int written = 0;
-            for (ItemStack possibleStack : ingredients) {
-                int before = slotBuf.writerIndex();
-                StackUtils.writeItemStack(slotBuf, possibleStack);
-                if (written > 0 && buf.writerIndex() + slotBuf.writerIndex() > rsmixin$MAX_BYTES) {
-                    slotBuf.writerIndex(before);
-                    break;
-                }
-                written++;
-            }
-
-            buf.writeInt(written);
-            buf.writeBytes(slotBuf);
+        buf.writeInt(encoded.size());
+        for (int i = 0; i < encoded.size(); ++i) {
+            buf.writeInt(taken[i]);
+            for (int j = 0; j < taken[i]; ++j) { buf.writeBytes(encoded.get(i).get(j)); }
         }
 
         ci.cancel();
+    }
+
+    @Unique private static List<ByteBuf> rsmixin$encode(IGuiIngredient<ItemStack> ingredient) {
+        List<ByteBuf> encoded = new ArrayList<>();
+        if (ingredient == null) { return encoded; }
+
+        List<ItemStack> ingredients = new ArrayList<>();
+        ItemStack displayed = ingredient.getDisplayedIngredient();
+        if (displayed != null && !displayed.isEmpty()) { ingredients.add(displayed); }
+        for (ItemStack possibleStack : ingredient.getAllIngredients()) {
+            if (ingredients.size() >= rsmixin$MAX_VARIANTS) { break; }
+            if (possibleStack == null || possibleStack.isEmpty()) { continue; }
+            if (displayed != null && ItemStack.areItemStacksEqual(displayed, possibleStack)) { continue; }
+            ingredients.add(possibleStack);
+        }
+
+        for (ItemStack possibleStack : ingredients) {
+            ByteBuf stackBuf = Unpooled.buffer();
+            StackUtils.writeItemStack(stackBuf, possibleStack);
+            encoded.add(stackBuf);
+        }
+        return encoded;
     }
 
     @Inject(method = "fromBytes", at = @At("HEAD"), cancellable = true) private void rsmixin$boundedFromBytes(ByteBuf buf, CallbackInfo ci) {
